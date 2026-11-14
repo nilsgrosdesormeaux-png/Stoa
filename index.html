@@ -561,6 +561,13 @@
   .onb-deck.zones .onb-card{padding:20px 24px}
   .onb-swbtn.txt button:first-child,.onb-deck.zones .stamp.no{color:#FFB224}
   .onb-swbtn.txt button{width:auto;height:52px;border-radius:26px;padding:0 16px;font-size:14.5px;font-weight:700}
+  .onb-fields.one{grid-template-columns:1fr;gap:12px}
+  .onb-fields.one label{font-size:15px;color:#F5F5F7}
+  .onb-fields.one small{display:block;color:#8A8A94;font-size:12.5px;font-weight:500;margin-top:2px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chipb{border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:99px;min-height:40px;padding:0 14px;font:inherit;font-size:14.5px;font-weight:600}
+  .chipb.on{background:var(--hot-soft);border-color:var(--hot);color:var(--ink)}
+  .mphoto{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:18px;margin:6px 0 10px;background:#0A0A0C}
   .onb-ok{display:flex;gap:12px;align-items:flex-start;margin-top:16px;font-size:13.5px;color:#B4B4BC;line-height:1.45}
   .onb-ok input{width:22px;height:22px;flex:none;accent-color:#E8132B;margin-top:1px}
   @media (prefers-reduced-motion: reduce){.onb-body{animation:none}}
@@ -1691,6 +1698,7 @@ const LIBX={};LIB.forEach(e=>{LIBX[e.uid]=e;});
 /* ===================== LE GÉNÉRATEUR DE PROGRAMME =====================
    À partir des réponses au questionnaire, il choisit le découpage, les exercices,
    les séries, les répétitions et les repos. Mêmes règles qu'un coach.                */
+const LOADREF=[["legPress","Presse à cuisses","Pour les exercices de jambes"],["benchPlate","Développé couché (machine ou barre)","Pour les exercices de poussée"],["latPulldown","Tirage vertical (poulie haute)","Pour les exercices de dos"]];
 const GYMS=[["basicfit","Basic-Fit"],["fitnesspark","Fitness Park"],["orangebleue","L'Orange Bleue"],["onair","On Air"],["keepcool","Keep Cool"],
   ["neoness","Neoness"],["cmg","Club Med Gym"],["magicform","Magic Form"],["vita","Vita Liberté"],["autre","Une autre salle"]];
 const GYMNAME=Object.fromEntries(GYMS);
@@ -1698,6 +1706,7 @@ const GOALS={gras:"Perdre du gras",muscle:"Prendre du muscle",forme:"Me remettre
 const FOCUS={fessiers:"Fessiers",jambes:"Jambes",ventre:"Ventre",dos:"Dos",epaules:"Épaules",bras:"Bras",pecs:"Pectoraux"};
 const FOCUSPAT={fessiers:["glute","abd"],jambes:["quad","ham"],ventre:["core"],dos:["vpull","hpull"],epaules:["latr","rear"],bras:["tri","bic"],pecs:["hpush"]};
 const FOCUSG={fessiers:"Fessiers",jambes:"Quadriceps",ventre:"Abdos",dos:"Dos",epaules:"Épaules",bras:"Triceps",pecs:"Pectoraux"};
+const FALLBACK={vpull:"hpull",hpull:"vpull",vpush:"hpush",latr:"vpush",quadIso:"quad",ham:"hinge",hinge:"glute",glute:"hinge",fly:"hpush",calf:"quad"};
 const LOWER=["quad","quadIso","ham","hinge","glute","abd","add","calf"];
 const BWU=e=>e&&(e.unit==="corps"||e.unit==="elastique"||e.unit==="sec");
 
@@ -1755,8 +1764,10 @@ function generate(p){
   const nEx=dur<=30?4:dur<=45?5:dur<=60?6:7;
   const fpats=[].concat(...(p.focus||[]).map(f=>FOCUSPAT[f]||[]));
   const spats=[].concat(...(p.strong||[]).filter(z=>!(p.focus||[]).includes(z)).map(f=>FOCUSPAT[f]||[]));
-  const fBase=[0.75,1,1.35][lvl]*Math.min(1.25,Math.max(0.8,Math.sqrt((+p.weight||70)/75)));
-  const factorOf=e=>fBase*(p.sex==="F"?(LOWER.includes(e.pat)?0.75:0.55):0.9);
+  const fBase=[0.75,1,1.35,1.6][lvl]*Math.min(1.25,Math.max(0.8,Math.sqrt((+p.weight||70)/75)));
+  /* charges déclarées : on s'en sert pour toute la famille d'exercices (jambes, poussée, tirage) */
+  const L=p.loads||{},fam=e=>LOWER.includes(e.pat)?"legPress":["vpull","hpull","rear","bic"].includes(e.pat)?"latPulldown":"benchPlate";
+  const factorOf=e=>{const r=fam(e);if(L[r]&&LIBX[r])return L[r]/LIBX[r].kg0*(e.unit==="haltere"?0.7:1);return fBase*(p.sex==="F"?(LOWER.includes(e.pat)?0.75:0.55):0.9);};
   const keys=["A","B","C","D","E"].slice(0,split.s.length),PP={},used={};
   const old=+p.age>=55,young=+p.age<16;
   split.s.forEach((ss,si)=>{
@@ -1765,7 +1776,7 @@ function generate(p){
     /* priorités : on les remonte (ou on les ajoute) en 3e position */
     /* points forts : on garde l'entretien, on retire les doublons du même muscle */
     roles=roles.filter(r=>!(r.endsWith("2")&&spats.includes(r.replace(/2$/,""))));
-    let pos=2;
+    let pos=3; /* les 3 gros exercices de base restent en tête */
     fpats.forEach(fp=>{const low=LOWER.includes(fp);
       if(fp==="core")return;
       if((isUpper&&low)||(isLower&&!low))return;
@@ -1773,7 +1784,7 @@ function generate(p){
     const wantCore=sw.abdos===true||fpats.includes("core");
     const chosen=[],seen=new Set();
     for(const r of roles){if(chosen.length>=nEx)break;
-      const base=r.replace(/2$/,""),c=candidates(base,p);if(!c.length)continue;
+      const base=r.replace(/2$/,"");let c=candidates(base,p);if(!c.length&&FALLBACK[base])c=candidates(FALLBACK[base],p);if(!c.length)continue;
       let idx=r.endsWith("2")?1:0;if(sw.varie===true)idx+=si;
       let e=null;for(let t=0;t<c.length;t++){const x=c[(idx+t)%c.length];if(!seen.has(x.uid)){e=x;break;}}
       if(!e)continue;seen.add(e.uid);chosen.push(e);}
@@ -1867,7 +1878,10 @@ function homeData(){
   /* série de semaines complètes (3/3), la semaine en cours compte si elle est bouclée */
   let streak=0;{const d=new Date(ws+"T12:00");if(wk.size<PER_WEEK)d.setDate(d.getDate()-7);
     for(;;){const s=iso(d),e=new Date(d);e.setDate(e.getDate()+7);const es=iso(e);
-      const n=new Set(store.hist.filter(h=>h.d>=s&&h.d<es&&abc(h)).map(h=>h.k)).size;if(n>=PER_WEEK){streak++;d.setDate(d.getDate()-7);}else break;}}
+      const n=new Set(store.hist.filter(h=>h.d>=s&&h.d<es&&abc(h)).map(h=>h.k)).size;
+      if(n>=PER_WEEK){streak++;d.setDate(d.getDate()-7);}
+      else if((store.pauses||[]).some(z=>z.from<es&&z.to>=s)){d.setDate(d.getDate()-7);if(d<new Date("2020-01-01"))break;}
+      else break;}}
   /* tonnage par semaine (5 dernières) */
   const weeks=[];for(let i=4;i>=0;i--){const d=new Date(ws+"T12:00");d.setDate(d.getDate()-7*i);weeks.push(iso(d));}
   const vol=weeks.map((s,i)=>{const e=weeks[i+1]||"9999";let v=0;Object.values(store.log).forEach(a=>a.forEach(x=>{if(x.d>=s&&x.d<e)v+=tonnage(x);}));return Math.round(v);});
@@ -1891,6 +1905,7 @@ function homeData(){
 }
 function motivation(d){
   const left=PER_WEEK-d.done;
+  if(PROG.temp)return `Programme <em>${PROG.temp.kind==="pause"?"d'entretien":"vacances"}</em> jusqu'au ${fr(PROG.temp.until)}. Ensuite, retour automatique à ton programme.`;
   if(!d.sessions)return `Bienvenue. <em>Ta première séance</em> t'attend : l'app te dit quoi mettre sur chaque machine.`;
   if(d.ci.deload)return `Semaine <em>légère</em> : moitié des séries. Ton corps encaisse 5 semaines de progrès.`;
   if(left<=0)return `Semaine <em>bouclée</em>. ${d.streak} semaine${d.streak>1?"s":""} d'affilée : la régularité, c'est ce qui fait ${PROG.nils?"grossir":"la différence"}.`;
@@ -2092,7 +2107,17 @@ function compress(file){return new Promise((res,rej)=>{const img=new Image(),u=U
   img.onload=()=>{const r=Math.min(1,1000/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*r);c.height=Math.round(img.height*r);
     c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(),"image/jpeg",.82);};
   img.onerror=()=>{URL.revokeObjectURL(u);rej();};img.src=u;});}
-const photoOf=e=>PH[e.uid]||(USE_GYM_PHOTOS?PHOTO[e.uid]:null)||null;
+/* images des machines (générées, même style pour toutes) : clé = fichier dans photos/machines */
+const MREADY=["legPress","legExt","legCurl","hipThrust","abductor"];
+const MIMG={legPress:"legPress",calfPress:"legPress",legExt:"legExt",legCurl:"legCurl",hipThrust:"hipThrust",abductor:"abductor",adductor:"abductor",
+  benchPlate:"benchPlate",pressLow:"benchPlate",chestIncline:"chestIncline",pecDeck:"pecDeck",shoulderPress:"shoulderPress",latPulldown:"latPulldown",latPulldownV:"latPulldown",
+  seatedRow:"seatedRow",rowWide:"seatedRow",cableRow:"cableRow",cableLatRaise:"cableTower",triPushdown:"cableTower",overheadTri:"cableTower",facePull:"cableTower",rearDeltRow:"cableTower",
+  cableCrunch:"cableTower",cableKick:"cableTower",smithBench:"smithBench",preacherCurl:"preacherCurl",machineCurl:"machineCurl",dbBench:"bench",
+  gobletSquat:"dumbbells",rdlDB:"dumbbells",dbShoulderPress:"dumbbells",dbLatRaise:"dumbbells",dbRearFly:"dumbbells",dbRow:"dumbbells",dbCurl:"dumbbells",hammerCurl:"dumbbells",
+  dbOverheadTri:"dumbbells",floorPress:"dumbbells",negPull:"pullupBar",pullup:"pullupBar",chinup:"pullupBar",kneeRaise:"pullupBar",dips:"dipBars",invRow:"dipBars",
+  bandRdl:"bands",bandWalk:"bands",bandPress:"bands",bandLatRaise:"bands",bandPullApart:"bands",bandPulldown:"bands",bandRow:"bands",bandCurl:"bands",bandPushdown:"bands"};
+const machPhoto=e=>{const k=MIMG[e.uid];return k&&MREADY.includes(k)?`photos/machines/${k}.jpg`:null;};
+const photoOf=e=>PH[e.uid]||machPhoto(e)||null;
 const picHTML=(e,alt)=>{const p=photoOf(e);if(p)return `<img src="${p}" alt="${esc(alt||e.nom)}" loading="lazy">`;const k=animKey(e);if(k&&ANIM[k]){setTimeout(startAnim,0);return animSVG(k);}return ART[e.pic]||"";};
 
 /* ===================== CYCLE ET PROGRESSION ===================== */
@@ -2114,6 +2139,8 @@ function plan(e){
   const tot=x=>W(x).slice(0,n).reduce((a,s)=>a+s.reps,0),under=x=>W(x).slice(0,n).some(s=>s.reps<e.min);
   const top=SS.length>=need&&SS.every(s=>s.reps>=e.max&&s.kg>=wk);
   out.kg=wk;
+  if(!BWU(e)&&daysBetween(last.d,today())>=14){out.kg=roundTo(Math.max(e.inc,wk*0.9),e.inc);out.reps=Array(n).fill(e.min);
+    out.msg=`Retour après ${Math.round(daysBetween(last.d,today())/7)} semaines : <b>${fmt(out.kg)} kg</b>, environ 10 % plus léger, pour reprendre en douceur. Tes charges reviendront vite.`;out.cls="info";return out;}
   if(dl){out.reps=Array.from({length:n},(_,j)=>Math.max(e.min,((S[j]||S[S.length-1]).reps)-3));
     out.msg="<b>Semaine légère</b> : même charge, moitié des séries, 3 répétitions en réserve.";out.cls="info";return out;}
   if(BWU(e)){const st=e.unit==="sec"?5:1,add=(feel==="facile"?2:feel==="echec"?0:1)*st;
@@ -2332,11 +2359,11 @@ function summary(k){
 function infoSheet(e,k){
   const own=!!PH[e.uid],gym=!!(USE_GYM_PHOTOS&&PHOTO[e.uid]),sal=PROG.place==="salle";
   openSheet(`<div class="shd"><h3>${esc(e.nom)}</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
-    <div class="pic">${picHTML(e)}</div>
+    <div class="pic">${PH[e.uid]?`<img src="${PH[e.uid]}" alt="${esc(e.nom)}">`:animKey(e)&&ANIM[animKey(e)]?(setTimeout(startAnim,0),animSVG(animKey(e))):picHTML(e)}</div>
     <div class="photo-actions"><label>${I_CAM}${own||gym?"Remplacer la photo":"Ajouter une photo (galerie ou appareil)"}<input type="file" accept="image/*" id="phin"></label>
       ${own?`<button id="phdel">Retirer ma photo</button>`:""}</div>
     <h5>Muscle</h5><p>${e.muscle}</p>
-    <h5>${sal&&!BWU(e)?"Reconnaître la machine":"Le matériel"}</h5><p>${e.reco}</p>
+    <h5>${sal&&!BWU(e)?"Reconnaître la machine":"Le matériel"}</h5>${machPhoto(e)?`<img class="mphoto" src="${machPhoto(e)}" alt="${esc(e.nom)}" loading="lazy">`:""}<p>${e.reco}</p>
     <h5>Comment faire</h5><ol>${e.how.map(x=>`<li>${x}</li>`).join("")}</ol>
     <h5>Pourquoi cet exercice</h5><p>${e.pourquoi}</p>
     <h5>Pourquoi ${mmss(restFor(e))} de repos</h5><p>${e.rest>=90&&e.comp||e.rest>=120?"Gros exercice : plusieurs muscles, le souffle et le système nerveux fatiguent. Repartir trop tôt te fait perdre 2 à 3 répétitions à la série suivante.":"Petit muscle qui récupère vite : 1 min à 1 min 30 suffit."} Repars quand ton souffle est calme. Touche le chrono pour changer la durée, elle sera retenue pour cet exercice.</p>
@@ -2355,6 +2382,45 @@ function closeSheet(){const s=$("sheet"),bg=$("sheetbg");s.classList.remove("on"
 $("sheetbg").onclick=closeSheet;
 
 /* ===================== PROGRAMME ===================== */
+/* ---------- vacances / pause : programme temporaire ---------- */
+function pauseAdvice(w){
+  if(w<=1)return {t:"Aucune perte.",d:"Une semaine sans t'entraîner ne te fait rien perdre. Souvent, on revient même un peu plus fort, reposé. Profite."};
+  if(w<=3)return {t:"Presque rien.",d:"Jusqu'à environ 3 semaines, la force et le muscle se maintiennent presque entièrement. Le léger « dégonflement » que tu peux voir, c'est surtout de l'eau dans les muscles, pas du muscle perdu. 1 à 2 petites séances par semaine suffisent pour tout garder."};
+  return {t:"Une petite perte, vite récupérée.",d:"Au-delà de 3-4 semaines sans rien faire, on commence à perdre un peu de force et de muscle. Mais la « mémoire musculaire » fait qu'on récupère beaucoup plus vite que la première fois. Le mieux : 1 à 2 séances d'entretien par semaine, environ un tiers de ton volume habituel, en gardant des séries dures. Ça suffit pour garder presque tout."};}
+function awaySheet(){
+  const base=store.profile&&store.profile.mode==="gen"?store.profile:Object.assign({},NILSP,{place:"salle"});
+  const st={w:2,kind:"vacances",place:"maison",equip:[],bars:"non",days:2,dur:30};
+  const draw=()=>{const ad=pauseAdvice(st.w),ch=(k,v,l,on)=>`<button class="chipb ${on?"on":""}" data-${k}="${v}">${l}</button>`;
+    openSheet(`<div class="shd"><h3>Vacances ou pause</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
+    <p class="small muted">Ton programme, tes charges et ton niveau restent sauvegardés. Tu les retrouves automatiquement à la fin.</p>
+    <h5>Combien de temps ?</h5><div class="chips">${[1,2,3,4,6,8].map(w=>ch("w",w,w+" sem.",st.w===w)).join("")}</div>
+    <div class="tip ${st.w>3?"down":"info"}" style="margin-top:10px"><b>${ad.t}</b> ${ad.d}</div>
+    <h5>Qu'est-ce que tu fais ?</h5><div class="chips">${ch("kind","vacances","Je continue ailleurs",st.kind==="vacances")}${ch("kind","pause","Pause totale (malade, blessé…)",st.kind==="pause")}</div>
+    ${st.kind==="vacances"?`<h5>Où vas-tu t'entraîner ?</h5><div class="chips">${ch("place","maison","Chez moi / à l'hôtel",st.place==="maison")}${ch("place","dehors","Dehors",st.place==="dehors")}${ch("place","salle","Une autre salle",st.place==="salle")}</div>
+      ${st.place==="maison"?`<h5>Matériel sur place</h5><div class="chips">${[["halteres","Haltères"],["elastiques","Élastiques"],["barre","Barre de traction"],["banc","Banc"]].map(([v,l])=>ch("eq",v,l,st.equip.includes(v))).join("")}</div>`:""}
+      ${st.place==="dehors"?`<h5>Des barres sur place ?</h5><div class="chips">${ch("bars","oui","Oui",st.bars==="oui")}${ch("bars","non","Non",st.bars==="non")}</div>`:""}
+      <h5>Séances par semaine</h5><div class="chips">${[1,2,3,4].map(n=>ch("days",n,n,st.days===n)).join("")}</div>
+      <h5>Durée d'une séance</h5><div class="chips">${[20,30,45,60].map(n=>ch("dur",n,n+" min",st.dur===n)).join("")}</div>
+      <p class="note">${st.days<=2?"Parfait pour garder ton niveau : 1 à 2 séances par semaine suffisent.":"Avec 3 séances ou plus, tu peux même continuer à progresser."}</p>`
+    :`<p class="note">Pendant la pause, <b>ta flamme est protégée</b> : les semaines de pause ne cassent pas ta série. Si tu es blessé, suis l'avis de ton médecin ou de ton kiné avant de reprendre.</p>`}
+    <button class="btn hot wide" id="awgo" style="margin-top:16px">${st.kind==="pause"?"Mettre en pause":"Créer mon programme temporaire"}</button>`,
+    ()=>{$("sx").onclick=closeSheet;const S=$("sheet");
+      S.querySelectorAll("[data-w]").forEach(b=>b.onclick=()=>{st.w=+b.dataset.w;draw();});
+      S.querySelectorAll("[data-kind]").forEach(b=>b.onclick=()=>{st.kind=b.dataset.kind;draw();});
+      S.querySelectorAll("[data-place]").forEach(b=>b.onclick=()=>{st.place=b.dataset.place;draw();});
+      S.querySelectorAll("[data-eq]").forEach(b=>b.onclick=()=>{const v=b.dataset.eq;st.equip=st.equip.includes(v)?st.equip.filter(x=>x!==v):st.equip.concat(v);draw();});
+      S.querySelectorAll("[data-bars]").forEach(b=>b.onclick=()=>{st.bars=b.dataset.bars;draw();});
+      S.querySelectorAll("[data-days]").forEach(b=>b.onclick=()=>{st.days=+b.dataset.days;draw();});
+      S.querySelectorAll("[data-dur]").forEach(b=>b.onclick=()=>{st.dur=+b.dataset.dur;draw();});
+      $("awgo").onclick=()=>{const end=new Date();end.setDate(end.getDate()+7*st.w-1);const until=iso(end);
+        store.pauses=(store.pauses||[]).concat({from:today(),to:until});
+        if(st.kind==="pause"){persist();closeSheet();render(true);toast(`Pause notée jusqu'au ${fr(until)}. Ta flamme est protégée.`);return;}
+        const p=JSON.parse(JSON.stringify(base));Object.assign(p,{place:st.place,equip:st.equip,bars:st.bars,days:Math.max(2,st.days),dur:st.dur,gym:st.place==="salle"?"autre":p.gym,mode:"gen"});
+        if(st.days<=2)p.goal=p.goal==="gras"?"gras":"forme";
+        store.temp={kind:"vacances",until,p};persist();applyProgram();sess=defaultSession();closeSheet();go("plan");
+        toast(`Programme vacances prêt jusqu'au ${fr(until)}`);};});};
+  draw();
+}
 function vPlan(){
   $("ttl").textContent="Programme";
   const t=today(),ws=weekStart(t),done=new Set(store.hist.filter(h=>h.d>=ws).map(h=>h.k)),ci=cycleInfo();
@@ -2388,7 +2454,9 @@ function vPlan(){
       <p class="note">Tu veux un programme fait pour toi ? Réponds au questionnaire : 2 minutes. Ton historique est gardé.</p>`
     :`<p><b>${esc(PROG.split)}</b> · ${pr.dur} min · ${{salle:"à la salle",maison:"chez toi",dehors:"dehors"}[pr.place]}${pr.place==="salle"&&pr.gym&&pr.gym!=="autre"?" ("+GYMNAME[pr.gym]+")":""}</p>
       <p class="small" style="color:var(--ink-2);margin-top:6px">Objectif : <b style="color:var(--ink)">${GOALS[pr.goal]}</b>${(pr.focus||[]).length?` · Priorités : ${pr.focus.map(x=>FOCUS[x]).join(", ")}`:""}${(pr.strong||[]).length?` · Points forts : ${pr.strong.map(x=>FOCUS[x]).join(", ")}`:""}${(pr.pain||[]).length?` · Exercices adaptés pour : ${pr.pain.map(x=>({genoux:"genoux",dos:"bas du dos",epaules:"épaules"})[x]).join(", ")}`:""}</p>`}
-    <div style="display:grid;gap:8px;margin-top:14px"><button class="btn line wide" id="redo">${PROG.nils?"Créer mon programme (questionnaire)":"Refaire le questionnaire"}</button>
+    ${PROG.temp?`<div class="banner" style="margin-top:12px"><b>Programme temporaire jusqu'au ${fr(PROG.temp.until)}</b> (${PROG.temp.kind==="pause"?"entretien":"vacances, sans ta salle"}). Ton vrai programme, tes charges et ton niveau sont gardés : tu le retrouves automatiquement après.</div>`:""}
+    <div style="display:grid;gap:8px;margin-top:14px">${PROG.temp?`<button class="btn hot wide" id="tempend">Je suis de retour : reprendre mon programme</button>`:`<button class="btn line wide" id="away">✈︎ Vacances, pause, plus accès à ma salle…</button>`}
+    <button class="btn line wide" id="redo">${PROG.nils?"Créer mon programme (questionnaire)":"Refaire le questionnaire"}</button>
     ${!PROG.nils&&store.nilsBack?`<button class="btn line wide" id="backnils">Revenir au programme de Nils</button>`:""}</div></div>
   <h3>Pourquoi 1 min ici et 2 min 30 là ?</h3>
   <div class="panel"><p>Sur les <b>gros exercices</b> (presse, développés, tirages, rowing), beaucoup de muscles travaillent en même temps, ton souffle monte et ton système nerveux fatigue. Si tu repars trop tôt, tu fais 2 ou 3 répétitions de moins : tu perds du travail utile. D'où <b>2 min à 2 min 30</b>.</p>
@@ -2406,6 +2474,8 @@ function vPlan(){
   </ol></div>`;
   $("gonext").onclick=()=>go("today",nk);
   $("redo").onclick=()=>openOnboarding(true);
+  if($("away"))$("away").onclick=awaySheet;
+  if($("tempend"))$("tempend").onclick=()=>{store.temp=null;store.returned=today();persist();applyProgram();sess=defaultSession();render();toast("Bon retour ! Première séance un peu plus légère.");};
   if($("backnils"))$("backnils").onclick=()=>{store.profile={mode:"nils"};persist();applyProgram();sess=defaultSession();render();toast("Programme de Nils rétabli");};
   view.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>go("today",b.dataset.k));
 }
@@ -2634,9 +2704,13 @@ function vGuide(){
 
 /* ===================== PROGRAMME ACTIF (celui de Nils ou un programme généré) ===================== */
 let PROG={nils:true},BONUS="D",MAIN=["A","B","C"],PER_WEEK=3,USE_GYM_PHOTOS=true;
+const NILSP={sex:"H",age:20,height:179,weight:70,level:1,goal:"muscle",focus:["epaules","dos","bras"],strong:["pecs"],pain:[],swipe:{}};
 function applyProgram(){
   const pr=store.profile;
-  if(!pr||pr.mode==="nils"){P=P_NILS;KEYS=["A","B","C","D"];PLAN=PLAN_NILS;BONUS="D";
+  if(store.temp&&store.temp.until<today()){store.temp=null;store.backToast=true;try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+  if(store.temp){const tp=store.temp.p,g=generate(tp);P=g.P;KEYS=g.KEYS;PLAN=g.PLAN;BONUS=null;
+    PROG={nils:false,temp:store.temp,reps:g.reps,lifts:g.lifts,split:g.split,place:tp.place,gym:tp.gym,p:tp,nut:nutrition(tp)};}
+  else if(!pr||pr.mode==="nils"){P=P_NILS;KEYS=["A","B","C","D"];PLAN=PLAN_NILS;BONUS="D";
     PROG={nils:true,reps:false,lifts:["chestIncline","latPulldown","seatedRow"],place:"salle",gym:"onair"};}
   else{const g=generate(pr);P=g.P;KEYS=g.KEYS;PLAN=g.PLAN;BONUS=null;
     PROG={nils:false,reps:g.reps,lifts:g.lifts,split:g.split,place:pr.place,gym:pr.gym,p:pr,nut:nutrition(pr)};}
@@ -2687,7 +2761,8 @@ const OSTEPS=[
   {id:"bars",when:a=>a.place==="dehors",t:"Il y a des barres près de chez toi ?",s:"Barres de traction, barres parallèles, comme dans les parcs de street workout.",pick:[["oui","🤸","Oui","Des barres de traction ou de dips"],["non","🏃","Non","Juste de l'espace"]]},
   {id:"goal",t:"Ton objectif principal ?",s:"Choisis le plus important pour toi maintenant.",pick:[["gras","🔥","Perdre du gras","Affiner la silhouette"],["muscle","💪","Prendre du muscle","Plus de volume, plus dessiné"],["forme","⚡","Me remettre en forme","Bouger, avoir de l'énergie"],["force","🏆","Devenir plus fort","Soulever plus lourd"]]},
   {id:"body",t:"Parle-moi de toi",s:"Pour adapter les charges de départ et tes besoins en calories. Ça reste sur ton téléphone."},
-  {id:"level",t:"Ton niveau en musculation ?",s:"Sois honnête : l'app s'adapte.",pick:[[0,"🌱","Je n'en ai jamais fait","Ou presque jamais"],[1,"🌿","Quelques mois","Je connais un peu les exercices"],[2,"🌳","Plus d'un an","Je m'entraîne régulièrement"]]},
+  {id:"level",t:"Ton niveau en musculation ?",s:"Sois honnête : l'app s'adapte.",pick:[[0,"🌱","Je n'en ai jamais fait","Ou presque jamais"],[1,"🌿","Moins d'un an","Je connais un peu les exercices"],[2,"🌳","1 à 3 ans","Je m'entraîne régulièrement"],[3,"🏔️","Plus de 3 ans","Je connais bien mes charges"]]},
+  {id:"loads",when:a=>(a.level||0)>=1&&a.place==="salle",t:"Tes charges actuelles",s:"Pour démarrer directement au bon poids. Ce que tu mets pour environ 10 répétitions. Laisse vide si tu ne sais pas."},
   {id:"days",t:"Combien de séances par semaine ?",s:"Mieux vaut 2 séances tenues que 5 abandonnées."},
   {id:"zones",t:"Tes points forts, tes points faibles",s:"Glisse à droite ce que tu veux travailler en priorité, à gauche ce qui est déjà ton point fort."},
   {id:"pain",t:"Tu as mal quelque part ?",s:"On évitera les exercices qui pourraient gêner.",multi:[["genoux","Aux genoux"],["dos","Au bas du dos"],["epaules","Aux épaules"]],none:"Non, tout va bien"},
@@ -2729,6 +2804,11 @@ function obRender(dir){
     body=`<div class="onb-grid">${st.multi.map(([v,t])=>`<button class="onb-chip ${cur.includes(v)?"on":""}" data-m="${v}">${t}</button>`).join("")}
       <button class="onb-chip wide ${a[st.id]&&!cur.length?"on":""}" data-none>${st.none}</button></div>`;
     foot=`<button class="btn hot wide" data-next ${a[st.id]?"":"disabled"}>Continuer</button>`;
+  }else if(st.id==="loads"){
+    const L=a.loads||{};
+    body=`<div class="onb-fields one">${LOADREF.map(([k,n,ex])=>`<label>${n}<small>${ex}</small><span><input data-load="${k}" type="text" inputmode="decimal" value="${L[k]?fmt(L[k]):""}" placeholder="—"><i>kg</i></span></label>`).join("")}</div>
+      <p class="onb-note">Sur une machine, note le chiffre affiché (ou le total des disques). L'app ajustera ensuite séance après séance.</p>`;
+    foot=`<button class="btn hot wide" data-next>Continuer</button>`;
   }else if(st.id==="body"){
     body=`<div class="onb-seg">${[["F","Femme"],["H","Homme"]].map(([v,t])=>`<button class="${a.sex===v?"on":""}" data-sex="${v}">${t}</button>`).join("")}</div>
       <div class="onb-fields">
@@ -2782,6 +2862,7 @@ function obWire(st){
       a[st.id]=cur;if(!cur.length)delete a[st.id];obRender();});
     q("[data-none]").onclick=()=>{a[st.id]=[];obRender();};
     nx.onclick=()=>{if(a[st.id])obGo(1);};return;}
+  if(st.id==="loads"){nx.onclick=()=>{const L={};qa("[data-load]").forEach(i=>{const v=num(i.value);if(v&&v>0&&v<500)L[i.dataset.load]=v;});a.loads=L;obGo(1);};return;}
   if(st.id==="body"){
     qa("[data-sex]").forEach(x=>x.onclick=()=>{a.sex=x.dataset.sex;qa("[data-sex]").forEach(y=>y.classList.toggle("on",y===x));});
     const note=$("obbn"),upd=()=>{const ag=num($("obage").value);note.innerHTML=ag&&ag<16?"Moins de 16 ans : parles-en à un adulte. Le programme restera léger, sans charges lourdes.":ag&&ag>=55?"Après 55 ans, la muscu est excellente pour la santé. Le programme prévoit des repos plus longs et des charges modérées.":"";};
@@ -2877,6 +2958,7 @@ $("bwchip").onclick=()=>{go("prog");setTimeout(()=>{const i=$("bwin");if(i)i.foc
 window.addEventListener("scroll",()=>$("top").classList.toggle("scrolled",window.scrollY>4),{passive:true});
 try{theme=localStorage.getItem(KEY+"-theme")||localStorage.getItem(OLDKEY+"-theme")||"dark";}catch(e){theme="dark";}
 applyTheme();loadLocal();applyProgram();sess=defaultSession();render();if(!store.profile)openOnboarding();
+if(store.backToast){delete store.backToast;persist();setTimeout(()=>toast("Fin du programme temporaire : ton programme habituel est de retour !"),600);}
 openIDB().then(idbAll).then(()=>{if(Object.keys(PH).length)render(true);});
 initCloud();
 if("serviceWorker" in navigator&&location.protocol==="https:"&&!inFrame){navigator.serviceWorker.register("sw.js").catch(()=>{});}
