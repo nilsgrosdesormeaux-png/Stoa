@@ -2359,11 +2359,12 @@ function summary(k){
 function infoSheet(e,k){
   const own=!!PH[e.uid],gym=!!(USE_GYM_PHOTOS&&PHOTO[e.uid]),sal=PROG.place==="salle";
   openSheet(`<div class="shd"><h3>${esc(e.nom)}</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
-    <div class="pic">${PH[e.uid]?`<img src="${PH[e.uid]}" alt="${esc(e.nom)}">`:animKey(e)&&ANIM[animKey(e)]?(setTimeout(startAnim,0),animSVG(animKey(e))):picHTML(e)}</div>
-    <div class="photo-actions"><label>${I_CAM}${own||gym?"Remplacer la photo":"Ajouter une photo (galerie ou appareil)"}<input type="file" accept="image/*" id="phin"></label>
-      ${own?`<button id="phdel">Retirer ma photo</button>`:""}</div>
+    <div class="pic">${animKey(e)&&ANIM[animKey(e)]?(setTimeout(startAnim,0),animSVG(animKey(e))):(ART[e.pic]||"")}</div>
     <h5>Muscle</h5><p>${e.muscle}</p>
-    <h5>${sal&&!BWU(e)?"Reconnaître la machine":"Le matériel"}</h5>${machPhoto(e)?`<img class="mphoto" src="${machPhoto(e)}" alt="${esc(e.nom)}" loading="lazy">`:""}<p>${e.reco}</p>
+    <h5>${sal&&!BWU(e)?"Reconnaître la machine":"Le matériel"}</h5>${own?`<img class="mphoto" src="${PH[e.uid]}" alt="${esc(e.nom)}">`:machPhoto(e)?`<img class="mphoto" src="${machPhoto(e)}" alt="${esc(e.nom)}" loading="lazy">`:""}
+    <div class="photo-actions"><label>${I_CAM}${own?"Changer ma photo":machPhoto(e)?"Remplacer par ma photo (galerie ou appareil)":"Ajouter une photo (galerie ou appareil)"}<input type="file" accept="image/*" id="phin"></label>
+      ${own?`<button id="phdel">${machPhoto(e)?"Revenir à l'image Stoa":"Retirer ma photo"}</button>`:""}</div>
+    <p>${e.reco}</p>
     <h5>Comment faire</h5><ol>${e.how.map(x=>`<li>${x}</li>`).join("")}</ol>
     <h5>Pourquoi cet exercice</h5><p>${e.pourquoi}</p>
     <h5>Pourquoi ${mmss(restFor(e))} de repos</h5><p>${e.rest>=90&&e.comp||e.rest>=120?"Gros exercice : plusieurs muscles, le souffle et le système nerveux fatiguent. Repartir trop tôt te fait perdre 2 à 3 répétitions à la série suivante.":"Petit muscle qui récupère vite : 1 min à 1 min 30 suffit."} Repars quand ton souffle est calme. Touche le chrono pour changer la durée, elle sera retenue pour cet exercice.</p>
