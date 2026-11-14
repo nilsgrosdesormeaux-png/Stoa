@@ -48,8 +48,7 @@ Stoa n'est plus seulement l'app de Nils : n'importe qui peut ouvrir le lien et o
 
 ### Correction du 14 novembre 2026 (soir) : le programme de Nils
 - Nils tient à son programme d'origine et à **ses photos des machines On Air** : elles s'affichent de nouveau dans son programme (`USE_GYM_PHOTOS` vrai en mode Nils ; les animations restent pour les exercices sans photo et pour les programmes générés).
-- Premier écran du questionnaire : bouton « Reprendre le programme de Nils » (utile sur une nouvelle installation sans données).
-- Onglet Programme : « Revenir au programme de Nils » est toujours visible quand un autre programme est actif.
+- Le programme de Nils est **privé dans l'interface** : personne d'autre ne voit son prénom ni un bouton vers son programme. Pour le reprendre sur une nouvelle installation : ouvrir `…/Stoa/#nils` (bouton « Reprendre mon programme » sur le premier écran), ou importer sa sauvegarde. Dans Programme, « Revenir à mon ancien programme » n'apparaît que pour celui qui l'avait avant de refaire le questionnaire. Le code reste public : le programme y est lisible pour qui va le chercher.
 - Ne plus retirer ses photos ni modifier son programme sans lui demander.
 
 ### Règle importante : un programme n'est jamais modifié par une mise à jour (14 nov. 2026)
