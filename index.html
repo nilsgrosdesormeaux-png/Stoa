@@ -1798,7 +1798,7 @@ function generate(p){
     for(const r of ["quad","glute","hpush","rear","hinge","core","abd","calf","ham"]){if(chosen.length>=Math.min(nEx,4))break;
       const x=candidates(r,p).find(y=>!seen.has(y.uid));if(x){seen.add(x.uid);chosen.push(x);}}
     if(wantCore&&!chosen.some(e=>e.pat==="core")){const c=candidates("core",p).find(x=>!seen.has(x.uid));if(c){chosen.pop();chosen.push(c);}}
-    const exos=chosen.map((e0,j)=>{
+    let exos=chosen.map((e0,j)=>{
       let e=Object.assign({},e0);
       if(p.gym==="onair"&&typeof POOL!=="undefined"&&POOL[e.uid]){const o=POOL[e.uid];Object.assign(e,{nom:o.nom,reco:o.reco,how:o.how,alt:o.alt,unit:o.unit,inc:o.inc});}
       const comp=!!e.comp,bw=BWU(e);
@@ -1821,8 +1821,17 @@ function generate(p){
         depart:bw?(e.unit==="sec"?`${e.min} secondes`:e.unit==="elastique"?"l'élastique le plus souple":"poids du corps"):`${fmt(kg0)} kg (à ajuster)`,
         warm:comp&&!bw&&j<2&&p.place==="salle",alt:e.alt&&p.gym==="onair"?e.alt:(alts.length?alts:[{nom:"Demande à l'accueil une machine qui travaille le même muscle"}])});
     });
+    /* respecter le temps choisi : on raccourcit les petits exercices, puis on retire les derniers */
+    const est=()=>Math.round(exos.reduce((a,e)=>a+e.series*(40+e.rest),0)/60)+(p.place==="salle"?8:5);
+    for(let g2=0;g2<12&&est()>dur+5;g2++){
+      const iso2=[...exos].reverse().find(e=>!e.comp&&e.series>2);
+      if(iso2){iso2.series--;continue;}
+      const big=[...exos].reverse().find(e=>e.comp&&e.series>3);
+      if(big){big.series--;continue;}
+      if(exos.length>3){const ci=exos.findIndex(e=>e.pat==="core");exos.splice(wantCore&&ci===exos.length-1?exos.length-2:exos.length-1,1);continue;}
+      const r=exos.find(e=>e.rest>90);if(r){r.rest-=30;continue;}break;}
     const gs=[];exos.forEach(e=>e.g.forEach(g=>{if(!gs.includes(g))gs.push(g);}));
-    const min=Math.round(exos.reduce((a,e)=>a+e.series*(40+e.rest),0)/60)+8;
+    const min=est();
     PP[keys[si]]={nom:ss.t,muscles:gs.slice(0,5).join(" · "),duree:`${Math.max(20,Math.round(min/5)*5)} min environ`,
       intro:sessionIntro(p,ss.t),exos};
   });
