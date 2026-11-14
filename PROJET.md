@@ -1,7 +1,7 @@
 # Stoa : document de reprise du projet
 
 Ce document résume tout ce qui a été fait et décidé, pour reprendre le projet depuis un autre compte Claude sans rien perdre.
-Dernière mise à jour : novembre 2026.
+Dernière mise à jour : 14 novembre 2026 (questionnaire et générateur de programmes ajoutés).
 
 ---
 
@@ -15,6 +15,24 @@ Une web app de musculation, installable sur iPhone comme une vraie application (
 - **Version Claude** : la même app existe en artefact sur le compte Claude de Nils. Elle ne se met à jour que depuis ce compte. Les données y sont synchronisées entre appareils.
 - **Données** : stockées uniquement sur l'appareil (localStorage, clé `stoa-v1` ; photos dans IndexedDB `stoa-photos`). Rien n'est envoyé sur internet. Exporter et Importer (onglet Progrès) permettent de passer d'un appareil à l'autre.
 - **Le dépôt est public** : le code, les photos de machines et le programme sont visibles par tous, pas les données personnelles.
+
+### Pour tout le monde depuis le 14 novembre 2026 (questionnaire + générateur)
+Stoa n'est plus seulement l'app de Nils : n'importe qui peut ouvrir le lien et obtenir son propre programme.
+- **Au premier lancement**, un questionnaire plein écran (2 minutes) : prénom, où t'entraîner (salle avec choix de la chaîne / chez moi avec le matériel / dehors avec ou sans barres), objectif (perdre du gras, prendre du muscle, remise en forme, force), sexe, âge, taille, poids, niveau, séances par semaine (2 à 5) et durée (30 à 75 min), 2 priorités (fessiers, jambes, ventre, dos, épaules, bras, pecs), douleurs (genoux, bas du dos, épaules), puis **des cartes à glisser façon Tinder** (machines rassurantes ? peur de mal faire ? cardio ? abdos à chaque séance ? charges lourdes ? varier les exercices ?). Écran final : résumé du programme, calories et protéines, case « Stoa ne remplace pas un médecin » à cocher.
+- **Le générateur** (fonction `generate()` dans `index.html`) :
+  - le nombre de jours choisit le découpage : 2 = corps entier A/B, 3 = corps entier A/B/C (ou Haut/Bas/Corps entier si plus d'un an de pratique), 4 = Haut/Bas ×2, 5 = Haut/Bas/Poussée/Tirage/Jambes ;
+  - la durée fixe le nombre d'exercices (4 à 7) ;
+  - l'objectif fixe séries, répétitions et repos ; l'âge (moins de 16 ans, plus de 55 ans) les adapte ;
+  - les exercices viennent d'une **bibliothèque** (`LIB`, environ 60 exercices : machines, haltères, élastiques, poids du corps, barres), filtrée par le lieu, le matériel, le niveau et les douleurs ;
+  - les priorités passent en début de séance ; les autres options d'un même rôle deviennent les « alternatives » ;
+  - charges de départ estimées selon le sexe, le niveau et le poids (toujours « à ajuster ») ;
+  - calories (formule de Mifflin-St Jeor) et protéines calculées pour le Guide.
+- **Exercices au poids du corps** : on progresse en répétitions (ou en secondes pour le gainage), puis l'app propose la version plus dure. Records de répétitions ajoutés.
+- **Mode « première séance »** dans l'onglet Séance pour rassurer (arriver à la salle, trouver une machine, commencer léger).
+- **Nouvelle partie « Douleur : quand s'arrêter »** dans le Guide, pour tout le monde.
+- **Ton programme (Nils) est intact** : un téléphone qui a déjà des séances enregistrées garde automatiquement « le programme de Nils » (profil `mode: "nils"`). Onglet Programme : « Créer mon programme (questionnaire) », et retour possible au programme de Nils.
+- Les **photos des machines On Air** ne s'affichent que pour quelqu'un qui a choisi On Air (les machines changent d'une salle à l'autre).
+- Nouveaux dessins simples pour les exercices au poids du corps et aux haltères (pompes, squat, tractions, fentes, pont fessier…). Ils restent à améliorer.
 
 ### Les écrans (barre d'onglets en bas, style iOS)
 1. **Accueil** (tableau de bord « Hammer Night », noir et rouge) :
@@ -124,11 +142,16 @@ Les valeurs exactes (2 min 30, semaine légère toutes les 6 semaines, échauffe
 ---
 
 ## 4. Reste à faire tout de suite
+- [ ] **Faire tester le questionnaire** à la copine de Nils et à 2-3 potes (salle, maison, dehors) et noter ce qui bloque.
+- [ ] Faire relire la bibliothèque d'exercices et les règles du générateur par un agent coach.
+- [ ] Listes de machines par chaîne (Basic-Fit, Fitness Park…) : pour l'instant, toutes les salles sont supposées avoir le matériel standard.
+- [ ] Choisir ses jours d'entraînement (aujourd'hui : jours proposés automatiquement).
+- [ ] Le côté jeu : niveaux, badges, défis entre amis.
 - [ ] Activer GitHub Pages (Settings, puis Pages, Branch `main`, dossier root) et tester l'installation sur iPhone.
 - [ ] Ajouter la photo de la machine Life Fitness « Hip Abduction / Adduction » (la même pour les deux exercices), dans `photos/` et dans la table `PHOTO` de `index.html` (uid `abductor` et `adductor`), plus dans la liste `CORE` de `sw.js`.
 - [ ] Redessiner le logo en vectoriel (même dessin : S ivoire qui monte vers un sommet rouge).
 - [ ] Améliorer les illustrations des exercices sans photo (les dessins actuels sont jugés trop basiques).
-- [ ] Après chaque modification : changer `CACHE` dans `sw.js` (par exemple `stoa-v3`) pour que les iPhone récupèrent la nouvelle version.
+- [ ] Après chaque modification : changer `CACHE` dans `sw.js` (dernière valeur : `stoa-v3`) pour que les iPhone récupèrent la nouvelle version.
 
 ---
 
