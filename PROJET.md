@@ -56,6 +56,7 @@ Stoa n'est plus seulement l'app de Nils : n'importe qui peut ouvrir le lien et o
 - Chaque utilisateur garde **une copie figée de son programme** dans ses données : `store.nilsPlan` pour le programme de Nils, `store.profile.frozen` pour un programme créé par le questionnaire. Elle est créée la première fois que le programme est utilisé (ou importé).
 - Une mise à jour de l'app **ne change jamais** cette copie : exercices, séries, répétitions, repos et charges restent les mêmes. Seuls les textes d'explication (reconnaître la machine, comment faire, pourquoi) et les nouvelles fonctions arrivent (fonction `liveP()` dans `index.html`).
 - Le programme ne change que si l'utilisateur le demande : refaire le questionnaire, « Changer d'exercice » (gardé dans `store.swaps`), revenir au programme de Nils.
+- **Images** : la vignette d'un exercice montre toujours l'animation du mouvement s'il en existe une ; la photo de la machine (celle de l'utilisateur, celle d'On Air, ou l'image Stoa) est dans la fiche « Machine et consignes ». Adducteurs et abducteurs n'ont pas encore d'animation.
 - Toutes les fonctions marchent aussi dans le programme de Nils, comme « Changer d'exercice ». Ne plus réserver une nouveauté aux programmes générés.
 - Pour modifier le programme de Nils lui-même, il faut le lui demander, puis modifier `store.nilsPlan` (par exemple avec un fichier à importer), pas seulement `P_NILS` dans le code.
 

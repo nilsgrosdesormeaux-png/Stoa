@@ -2226,7 +2226,8 @@ const MIMG={legPress:"legPress",calfPress:"legPress",legExt:"legExt",legCurl:"le
   bandRdl:"bands",bandWalk:"bands",bandPress:"bands",bandLatRaise:"bands",bandPullApart:"bands",bandPulldown:"bands",bandRow:"bands",bandCurl:"bands",bandPushdown:"bands"};
 const machPhoto=e=>{const k=MIMG[e.uid];return k&&MREADY.includes(k)?`photos/machines/${k}.jpg`:null;};
 const photoOf=e=>PH[e.uid]||(USE_GYM_PHOTOS&&PHOTO[e.uid])||machPhoto(e)||null;
-const picHTML=(e,alt)=>{const p=photoOf(e);if(p)return `<img src="${p}" alt="${esc(alt||e.nom)}" loading="lazy">`;const k=animKey(e);if(k&&ANIM[k]){setTimeout(startAnim,0);return animSVG(k);}return ART[e.pic]||"";};
+/* vignette : l'animation du mouvement d'abord ; la photo de la machine seulement s'il n'y a pas d'animation */
+const picHTML=(e,alt)=>{const k=animKey(e);if(k&&ANIM[k]){setTimeout(startAnim,0);return animSVG(k);}const p=photoOf(e);if(p)return `<img src="${p}" alt="${esc(alt||e.nom)}" loading="lazy">`;return ART[e.pic]||"";};
 
 /* ===================== CYCLE ET PROGRESSION ===================== */
 function cycleInfo(){const w=Math.max(0,Math.floor(daysBetween(weekStart(store.start),weekStart(today()))/7));return {cycle:Math.floor(w/6)+1,wk:w%6+1,deload:w%6===5};}
@@ -2486,8 +2487,8 @@ function infoSheet(e,k){
   openSheet(`<div class="shd"><h3>${esc(e.nom)}</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
     <div class="pic">${animKey(e)&&ANIM[animKey(e)]?(setTimeout(startAnim,0),animSVG(animKey(e))):(ART[e.pic]||"")}</div>
     <h5>Muscle</h5><p>${e.muscle}</p>
-    <h5>${sal&&!BWU(e)?"Reconnaître la machine":"Le matériel"}</h5>${own?`<img class="mphoto" src="${PH[e.uid]}" alt="${esc(e.nom)}">`:machPhoto(e)?`<img class="mphoto" src="${machPhoto(e)}" alt="${esc(e.nom)}" loading="lazy">`:""}
-    <div class="photo-actions"><label>${I_CAM}${own?"Changer ma photo":machPhoto(e)?"Remplacer par ma photo (galerie ou appareil)":"Ajouter une photo (galerie ou appareil)"}<input type="file" accept="image/*" id="phin"></label>
+    <h5>${sal&&!BWU(e)?"Reconnaître la machine":"Le matériel"}</h5>${photoOf(e)?`<img class="mphoto" src="${photoOf(e)}" alt="${esc(e.nom)}" loading="lazy">`:""}
+    <div class="photo-actions"><label>${I_CAM}${own?"Changer ma photo":(gym||machPhoto(e))?"Remplacer par ma photo (galerie ou appareil)":"Ajouter une photo (galerie ou appareil)"}<input type="file" accept="image/*" id="phin"></label>
       ${own?`<button id="phdel">${machPhoto(e)?"Revenir à l'image Stoa":"Retirer ma photo"}</button>`:""}</div>
     <p>${e.reco}</p>
     <h5>Comment faire</h5><ol>${e.how.map(x=>`<li>${x}</li>`).join("")}</ol>
