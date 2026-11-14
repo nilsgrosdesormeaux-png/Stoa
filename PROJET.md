@@ -34,6 +34,13 @@ Stoa n'est plus seulement l'app de Nils : n'importe qui peut ouvrir le lien et o
 - Les **photos des machines On Air** ne s'affichent que pour quelqu'un qui a choisi On Air (les machines changent d'une salle à l'autre).
 - Nouveaux dessins simples pour les exercices au poids du corps et aux haltères (pompes, squat, tractions, fentes, pont fessier…). Ils restent à améliorer.
 
+### Ajouts du 14 novembre 2026 (suite)
+- **Points forts / points faibles** : dans le questionnaire, une carte par partie du corps avec une petite silhouette (zone en rouge). À droite = à travailler en priorité (étoile ★ dans « Séries par semaine et par muscle »), à gauche = point fort (une série de moins, entretien), au milieu = normal.
+- **Le tableau « Séries par semaine et par muscle » avec les étoiles est gardé** : Nils y tient.
+- **Exercices animés** : un personnage stylisé fait le mouvement en boucle, muscle travaillé en rouge (moteur `ANIM` dans `index.html`, environ 35 animations). Ils remplacent les dessins fixes et les photos de Nils (jugées pas assez belles).
+- **Photos des machines** : les photos libres trouvées sur Wikimedia ont été écartées (amateures, avec des gens, styles différents). Décision : générer des images par IA, **toutes dans le même style**, sans personne, sans logo. Les consignes sont dans `PROMPTS-IMAGES.md`. Il faut connecter un outil de génération (Adobe Firefly déjà installé dans Claude, à autoriser) ou les générer soi-même.
+- **Mode test** : ajouter `#test` à la fin de l'adresse donne une app vierge, séparée des vraies données (pratique pour tester le questionnaire sur son propre téléphone ou son ordinateur).
+
 ### Les écrans (barre d'onglets en bas, style iOS)
 1. **Accueil** (tableau de bord « Hammer Night », noir et rouge) :
    - anneau des séances de la semaine (x/3) et série de semaines complètes d'affilée (flamme façon Snap) ;
