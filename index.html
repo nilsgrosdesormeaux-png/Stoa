@@ -2378,7 +2378,7 @@ function card(k,e,i){
         <div class="meta"><b>${n} × ${repsTxt(e)}</b> · repos <b>${mmss(restFor(e))}</b></div>
         <span class="tag ${e.opt?"opt":""}">${e.opt?"Facultatif · ":""}${e.muscle}</span></div></div>
     ${BWU(e)||(PROG.place!=="salle"&&!PROG.nils)?"":`<div class="reg" data-reg="1">${note?`<button data-edit="1">⚙︎ Réglages : <b>${esc(note)}</b></button>`:`<button data-edit="1">⚙︎ Noter mes réglages (siège, dossier, cran…)</button>`}</div>`}
-    ${pl.msg&&doneN<n?`<div class="tip ${pl.cls}">${pl.msg}${pl.up&&!PROG.nils?`<button class="btn line" data-swap="${pl.up}" style="margin-top:10px;min-height:42px;width:100%">↑ Passer à : ${esc(LIBX[pl.up].nom)}</button>`:""}${pl.down&&!PROG.nils?`<button class="btn line" data-swap="${pl.down}" style="margin-top:10px;min-height:42px;width:100%">↓ Plus facile : ${esc(LIBX[pl.down].nom)}</button>`:""}</div>`:""}
+    ${pl.msg&&doneN<n?`<div class="tip ${pl.cls}">${pl.msg}${pl.up?`<button class="btn line" data-swap="${pl.up}" style="margin-top:10px;min-height:42px;width:100%">↑ Passer à : ${esc(LIBX[pl.up].nom)}</button>`:""}${pl.down&&!PROG.nils?`<button class="btn line" data-swap="${pl.down}" style="margin-top:10px;min-height:42px;width:100%">↓ Plus facile : ${esc(LIBX[pl.down].nom)}</button>`:""}</div>`:""}
     <div class="sets">
       <div class="sets-hd"><span>Série</span><span>${BWU(e)?"Lest":"kg"}</span><span>${e.unit==="sec"?"Sec.":"Reps"}</span><span></span></div>
       <div class="side">Gris = proposé, touche ✓ si tu l'as fait · Charge = ${UNIT[e.unit]}${e.unit==="disques"?" (sans le poids de la machine)":""}${e.unit==="sec"?" · Reps = secondes tenues":""}</div>
@@ -2386,7 +2386,7 @@ function card(k,e,i){
       ${doneN>=n?`<div class="feel-q">C'était comment ? <span class="muted" style="font-weight:500">(touche encore pour décocher)</span></div><div class="feel">${[["facile","Facile, 3+ en réserve"],["dur","Dur, 1-2 en réserve"],["echec","À l'échec"]].map(([v,l])=>`<button data-feel="${v}" class="${te.feel===v?"on":""}">${l}</button>`).join("")}</div>`:""}
       <div class="prev">${last?`Dernière fois (${fr(last.d)}) : <b class="num">${W(last).map(s=>`${fmt(s.kg)}×${s.reps}`).join(" · ")}</b>`:`Départ conseillé : <b>${e.depart}</b>`}</div>
     </div>
-    <div class="exo-ft"><button data-info="1">${PROG.place==="salle"?"Machine et consignes":"Comment faire"} ›</button>${!PROG.nils&&!doneN?`<button data-change="1">Changer d'exercice</button>`:""}${doneN>=n?`<button data-close="1">Replier</button>`:""}</div>`;
+    <div class="exo-ft"><button data-info="1">${PROG.place==="salle"?"Machine et consignes":"Comment faire"} ›</button>${!doneN?`<button data-change="1">Changer d'exercice</button>`:""}${doneN>=n?`<button data-close="1">Replier</button>`:""}</div>`;
 }
 
 function refreshCard(k,e){
@@ -2837,14 +2837,31 @@ let PROG={nils:true},BONUS="D",MAIN=["A","B","C"],PER_WEEK=3,USE_GYM_PHOTOS=true
 /* chaque séance enregistrée garde le programme d'où elle vient */
 const hp=h=>(h.pid||"nils")===PID;
 const NILSP={sex:"H",age:20,height:179,weight:70,level:1,goal:"muscle",focus:["epaules","dos","bras"],strong:["pecs"],pain:[],swipe:{}};
+/* ===== programme figé : les mises à jour de l'app ne changent jamais le programme de quelqu'un =====
+   On garde une copie du programme (exercices, séries, répétitions, repos, charges) dans les données de l'utilisateur.
+   Seuls les textes d'explication et les nouvelles fonctions viennent de la dernière version de l'app. */
+const NPAT={smithBench:"hpush",rearDeltRow:"rear",preacherCurl:"bic",pressLow:"hpush",rowWide:"hpull"};
+const snapOf=g=>JSON.parse(JSON.stringify({P:g.P,KEYS:g.KEYS,PLAN:g.PLAN,reps:g.reps||false,lifts:g.lifts||null,split:g.split||null}));
+function liveP(P0,onair){const sw=store.swaps||{},out={};
+  Object.keys(P0).forEach(k=>{const s0=P0[k];out[k]=Object.assign({},s0,{exos:s0.exos.map(fe=>{
+    const pat=fe.pat||(LIBX[fe.uid]||{}).pat||NPAT[fe.uid];const to=sw[fe.uid];
+    if(to&&LIBX[to]){const b=LIBX[to];return Object.assign({},b,{id:fe.id,series:fe.series,min:fe.min,max:fe.max,rest:fe.rest,opt:fe.opt,
+      kg0:b.kg0!=null?b.kg0:null,depart:b.kg0!=null?fmt(b.kg0)+" kg (à ajuster)":"à ajuster",warm:false,alt:fe.alt,pat:b.pat||pat});}
+    const b=(onair&&typeof POOL!=="undefined"&&POOL[fe.uid])||LIBX[fe.uid]||{},t={};
+    ["reco","how","pourquoi"].forEach(f=>{if(b[f])t[f]=b[f];});return Object.assign({},fe,t,{pat});})});});
+  return out;}
+const saveNow=()=>{try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}};
 function applyProgram(){
   const pr=store.profile;
   if(store.temp&&store.temp.until<today()){store.temp=null;store.backToast=true;try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
   if(store.temp){const tp=Object.assign({},store.temp.p,{swaps:store.swaps}),g=generate(tp);P=g.P;KEYS=g.KEYS;PLAN=g.PLAN;BONUS=null;
     PROG={nils:false,temp:store.temp,reps:g.reps,lifts:g.lifts,split:g.split,place:tp.place,gym:tp.gym,p:tp,nut:nutrition(tp)};}
-  else if(!pr||pr.mode==="nils"){P=P_NILS;KEYS=["A","B","C","D"];PLAN=PLAN_NILS;BONUS="D";
-    PROG={nils:true,reps:false,lifts:["chestIncline","latPulldown","seatedRow"],place:"salle",gym:"onair"};}
-  else{const g=generate(Object.assign({},pr,{swaps:store.swaps}));P=g.P;KEYS=g.KEYS;PLAN=g.PLAN;BONUS=null;
+  else if(!pr||pr.mode==="nils"){
+    if(!store.nilsPlan){store.nilsPlan=snapOf({P:P_NILS,KEYS:["A","B","C","D"],PLAN:PLAN_NILS});saveNow();}
+    const f=store.nilsPlan;P=liveP(f.P,true);KEYS=f.KEYS;PLAN=f.PLAN;BONUS="D";
+    PROG={nils:true,reps:false,lifts:["chestIncline","latPulldown","seatedRow"],place:"salle",gym:"onair",p:Object.assign({},NILSP,{place:"salle",gym:"onair"})};}
+  else{if(!pr.frozen){pr.frozen=snapOf(generate(Object.assign({},pr,{swaps:{}})));saveNow();}
+    const g=Object.assign({},pr.frozen,{P:liveP(pr.frozen.P,pr.gym==="onair")});P=g.P;KEYS=g.KEYS;PLAN=g.PLAN;BONUS=null;
     PROG={nils:false,reps:g.reps,lifts:g.lifts,split:g.split,place:pr.place,gym:pr.gym,p:pr,nut:nutrition(pr)};}
   PID=store.temp?"t:"+store.temp.until:(!pr||pr.mode==="nils")?"nils":"g:"+(pr.ts||0);
   MAIN=KEYS.filter(k=>k!==BONUS);PER_WEEK=MAIN.length;

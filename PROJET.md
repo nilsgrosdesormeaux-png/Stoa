@@ -52,6 +52,13 @@ Stoa n'est plus seulement l'app de Nils : n'importe qui peut ouvrir le lien et o
 - Onglet Programme : « Revenir au programme de Nils » est toujours visible quand un autre programme est actif.
 - Ne plus retirer ses photos ni modifier son programme sans lui demander.
 
+### Règle importante : un programme n'est jamais modifié par une mise à jour (14 nov. 2026)
+- Chaque utilisateur garde **une copie figée de son programme** dans ses données : `store.nilsPlan` pour le programme de Nils, `store.profile.frozen` pour un programme créé par le questionnaire. Elle est créée la première fois que le programme est utilisé (ou importé).
+- Une mise à jour de l'app **ne change jamais** cette copie : exercices, séries, répétitions, repos et charges restent les mêmes. Seuls les textes d'explication (reconnaître la machine, comment faire, pourquoi) et les nouvelles fonctions arrivent (fonction `liveP()` dans `index.html`).
+- Le programme ne change que si l'utilisateur le demande : refaire le questionnaire, « Changer d'exercice » (gardé dans `store.swaps`), revenir au programme de Nils.
+- Toutes les fonctions marchent aussi dans le programme de Nils, comme « Changer d'exercice ». Ne plus réserver une nouveauté aux programmes générés.
+- Pour modifier le programme de Nils lui-même, il faut le lui demander, puis modifier `store.nilsPlan` (par exemple avec un fichier à importer), pas seulement `P_NILS` dans le code.
+
 ### Les écrans (barre d'onglets en bas, style iOS)
 1. **Accueil** (tableau de bord « Hammer Night », noir et rouge) :
    - anneau des séances de la semaine (x/3) et série de semaines complètes d'affilée (flamme façon Snap) ;
