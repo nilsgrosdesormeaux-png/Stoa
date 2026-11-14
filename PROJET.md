@@ -46,6 +46,12 @@ Stoa n'est plus seulement l'app de Nils : n'importe qui peut ouvrir le lien et o
 - **Reste à faire (rapports)** : écran Séance trop chargé en texte, contrastes du thème clair, records et RM estimé pour confirmés, export CSV, choisir ses jours, finir les images de machines.
 - **Mode test** : ajouter `#test` à la fin de l'adresse donne une app vierge, séparée des vraies données (pratique pour tester le questionnaire sur son propre téléphone ou son ordinateur).
 
+### Correction du 14 novembre 2026 (soir) : le programme de Nils
+- Nils tient à son programme d'origine et à **ses photos des machines On Air** : elles s'affichent de nouveau dans son programme (`USE_GYM_PHOTOS` vrai en mode Nils ; les animations restent pour les exercices sans photo et pour les programmes générés).
+- Premier écran du questionnaire : bouton « Reprendre le programme de Nils » (utile sur une nouvelle installation sans données).
+- Onglet Programme : « Revenir au programme de Nils » est toujours visible quand un autre programme est actif.
+- Ne plus retirer ses photos ni modifier son programme sans lui demander.
+
 ### Les écrans (barre d'onglets en bas, style iOS)
 1. **Accueil** (tableau de bord « Hammer Night », noir et rouge) :
    - anneau des séances de la semaine (x/3) et série de semaines complètes d'affilée (flamme façon Snap) ;

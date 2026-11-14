@@ -2225,7 +2225,7 @@ const MIMG={legPress:"legPress",calfPress:"legPress",legExt:"legExt",legCurl:"le
   dbOverheadTri:"dumbbells",floorPress:"dumbbells",negPull:"pullupBar",pullup:"pullupBar",chinup:"pullupBar",kneeRaise:"pullupBar",dips:"dipBars",invRow:"dipBars",
   bandRdl:"bands",bandWalk:"bands",bandPress:"bands",bandLatRaise:"bands",bandPullApart:"bands",bandPulldown:"bands",bandRow:"bands",bandCurl:"bands",bandPushdown:"bands"};
 const machPhoto=e=>{const k=MIMG[e.uid];return k&&MREADY.includes(k)?`photos/machines/${k}.jpg`:null;};
-const photoOf=e=>PH[e.uid]||machPhoto(e)||null;
+const photoOf=e=>PH[e.uid]||(USE_GYM_PHOTOS&&PHOTO[e.uid])||machPhoto(e)||null;
 const picHTML=(e,alt)=>{const p=photoOf(e);if(p)return `<img src="${p}" alt="${esc(alt||e.nom)}" loading="lazy">`;const k=animKey(e);if(k&&ANIM[k]){setTimeout(startAnim,0);return animSVG(k);}return ART[e.pic]||"";};
 
 /* ===================== CYCLE ET PROGRESSION ===================== */
@@ -2584,7 +2584,7 @@ function vPlan(){
     <div style="display:grid;gap:8px;margin-top:14px">${store.pauseUntil&&store.pauseUntil>=today()?`<div class="banner" style="margin-top:12px"><b>En pause jusqu'au ${fr(store.pauseUntil)}.</b> Ta flamme est protégée.</div><button class="btn hot wide" id="pauseend">Je reprends maintenant</button>`:""}
     ${PROG.temp?`<button class="btn hot wide" id="tempend">Je suis de retour : reprendre mon programme</button>`:`<button class="btn line wide" id="away">✈︎ Vacances, pause, plus accès à ma salle…</button>`}
     <button class="btn line wide" id="redo">${PROG.nils?"Créer mon programme (questionnaire)":"Refaire le questionnaire"}</button>
-    ${!PROG.nils&&store.nilsBack?`<button class="btn line wide" id="backnils">Revenir au programme de Nils</button>`:""}</div></div>
+    ${!PROG.nils?`<button class="btn line wide" id="backnils">Revenir au programme de Nils</button>`:""}</div></div>
   <h3>Pourquoi 1 min ici et 2 min 30 là ?</h3>
   <div class="panel"><p>Sur les <b>gros exercices</b> (presse, développés, tirages, rowing), beaucoup de muscles travaillent en même temps, ton souffle monte et ton système nerveux fatigue. Si tu repars trop tôt, tu fais 2 ou 3 répétitions de moins : tu perds du travail utile. D'où <b>2 min à 2 min 30</b>.</p>
     <p>Sur les <b>petits exercices</b> (élévations, curls, triceps), un seul petit muscle travaille et récupère vite : <b>1 min à 1 min 30</b> suffit.</p>
@@ -2851,7 +2851,7 @@ function applyProgram(){
   LABEL={};KEYS.forEach(k=>{LABEL[k]=P[k].nom;});
   Object.keys(EXO).forEach(u=>delete EXO[u]);
   KEYS.forEach(k=>P[k].exos.forEach(e=>{e.k=k;if(!EXO[e.uid])EXO[e.uid]=e;}));
-  USE_GYM_PHOTOS=false;
+  USE_GYM_PHOTOS=!!PROG.nils;
   if(sess&&!KEYS.includes(sess))sess=null;
 }
 const anyExo=u=>EXO[u]||LIBX[u]||(typeof POOL!=="undefined"&&POOL[u])||null;
@@ -2923,7 +2923,7 @@ function obRender(dir){
       <h1>${OB.redo?"On refait ton programme":"Ton coach de poche"}</h1>
       <p>${OB.redo?"Réponds de nouveau aux questions. Tes séances, tes charges et ton poids sont gardés.":"Réponds à quelques questions, ça prend 2 minutes. Stoa construit ton programme : les exercices, les charges, les repos. Puis te guide à chaque séance, comme un coach."}</p>
       <ul class="onb-pts"><li><b>Salle, maison ou dehors</b>, avec ou sans matériel</li><li><b>Chaque exercice expliqué</b> : comment le faire, quoi régler</li><li><b>Tu progresses</b> : l'app te dit quoi mettre la prochaine fois</li></ul></div>`;
-    foot=`<button class="btn hot wide" data-next>C'est parti</button>${OB.redo?"":`<label class="onb-link">J'ai déjà une sauvegarde<input type="file" accept="application/json,.json" id="obimp" style="display:none"></label>`}`;
+    foot=`<button class="btn hot wide" data-next>C'est parti</button>${OB.redo?"":`<label class="onb-link">J'ai déjà une sauvegarde<input type="file" accept="application/json,.json" id="obimp" style="display:none"></label><button class="onb-link" id="obnils" style="appearance:none;border:0;background:none;width:100%">Reprendre le programme de Nils</button>`}`;
   }else if(st.id==="name"){
     body=`<input class="onb-in" id="obname" type="text" maxlength="20" autocomplete="given-name" placeholder="Ton prénom" value="${esc(a.name||"")}" enterkeyhint="next">`;
     foot=`<button class="btn hot wide" data-next>Continuer</button>`;
@@ -2989,7 +2989,8 @@ function obWire(st){
   const nx=q("[data-next]");
   if(st.id==="name"){const i=$("obname");if(!a.name)setTimeout(()=>i.focus(),250);
     const go=()=>{a.name=i.value.trim().slice(0,20);obGo(1);};nx.onclick=go;i.onkeydown=e=>{if(e.key==="Enter")go();};return;}
-  if(st.id==="intro"){nx.onclick=()=>obGo(1);const im=$("obimp");
+  if(st.id==="intro"){nx.onclick=()=>obGo(1);const im=$("obimp"),bn=$("obnils");
+    if(bn)bn.onclick=()=>{store.profile={mode:"nils"};persist();applyProgram();sess=defaultSession();closeOnboarding();render();toast("Programme de Nils rétabli");};
     if(im)im.onchange=async ev=>{const f=ev.target.files[0];if(!f)return;try{const s=JSON.parse(await f.text());if(!s.log)throw 0;
       store=migrate(s);if(!store.profile)store.profile={mode:"nils"};persist();applyProgram();sess=defaultSession();closeOnboarding();render();toast("Sauvegarde importée");}catch(e){toast("Fichier invalide");}};return;}
   if(st.pick||st.list){qa("[data-v]").forEach(x=>x.onclick=()=>{let v=x.dataset.v;if(st.id==="level")v=+v;a[st.id]=v;
