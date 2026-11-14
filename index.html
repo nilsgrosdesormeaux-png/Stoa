@@ -1423,7 +1423,8 @@ function animLoop(ts){
   els.forEach(el=>{const k=el.dataset.anim;if(!ANIM[k])return;const r=el.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;
     const g=el.querySelector(".fig");g.innerHTML=cache[k]||(cache[k]=drawFig(ANIM[k],u));});
   requestAnimationFrame(animLoop);}
-function startAnim(){if(animOn||matchMedia("(prefers-reduced-motion: reduce)").matches)return;animOn=true;requestAnimationFrame(animLoop);}
+/* les démonstrations tournent toujours : elles montrent le mouvement à faire (même si l'iPhone a « Réduire les animations ») */
+function startAnim(){if(animOn)return;animOn=true;requestAnimationFrame(animLoop);}
 
 /* ===================== BIBLIOTHÈQUE D'EXERCICES (pour tout le monde) =====================
    on  : où l'exercice est possible (salle, maison, dehors, rien = partout, halteres, elastiques, barre, dips, barrebasse, banc)
@@ -2226,8 +2227,9 @@ const MIMG={legPress:"legPress",calfPress:"legPress",legExt:"legExt",legCurl:"le
   bandRdl:"bands",bandWalk:"bands",bandPress:"bands",bandLatRaise:"bands",bandPullApart:"bands",bandPulldown:"bands",bandRow:"bands",bandCurl:"bands",bandPushdown:"bands"};
 const machPhoto=e=>{const k=MIMG[e.uid];return k&&MREADY.includes(k)?`photos/machines/${k}.jpg`:null;};
 const photoOf=e=>PH[e.uid]||(USE_GYM_PHOTOS&&PHOTO[e.uid])||machPhoto(e)||null;
-/* vignette : l'animation du mouvement d'abord ; la photo de la machine seulement s'il n'y a pas d'animation */
-const picHTML=(e,alt)=>{const k=animKey(e);if(k&&ANIM[k]){setTimeout(startAnim,0);return animSVG(k);}const p=photoOf(e);if(p)return `<img src="${p}" alt="${esc(alt||e.nom)}" loading="lazy">`;return ART[e.pic]||"";};
+/* vignette : la photo de la machine d'abord (la sienne, celle d'On Air ou l'image Stoa) ; sinon l'animation.
+   En touchant la vignette, la fiche montre l'animation du mouvement en grand, puis la photo. */
+const picHTML=(e,alt)=>{const p=photoOf(e);if(p)return `<img src="${p}" alt="${esc(alt||e.nom)}" loading="lazy">`;const k=animKey(e);if(k&&ANIM[k]){setTimeout(startAnim,0);return animSVG(k);}return ART[e.pic]||"";};
 
 /* ===================== CYCLE ET PROGRESSION ===================== */
 function cycleInfo(){const w=Math.max(0,Math.floor(daysBetween(weekStart(store.start),weekStart(today()))/7));return {cycle:Math.floor(w/6)+1,wk:w%6+1,deload:w%6===5};}
@@ -2374,7 +2376,7 @@ function card(k,e,i){
       ${d&&pb!=null&&d.kg>pb?`<span class="pr">🏆 Record : ${fmt(d.kg)} kg</span>`:""}</div>`);}
   const note=store.notes[e.uid];
   return `<div class="exo-hd">
-      <button class="thumb" data-info="1" aria-label="Voir la machine et les consignes">${picHTML(e)}<span class="n">${doneN>=n?"✓":i+1}</span>${photoOf(e)?"":`<span class="cam">${I_CAM}</span>`}</button>
+      <button class="thumb" data-info="1" aria-label="Voir la machine et les consignes">${picHTML(e)}<span class="n">${doneN>=n?"✓":i+1}</span>${photoOf(e)?(animKey(e)&&ANIM[animKey(e)]?`<span class="cam" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>`:""):`<span class="cam">${I_CAM}</span>`}</button>
       <div class="exo-ti"><h4>${esc(e.nom)}</h4>
         <div class="meta"><b>${n} × ${repsTxt(e)}</b> · repos <b>${mmss(restFor(e))}</b></div>
         <span class="tag ${e.opt?"opt":""}">${e.opt?"Facultatif · ":""}${e.muscle}</span></div></div>
