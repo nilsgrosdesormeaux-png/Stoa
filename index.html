@@ -1699,6 +1699,12 @@ const LIBX={};LIB.forEach(e=>{LIBX[e.uid]=e;});
    À partir des réponses au questionnaire, il choisit le découpage, les exercices,
    les séries, les répétitions et les repos. Mêmes règles qu'un coach.                */
 const LOADREF=[["legPress","Presse à cuisses","Pour les exercices de jambes"],["benchPlate","Développé couché (machine ou barre)","Pour les exercices de poussée"],["latPulldown","Tirage vertical (poulie haute)","Pour les exercices de dos"]];
+/* charges de départ estimées pour environ 10 répétitions, d'après le poids de corps, le sexe, le niveau et l'âge
+   (repères de coachs pour des débutants à confirmés, sur machine guidée) */
+const RATIO={legPress:{H:[1.0,1.5,2.1,2.7],F:[0.8,1.15,1.5,1.9]},benchPlate:{H:[0.4,0.6,0.85,1.05],F:[0.2,0.32,0.45,0.58]},latPulldown:{H:[0.45,0.62,0.8,0.95],F:[0.3,0.42,0.52,0.62]}};
+function estLoads(p){const w=Math.min(130,Math.max(40,+p.weight||70)),a=+p.age||25,lv=Math.min(3,p.level||0),sx=p.sex==="F"?"F":"H";
+  const af=a<16?0.7:a<18?0.85:a<40?1:a<50?0.92:a<60?0.85:0.75,o={};
+  Object.keys(RATIO).forEach(k=>{o[k]=Math.max(5,Math.round(w*RATIO[k][sx][lv]*af/5)*5);});return o;}
 const GYMS=[["basicfit","Basic-Fit"],["fitnesspark","Fitness Park"],["orangebleue","L'Orange Bleue"],["onair","On Air"],["keepcool","Keep Cool"],
   ["neoness","Neoness"],["cmg","Club Med Gym"],["magicform","Magic Form"],["vita","Vita Liberté"],["autre","Une autre salle"]];
 const GYMNAME=Object.fromEntries(GYMS);
@@ -1764,10 +1770,9 @@ function generate(p){
   const nEx=dur<=30?4:dur<=45?5:dur<=60?6:7;
   const fpats=[].concat(...(p.focus||[]).map(f=>FOCUSPAT[f]||[]));
   const spats=[].concat(...(p.strong||[]).filter(z=>!(p.focus||[]).includes(z)).map(f=>FOCUSPAT[f]||[]));
-  const fBase=[0.75,1,1.35,1.6][lvl]*Math.min(1.25,Math.max(0.8,Math.sqrt((+p.weight||70)/75)));
   /* charges déclarées : on s'en sert pour toute la famille d'exercices (jambes, poussée, tirage) */
-  const L=p.loads||{},fam=e=>LOWER.includes(e.pat)?"legPress":["vpull","hpull","rear","bic"].includes(e.pat)?"latPulldown":"benchPlate";
-  const factorOf=e=>{const r=fam(e);if(L[r]&&LIBX[r])return L[r]/LIBX[r].kg0*(e.unit==="haltere"?0.7:1);return fBase*(p.sex==="F"?(LOWER.includes(e.pat)?0.75:0.55):0.9);};
+  const L=Object.assign(estLoads(p),p.loads||{}),fam=e=>LOWER.includes(e.pat)?"legPress":["vpull","hpull","rear","bic"].includes(e.pat)?"latPulldown":"benchPlate";
+  const factorOf=e=>{const r=fam(e);return L[r]/LIBX[r].kg0*(e.unit==="haltere"?0.7:1);};
   const keys=["A","B","C","D","E"].slice(0,split.s.length),PP={},used={};
   const old=+p.age>=55,young=+p.age<16;
   split.s.forEach((ss,si)=>{
@@ -1808,7 +1813,8 @@ function generate(p){
       if(spats.includes(e0.pat))series=Math.max(2,series-1);
       if(old){rest+=30;if(!bw)min=Math.max(min,8),max=Math.max(max,12);}
       if(young&&!bw){min=Math.max(min,10);max=Math.max(max,15);}
-      const kg0=bw?0:Math.max(e.unit==="haltere"?2:(e.inc||1),roundTo((e.kg0||10)*factorOf(e0),e.inc||1));
+      let kg0=bw?0:Math.max(e.unit==="haltere"?2:(e.inc||1),roundTo((e.kg0||10)*factorOf(e0),e.inc||1));
+      if(e.unit==="haltere"&&p.place!=="salle"&&p.dbMax)kg0=Math.min(kg0,p.dbMax);
       const alts=candidates(e0.pat,p).filter(x=>x.uid!==e.uid).slice(0,3).map(x=>({nom:x.nom}));
       used[e.uid]=(used[e.uid]||0)+1;
       return Object.assign(e,{id:keys[si].toLowerCase()+(j+1),series,min,max,rest,kg0,
@@ -2763,7 +2769,7 @@ const OSTEPS=[
   {id:"goal",t:"Ton objectif principal ?",s:"Choisis le plus important pour toi maintenant.",pick:[["gras","🔥","Perdre du gras","Affiner la silhouette"],["muscle","💪","Prendre du muscle","Plus de volume, plus dessiné"],["forme","⚡","Me remettre en forme","Bouger, avoir de l'énergie"],["force","🏆","Devenir plus fort","Soulever plus lourd"]]},
   {id:"body",t:"Parle-moi de toi",s:"Pour adapter les charges de départ et tes besoins en calories. Ça reste sur ton téléphone."},
   {id:"level",t:"Ton niveau en musculation ?",s:"Sois honnête : l'app s'adapte.",pick:[[0,"🌱","Je n'en ai jamais fait","Ou presque jamais"],[1,"🌿","Moins d'un an","Je connais un peu les exercices"],[2,"🌳","1 à 3 ans","Je m'entraîne régulièrement"],[3,"🏔️","Plus de 3 ans","Je connais bien mes charges"]]},
-  {id:"loads",when:a=>(a.level||0)>=1&&a.place==="salle",t:"Tes charges actuelles",s:"Pour démarrer directement au bon poids. Ce que tu mets pour environ 10 répétitions. Laisse vide si tu ne sais pas."},
+  {id:"loads",when:a=>a.place==="salle"||(a.place==="maison"&&(a.equip||[]).includes("halteres")),t:"Tes charges",s:""},
   {id:"days",t:"Combien de séances par semaine ?",s:"Mieux vaut 2 séances tenues que 5 abandonnées."},
   {id:"zones",t:"Tes points forts, tes points faibles",s:"Glisse à droite ce que tu veux travailler en priorité, à gauche ce qui est déjà ton point fort."},
   {id:"pain",t:"Tu as mal quelque part ?",s:"On évitera les exercices qui pourraient gêner.",multi:[["genoux","Aux genoux"],["dos","Au bas du dos"],["epaules","Aux épaules"]],none:"Non, tout va bien"},
@@ -2806,9 +2812,14 @@ function obRender(dir){
       <button class="onb-chip wide ${a[st.id]&&!cur.length?"on":""}" data-none>${st.none}</button></div>`;
     foot=`<button class="btn hot wide" data-next ${a[st.id]?"":"disabled"}>Continuer</button>`;
   }else if(st.id==="loads"){
-    const L=a.loads||{};
-    body=`<div class="onb-fields one">${LOADREF.map(([k,n,ex])=>`<label>${n}<small>${ex}</small><span><input data-load="${k}" type="text" inputmode="decimal" value="${L[k]?fmt(L[k]):""}" placeholder="—"><i>kg</i></span></label>`).join("")}</div>
-      <p class="onb-note">Sur une machine, note le chiffre affiché (ou le total des disques). L'app ajustera ensuite séance après séance.</p>`;
+    const L=a.loads||{},E=estLoads(a),beg=(a.level||0)===0;
+    if(a.place!=="salle"){
+      body=`<p class="onb-sub">Pour ne jamais te proposer plus lourd que ce que tu as.</p><div class="onb-fields one"><label>Tes haltères les plus lourds<small>Le poids d'un seul haltère</small><span><input id="obdb" type="text" inputmode="decimal" value="${a.dbMax?fmt(a.dbMax):""}" placeholder="ex. 10"><i>kg</i></span></label></div>
+        <p class="onb-note">Haltères réglables ? Indique le maximum que tu peux mettre sur un haltère.</p>`;
+    }else{
+      body=`<p class="onb-sub">${beg?"Pas besoin de les connaître : voici des charges de départ <b>calculées pour toi</b> (ton poids, ton âge, ton niveau). L'app les ajustera dès ta première séance.":"Ce que tu mets pour environ 10 répétitions. Si tu ne sais pas, garde les charges <b>calculées pour toi</b>."}</p>
+        <div class="onb-fields one">${LOADREF.map(([k,n,ex])=>`<label>${n}<small>${ex} · proposé pour toi : <b style="color:#F5F5F7">${E[k]} kg</b></small><span><input data-load="${k}" type="text" inputmode="decimal" value="${L[k]?fmt(L[k]):""}" placeholder="${E[k]}"><i>kg</i></span></label>`).join("")}</div>
+        <p class="onb-note">Sur une machine, c'est le chiffre affiché (ou le total des disques). Toutes les autres charges du programme sont calculées à partir de ces trois-là.</p>`;}
     foot=`<button class="btn hot wide" data-next>Continuer</button>`;
   }else if(st.id==="body"){
     body=`<div class="onb-seg">${[["F","Femme"],["H","Homme"]].map(([v,t])=>`<button class="${a.sex===v?"on":""}" data-sex="${v}">${t}</button>`).join("")}</div>
@@ -2863,7 +2874,8 @@ function obWire(st){
       a[st.id]=cur;if(!cur.length)delete a[st.id];obRender();});
     q("[data-none]").onclick=()=>{a[st.id]=[];obRender();};
     nx.onclick=()=>{if(a[st.id])obGo(1);};return;}
-  if(st.id==="loads"){nx.onclick=()=>{const L={};qa("[data-load]").forEach(i=>{const v=num(i.value);if(v&&v>0&&v<500)L[i.dataset.load]=v;});a.loads=L;obGo(1);};return;}
+  if(st.id==="loads"){nx.onclick=()=>{const L={};qa("[data-load]").forEach(i=>{const v=num(i.value);if(v&&v>0&&v<500)L[i.dataset.load]=v;});a.loads=L;
+    const db=$("obdb");if(db){const v=num(db.value);if(v&&v>0&&v<80)a.dbMax=v;else delete a.dbMax;}obGo(1);};return;}
   if(st.id==="body"){
     qa("[data-sex]").forEach(x=>x.onclick=()=>{a.sex=x.dataset.sex;qa("[data-sex]").forEach(y=>y.classList.toggle("on",y===x));});
     const note=$("obbn"),upd=()=>{const ag=num($("obage").value);note.innerHTML=ag&&ag<16?"Moins de 16 ans : parles-en à un adulte. Le programme restera léger, sans charges lourdes.":ag&&ag>=55?"Après 55 ans, la muscu est excellente pour la santé. Le programme prévoit des repos plus longs et des charges modérées.":"";};
