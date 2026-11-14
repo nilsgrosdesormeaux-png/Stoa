@@ -1828,7 +1828,8 @@ function generate(p){
       if(iso2){iso2.series--;continue;}
       const big=[...exos].reverse().find(e=>e.comp&&e.series>3);
       if(big){big.series--;continue;}
-      if(exos.length>3){const ci=exos.findIndex(e=>e.pat==="core");exos.splice(wantCore&&ci===exos.length-1?exos.length-2:exos.length-1,1);continue;}
+      if(dur<=45){const r=exos.find(e=>e.rest>90);if(r){r.rest=90;continue;}}
+      if(exos.length>3){let i=exos.length-1;if(wantCore&&exos[i].pat==="core"&&exos.length>4)i--;exos.splice(Math.max(3,i),1);continue;}
       const r=exos.find(e=>e.rest>90);if(r){r.rest-=30;continue;}break;}
     const gs=[];exos.forEach(e=>e.g.forEach(g=>{if(!gs.includes(g))gs.push(g);}));
     const min=est();
@@ -2152,7 +2153,9 @@ function plan(e){
   if(!last){out.msg=`Première fois : commence à <b>${fmt(e.kg0)} kg${sideTxt(e,e.kg0)}</b> et cherche une charge où tu fais au moins ${e.min} répétitions propres. Trop facile ? Monte à la série suivante.`;out.cls="info";return out;}
   const S=W(last),wk=workKg(S.slice(0,n)),need=Math.min(n,last.n||n),SS=S.slice(0,need),feel=last.feel||"dur";
   const tot=x=>W(x).slice(0,n).reduce((a,s)=>a+s.reps,0),under=x=>W(x).slice(0,n).some(s=>s.reps<e.min);
-  const top=SS.length>=need&&SS.every(s=>s.reps>=e.max&&s.kg>=wk);
+  /* marche de charge trop grosse (ex. 2,5 → 5 kg) : on fait d'abord quelques répétitions de plus */
+  const big=!BWU(e)&&wk>0&&e.inc/wk>0.25,MX=e.max+(big?4:0);
+  const top=SS.length>=need&&SS.every(s=>s.reps>=MX&&s.kg>=wk);
   out.kg=wk;
   if(!BWU(e)&&daysBetween(last.d,today())>=14){out.kg=roundTo(Math.max(e.inc,wk*0.9),e.inc);out.reps=Array(n).fill(e.min);
     out.msg=`Retour après ${Math.round(daysBetween(last.d,today())/7)} semaines : <b>${fmt(out.kg)} kg</b>, environ 10 % plus léger, pour reprendre en douceur. Tes charges reviendront vite.`;out.cls="info";return out;}
@@ -2179,12 +2182,12 @@ function plan(e){
     out.kg=wk+e.inc;out.reps=Array(n).fill(e.min);
     out.msg=`Deux fois « facile » à cette charge : elle est trop légère, <b>monte à ${fmt(out.kg)} kg</b>.`;return out;}
   const add=feel==="facile"?2:feel==="echec"?0:1;
-  out.reps=Array.from({length:n},(_,j)=>Math.min(e.max,(S[j]||S[S.length-1]).reps+add));
+  out.reps=Array.from({length:n},(_,j)=>Math.min(MX,(S[j]||S[S.length-1]).reps+add));
   const l3=past.slice(-3);
   if(l3.length===3&&l3.every(x=>workKg(W(x).slice(0,n))===wk)&&tot(l3[2])<=tot(l3[0])){
     out.msg="Pas de progrès depuis 3 séances : dors bien, mange assez. Si ça dure, fais cette séance 10 % plus léger, puis remonte.";out.cls="down";return out;}
   out.msg=add===0?`C'était à l'échec : <b>mêmes répétitions</b>, sans y aller cette fois : ${out.reps.join(" · ")}.`
-    :`Même charge, <b>${add===2?"deux répétitions":"une répétition"} de plus</b> par série : ${out.reps.join(" · ")}.`;
+    :`Même charge, <b>${add===2?"deux répétitions":"une répétition"} de plus</b> par série : ${out.reps.join(" · ")}.${big?` La prochaine marche (+${fmt(e.inc)} kg) est grosse pour cette charge : monte jusqu'à ${MX} répétitions avant d'augmenter.`:""}`;
   return out;
 }
 const warmups=(e,kg)=>e.warm&&!BWU(e)&&kg>0&&!cycleInfo().deload?[{kg:roundTo(kg*.5,e.inc),reps:10},{kg:roundTo(kg*.75,e.inc),reps:5}]:[];
