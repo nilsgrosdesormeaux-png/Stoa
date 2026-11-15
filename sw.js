@@ -1,9 +1,9 @@
 /* Stoa : fonctionne hors connexion à la salle.
    Page : réseau d'abord (pour recevoir les mises à jour), cache en secours.
    Photos, icônes, polices : cache d'abord. */
-const CACHE = "stoa-v17";
+const CACHE = "stoa-v18";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png",
-  ...["legPress","legExt","legCurl","hipThrust","abductor"].map(k => `./photos/machines/${k}.jpg`)];
+  ...["legPress","legExt","legCurl","hipThrust","abductor","benchPlate","latPulldown"].map(k => `./photos/machines/${k}.jpg`)];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
