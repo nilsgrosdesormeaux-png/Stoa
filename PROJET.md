@@ -3,6 +3,9 @@
 Ce document résume tout ce qui a été fait et décidé, pour reprendre le projet depuis un autre compte Claude sans rien perdre.
 Dernière mise à jour : 14 novembre 2026 (questionnaire et générateur de programmes ajoutés).
 
+
+> **À faire en priorité (15 nov. 2026)** : appliquer `BILAN-EXPERTS.md`, le bilan de 6 experts (préparateur physique, kiné, diététicien, coach femmes, coach maison, coach force). Rapports complets dans `experts/`. Commencer par la partie « Dangereux ».
+
 ---
 
 ## 1. Ce qu'est Stoa aujourd'hui

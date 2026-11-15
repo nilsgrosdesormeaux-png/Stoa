@@ -2,6 +2,8 @@
 
 Avant toute chose, lis `PROJET.md` : il contient tout l'historique du projet, les choix faits, le programme actuel, ce qui reste à faire et la vision pour la suite.
 
+Ensuite, lis `BILAN-EXPERTS.md` : c'est la liste des corrections à faire en priorité (rapports complets dans `experts/`).
+
 Règles :
 1. Réponds en français, simplement, sans jargon.
 2. L'app tient dans `index.html` : modifie seulement la partie utile, ne réécris pas tout le fichier.
