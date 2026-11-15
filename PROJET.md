@@ -59,6 +59,26 @@ Stoa n'est plus seulement l'app de Nils : n'importe qui peut ouvrir le lien et o
 - Toutes les fonctions marchent aussi dans le programme de Nils, comme « Changer d'exercice ». Ne plus réserver une nouveauté aux programmes générés.
 - Pour modifier le programme de Nils lui-même, il faut le lui demander, puis modifier `store.nilsPlan` (par exemple avec un fichier à importer), pas seulement `P_NILS` dans le code.
 
+### Travail à deux comptes Claude en même temps (15 nov. 2026)
+- **Compte « images »** : ne touche qu'au dossier `photos/machines/`, à `PROMPTS-IMAGES.md`, à la ligne `MREADY` de `index.html` et à la liste `CORE` de `sw.js`.
+- **Compte « app »** : tout le reste.
+- Les deux : `git pull` juste avant de modifier, petits envois fréquents ; en cas de conflit, celui qui envoie en second fusionne.
+
+### Retours de Nils du 15 nov. 2026 (en cours)
+Fait :
+- **Cartes repliées** : seul l'exercice en cours est ouvert, les autres montrent image, nom et « À viser » ; un tap sur le titre ouvre ou ferme.
+- **Chrono** : textes clairs (« Souffle, bois une gorgée d'eau · ensuite série 2/3 », « Petite pause d'échauffement »). À zéro : un bip (et une vibration sur Android ; impossible sur iPhone en appli web), il devient vert puis disparaît, sans compter le temps en plus. −15 et +15 sont retenus pour l'exercice.
+- **Semaine modifiable** : appui long sur un jour dans Programme pour y mettre une autre séance ou un repos ; les jours s'échangent.
+- **Plus d'alternatives** : « Changer d'exercice » montre les conseillés, puis tous les exercices du même muscle disponibles là où on s'entraîne.
+- **Pages moins longues** : le Guide est en onglets (Séance, Progresser, Nutrition, Infos) avec des parties repliées ; dans Programme, les parties secondaires sont repliées.
+- **Séances générées** : exercices regroupés par zone (jambes, poussée, tirage, abdos à la fin), gros exercices d'abord, au plus 6 exercices (débutant), 7 ou 8 sinon. Les programmes déjà créés ne changent pas (règle du programme figé) : refaire le questionnaire pour en profiter.
+
+À faire :
+- Mode « je construis mes séances moi-même » (pour ceux qui connaissent déjà leurs séances), avec des cartes à glisser par partie du corps qui tiennent compte des préférences (machines, haltères…), modifiable ensuite.
+- Questionnaire adaptatif : les cartes suivantes dépendent des réponses précédentes.
+- Animations à améliorer (certaines peu lisibles) ; images de machines trop proches (leg curl et leg extension), côté compte « images ».
+- Notifications et vibration en fin de repos sur iPhone : nécessitent une vraie app (App Store) ; en appli web, seulement le son et l'écran.
+
 ### Les écrans (barre d'onglets en bas, style iOS)
 1. **Accueil** (tableau de bord « Hammer Night », noir et rouge) :
    - anneau des séances de la semaine (x/3) et série de semaines complètes d'affilée (flamme façon Snap) ;

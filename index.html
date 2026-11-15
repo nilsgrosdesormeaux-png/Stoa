@@ -1922,6 +1922,19 @@ function generate(p){
         done=true;break;}
       if(!done)break;}});
   SS.forEach(({si,ss,exos,est})=>{
+    /* ordre logique : on regroupe les exercices par zone (jambes, poussée, tirage), gros exercices d'abord dans chaque zone,
+       la zone de ta priorité en premier, les abdos à la fin */
+    {const ZONE={quad:"bas",quadIso:"bas",hinge:"bas",glute:"bas",ham:"bas",abd:"bas",add:"bas",calf:"bas",
+      hpush:"pousse",fly:"pousse",vpush:"pousse",latr:"pousse",tri:"pousse",vpull:"tire",hpull:"tire",rear:"tire",bic:"tire",core:"abdos"};
+     const zones=[];exos.forEach(e=>{const z=ZONE[e.pat]||"autre";if(z!=="abdos"&&!zones.includes(z))zones.push(z);});zones.push("autre","abdos");
+     const ISO_LATE=["calf","abd","add","latr","tri","rear","bic"];
+     const rank=e=>{const z=ZONE[e.pat]||"autre";return zones.indexOf(z)*100+(e.comp?0:ISO_LATE.includes(e.pat)?20:10);};
+     const orig=exos.slice();exos.sort((x,y)=>rank(x)-rank(y)||orig.indexOf(x)-orig.indexOf(y));
+     /* pas trop d'exercices par séance : on garde l'essentiel et on donne plutôt une série de plus aux gros exercices */
+     const cap=lvl===0?6:lvl===1?7:8,fpats=[].concat(...(p.focus||[]).map(f=>FOCUSPAT[f]||[]));
+     while(exos.length>cap){let i=-1;for(let q=exos.length-1;q>=0;q--){const e=exos[q];if(e.pat!=="core"&&!e.comp&&!fpats.includes(e.pat)){i=q;break;}}
+       if(i<0)for(let q=exos.length-1;q>=0;q--){if(exos[q].pat!=="core"&&!fpats.includes(exos[q].pat)){i=q;break;}}
+       if(i<0)break;exos.splice(i,1);const big=exos.find(e=>e.comp&&e.series<4);if(big)big.series++;}}
     exos.forEach((e,j)=>{e.id=keys[si].toLowerCase()+(j+1);});
     const gs=[];exos.forEach(e=>e.g.forEach(g=>{if(!gs.includes(g))gs.push(g);}));
     const min=est();
