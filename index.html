@@ -259,7 +259,7 @@
   .ring .bgc{stroke:var(--panel-2)}
   .ring .fg{stroke:var(--hot);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
   .timer .tx{flex:1;min-width:0;padding-left:2px;appearance:none;border:0;background:none;text-align:left}
-  .timer .tx b{display:block;font-variant-numeric:tabular-nums;font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.05}
+  .timer .tx b{display:block;font-variant-numeric:tabular-nums;font-size:22px;font-weight:800;letter-spacing:-.02em;line-height:1.05}
   .timer .tx small{font-size:12.5px;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.25}
   .timer .tb{appearance:none;border:0;background:var(--panel-2);color:var(--ink);font-size:14px;font-weight:700;min-width:44px;min-height:44px;padding:0 8px;border-radius:12px}
   .timer .tb.x{background:var(--ink);color:var(--bg)}
@@ -2359,6 +2359,14 @@ function card(k,e,i){
   if(doneN>=n&&te.feel&&!expanded[e.uid]){
     const S=W(te);return `<button class="collapsed" data-open="1"><span class="c">✓</span><span class="t">${esc(e.nom)}</span><span class="s num">${BWU(e)?`${S.map(s=>s.reps).join(" · ")} ${e.unit==="sec"?"s":"reps"}`:`${S.length} × ${fmt(workKg(S))} kg`}${te.feel?" · "+FEEL[te.feel]:""}</span></button>`;}
   const pl=plan(e),past=pastEntries(e.uid),last=past[past.length-1];
+  /* carte repliée : seul l'exercice en cours est ouvert ; un tap sur le titre ouvre ou referme */
+  const open=expanded[e.uid]!=null?expanded[e.uid]:i===activeIdx(k);
+  if(!open){const aim=BWU(e)?`${pl.reps.join(" · ")} ${e.unit==="sec"?"s":"reps"}`:pl.kg!=null?`${fmt(pl.kg)} kg × ${pl.reps.join(" · ")}`:`${n} × ${repsTxt(e)}`;
+    return `<div class="exo-hd">
+      <button class="thumb" data-info="1" aria-label="Voir la machine et les consignes">${picHTML(e)}<span class="n">${doneN>=n?"✓":i+1}</span></button>
+      <button class="exo-ti" data-toggle="1" style="appearance:none;border:0;background:none;text-align:left;padding:0;color:inherit"><h4>${esc(e.nom)}</h4>
+        <div class="meta">${doneN?`<b>${doneN}/${n} séries faites</b>`:`À viser : <b class="num">${aim}</b>`}</div>
+        <span class="tag ${e.opt?"opt":""}">${e.opt?"Facultatif · ":""}${e.muscle}</span><span class="muted small" style="display:block;margin-top:6px">Toucher pour ouvrir ›</span></button></div>`;}
   const firstKg=num(sets[0]&&sets[0].kg)??pl.kg;
   const wu=warmups(e,pl.kg),wl=(te&&te.warm)||[];
   const pb=past.length?Math.max(...past.map(best)):null;
@@ -2377,14 +2385,14 @@ function card(k,e,i){
   const note=store.notes[e.uid];
   return `<div class="exo-hd">
       <button class="thumb" data-info="1" aria-label="Voir la machine et les consignes">${picHTML(e)}<span class="n">${doneN>=n?"✓":i+1}</span>${photoOf(e)?(animKey(e)&&ANIM[animKey(e)]?`<span class="cam" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>`:""):`<span class="cam">${I_CAM}</span>`}</button>
-      <div class="exo-ti"><h4>${esc(e.nom)}</h4>
+      <button class="exo-ti" data-toggle="1" style="appearance:none;border:0;background:none;text-align:left;padding:0;color:inherit"><h4>${esc(e.nom)}</h4>
         <div class="meta"><b>${n} × ${repsTxt(e)}</b> · repos <b>${mmss(restFor(e))}</b></div>
-        <span class="tag ${e.opt?"opt":""}">${e.opt?"Facultatif · ":""}${e.muscle}</span></div></div>
+        <span class="tag ${e.opt?"opt":""}">${e.opt?"Facultatif · ":""}${e.muscle}</span></button></div>
     ${BWU(e)||(PROG.place!=="salle"&&!PROG.nils)?"":`<div class="reg" data-reg="1">${note?`<button data-edit="1">⚙︎ Réglages : <b>${esc(note)}</b></button>`:`<button data-edit="1">⚙︎ Noter mes réglages (siège, dossier, cran…)</button>`}</div>`}
     ${pl.msg&&doneN<n?`<div class="tip ${pl.cls}">${pl.msg}${pl.up?`<button class="btn line" data-swap="${pl.up}" style="margin-top:10px;min-height:42px;width:100%">↑ Passer à : ${esc(LIBX[pl.up].nom)}</button>`:""}${pl.down&&!PROG.nils?`<button class="btn line" data-swap="${pl.down}" style="margin-top:10px;min-height:42px;width:100%">↓ Plus facile : ${esc(LIBX[pl.down].nom)}</button>`:""}</div>`:""}
     <div class="sets">
       <div class="sets-hd"><span>Série</span><span>${BWU(e)?"Lest":"kg"}</span><span>${e.unit==="sec"?"Sec.":"Reps"}</span><span></span></div>
-      <div class="side">Gris = proposé, touche ✓ si tu l'as fait · Charge = ${UNIT[e.unit]}${e.unit==="disques"?" (sans le poids de la machine)":""}${e.unit==="sec"?" · Reps = secondes tenues":""}</div>
+      <div class="side">Gris = proposé · touche ✓ quand c'est fait</div>
       ${rows.join("")}
       ${doneN>=n?`<div class="feel-q">C'était comment ? <span class="muted" style="font-weight:500">(touche encore pour décocher)</span></div><div class="feel">${[["facile","Facile, 3+ en réserve"],["dur","Dur, 1-2 en réserve"],["echec","À l'échec"]].map(([v,l])=>`<button data-feel="${v}" class="${te.feel===v?"on":""}">${l}</button>`).join("")}</div>`:""}
       <div class="prev">${last?`Dernière fois (${fr(last.d)}) : <b class="num">${W(last).map(s=>`${fmt(s.kg)}×${s.reps}`).join(" · ")}</b>`:`Départ conseillé : <b>${e.depart}</b>`}</div>
@@ -2395,6 +2403,9 @@ function card(k,e,i){
 function refreshCard(k,e){
   const el=$("c-"+e.id);if(!el)return;const i=P[k].exos.indexOf(e);el.innerHTML=card(k,e,i);
   el.classList.toggle("full",isFull(e));wire(k,e);
+  /* l'exercice suivant s'ouvre tout seul quand celui-ci est fini */
+  P[k].exos.forEach((x,j)=>{if(x===e||expanded[x.uid]!=null)return;const c=$("c-"+x.id);if(!c)return;
+    const shouldOpen=j===activeIdx(k),isOpen=!!c.querySelector(".sets");if(shouldOpen!==isOpen&&!c.querySelector(".collapsed")){c.innerHTML=card(k,x,j);wire(k,x);}});
   const st=sessionStats(k),ai=activeIdx(k);if(!$("pdone"))return;$("pdone").textContent=st.done;$("pbar").style.width=(st.tot?st.done/st.tot*100:0)+"%";
   P[k].exos.forEach((x,j)=>{const c=$("c-"+x.id);if(c)c.classList.toggle("active",j===ai);
     const d=view.querySelector(`[data-jump="${x.id}"]`);if(d)d.className=isFull(x)?"ok":j===ai?"on":"";});
@@ -2410,6 +2421,8 @@ function wire(k,e){
   const box=$("c-"+e.id);if(!box)return;
   const o=box.querySelector("[data-open]");if(o){o.onclick=()=>{expanded[e.uid]=true;refreshCard(k,e);};return;}
   box.querySelectorAll("[data-info]").forEach(b=>b.onclick=()=>infoSheet(e,k));
+  const tg=box.querySelector("[data-toggle]");if(tg)tg.onclick=()=>{expanded[e.uid]=!box.querySelector(".sets");refreshCard(k,e);};
+  if(!box.querySelector(".sets"))return;
   const cl=box.querySelector("[data-close]");if(cl)cl.onclick=()=>{expanded[e.uid]=false;refreshCard(k,e);};
   box.querySelectorAll("[data-swap]").forEach(b=>b.onclick=()=>doSwap(e.uid,b.dataset.swap));
   const ch=box.querySelector("[data-change]");if(ch)ch.onclick=()=>changeSheet(e);
@@ -2444,9 +2457,9 @@ function wire(k,e){
       else if(!warm&&pb!=null&&kg===pb){const br=Math.max(0,...past.map(x=>Math.max(0,...W(x).filter(s=>s.kg===pb).map(s=>s.reps))));
         if(rp>br&&!W(te).some((s,q)=>q!==j&&s.kg===kg&&s.reps>=rp))toast(`🏆 Record : ${rp} ${e.unit==="sec"?"secondes":"répétitions"}${kg>0?` à ${fmt(kg)} kg`:""}`);}
       const ex=P[k].exos,nx=ex.slice(ex.indexOf(e)+1).find(x=>!isFull(x));
-      if(warm)startRest(60,"Échauffement · "+e.nom,e);
-      else if(!doneAll){const nj=te.sets.findIndex((s,q)=>q<n&&!s);const next=nj<0?W(te).length+1:nj+1;startRest(restFor(e),`Repos · ensuite série ${Math.min(next,n)}/${n} · ${e.nom}`,e);}
-      else if(nx)startRest(restFor(e),`Repos · ensuite : ${nx.nom}`,e);
+      if(warm)startRest(45,`Petite pause d'échauffement · ensuite ${(te.warm||[]).filter(Boolean).length>=2?"ta 1re vraie série":"l'échauffement 2"}`,null);
+      else if(!doneAll){const nj=te.sets.findIndex((s,q)=>q<n&&!s);const next=nj<0?W(te).length+1:nj+1;startRest(restFor(e),`Souffle, bois une gorgée d'eau · ensuite série ${Math.min(next,n)}/${n}`,e);}
+      else if(nx)startRest(restFor(e),`Exercice terminé · installe-toi sur : ${nx.nom}`,e);
       else stopRest();
     };
   });
@@ -2456,10 +2469,15 @@ function wire(k,e){
 function doSwap(from,to){store.swaps=store.swaps||{};delete store.swaps[to];Object.keys(store.swaps).forEach(k=>{if(store.swaps[k]===from)store.swaps[k]=to;});
   store.swaps[from]=to;persist();applyProgram();render(true);toast(`C'est noté : ${LIBX[to]?LIBX[to].nom:to}`);}
 function changeSheet(e){
-  const p=PROG.p,list=candidates(e.pat,p).filter(x=>x.uid!==e.uid);
+  const p=PROG.p||{},list=candidates(e.pat,p).filter(x=>x.uid!==e.uid),tk=envTokens(p),pain=p.pain||[];
+  /* en plus des conseillés : tout ce qui travaille le même muscle et qui existe là où tu t'entraînes */
+  const more=LIB.filter(x=>x.uid!==e.uid&&!list.includes(x)&&(x.pat===e.pat||(x.g||[]).some(g=>(e.g||[]).includes(g)))
+    &&x.on.some(t=>tk.includes(t))&&!(x.avoid||[]).some(a=>pain.includes(a)));
   openSheet(`<div class="shd"><h3>Changer d'exercice</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
     <p class="small muted">Machine prise, exercice qui ne te plaît pas, gêne ? Choisis une autre option qui travaille le même muscle. Ton choix est gardé pour les prochaines séances.</p>
-    <div class="panel flat list" style="margin-top:12px">${list.length?list.map(x=>`<button class="li" data-to="${x.uid}"><span class="w"><b>${esc(x.nom)}</b><small>${esc(x.muscle)}</small></span><span class="chev">›</span></button>`).join(""):`<div class="li"><span class="w"><small>Pas d'autre option avec ton matériel.</small></span></div>`}</div>`,
+    <h5>Conseillés pour toi</h5><div class="panel flat list">${list.length?list.map(x=>`<button class="li" data-to="${x.uid}"><span class="w"><b>${esc(x.nom)}</b><small>${esc(x.muscle)}</small></span><span class="chev">›</span></button>`).join(""):`<div class="li"><span class="w"><small>Pas d'autre option conseillée avec ton matériel.</small></span></div>`}</div>
+    ${more.length?`<h5>Autres options pour le même muscle (${more.length})</h5><div class="panel flat list">${more.map(x=>`<button class="li" data-to="${x.uid}"><span class="w"><b>${esc(x.nom)}</b><small>${esc(x.muscle)}</small></span><span class="chev">›</span></button>`).join("")}</div>`:""}
+    <p class="small muted" style="margin-top:10px">Tester des machines au début, c'est bien. Ensuite, garde la même plusieurs semaines : c'est comme ça qu'on voit ses progrès.</p>`,
     ()=>{$("sx").onclick=closeSheet;$("sheet").querySelectorAll("[data-to]").forEach(b=>b.onclick=()=>{closeSheet();doSwap(e.uid,b.dataset.to);});});}
 function finish(k){
   const st=sessionStats(k);
@@ -2550,6 +2568,27 @@ function awaySheet(){
         toast(`Programme vacances prêt jusqu'au ${fr(until)}`);};});};
   draw();
 }
+/* organiser sa semaine : mettre n'importe quelle séance (ou un repos) sur n'importe quel jour */
+const JOURS=["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
+function daySheet(i){const r=PLAN[i];
+  openSheet(`<div class="shd"><h3>Le ${JOURS[i]|| r.d}, je fais…</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
+    <div class="panel flat list">${KEYS.map(k=>`<button class="li" data-pk="${k}"><span class="w"><b>${esc(LABEL[k])}</b><small>${esc(P[k].muscles)}</small></span>${r.k===k?`<span class="r">✓</span>`:""}</button>`).join("")}
+      <button class="li" data-pk=""><span class="w"><b>Repos</b><small>Pas de séance ce jour-là</small></span>${!r.k?`<span class="r">✓</span>`:""}</button></div>
+    <p class="small muted" style="margin-top:10px">Si cette séance était déjà prévue un autre jour, les deux jours s'échangent.</p>`,
+  ()=>{$("sx").onclick=closeSheet;$("sheet").querySelectorAll("[data-pk]").forEach(b=>b.onclick=()=>{const k=b.dataset.pk||null,old=r.k||null;
+    const j=k?PLAN.findIndex((x,q)=>q!==i&&x.k===k):-1;
+    const setK=(row,kk)=>{if(kk){row.k=kk;delete row.t;delete row.s;}else{row.k=null;row.t="Repos";row.s="Récupération";}};
+    if(j>=0)setK(PLAN[j],old);setK(r,k);persist();closeSheet();render(true);toast(k?`${LABEL[k]} le ${JOURS[i]}`:`Repos le ${JOURS[i]}`);});});}
+/* replie les parties secondaires d'une page : on n'ouvre que ce qu'on veut lire */
+function foldSections(keep){
+  [...view.querySelectorAll("h3")].forEach(h=>{const t=h.textContent;if(keep.some(k=>t.includes(k)))return;
+    const els=[];let n=h.nextElementSibling;while(n&&n.tagName!=="H3"){els.push(n);n=n.nextElementSibling;}
+    const d=document.createElement("details");d.className="panel";d.style.padding="0 16px";
+    d.innerHTML=`<summary style="cursor:pointer;padding:14px 0;font-weight:700;font-size:16px;list-style:none;display:flex;justify-content:space-between;gap:8px"><span>${t}</span><span class="muted">›</span></summary>`;
+    const inner=document.createElement("div");inner.style.paddingBottom="14px";
+    els.forEach(el=>{if(el.classList.contains("panel")){el.classList.remove("panel");el.style.padding="0";}inner.appendChild(el);});
+    d.appendChild(inner);h.replaceWith(d);});
+}
 function vPlan(){
   $("ttl").textContent="Programme";
   const t=today(),ws=weekStart(t),done=new Set(store.hist.filter(h=>h.d>=ws&&hp(h)).map(h=>h.k)),ci=cycleInfo();
@@ -2572,9 +2611,10 @@ function vPlan(){
   ${ios&&!standalone&&!inFrame?`<div class="banner info"><b style="color:var(--ink)">Installe l'app sur ton iPhone :</b> dans Safari, touche le bouton Partager (carré avec une flèche), puis « Sur l'écran d'accueil ». Elle s'ouvrira en plein écran, même sans réseau.</div>`:""}
   <h3>Ta semaine</h3>
   <div class="panel flat list">
-    ${PLAN.map((r,i)=>`<button class="li ${r.k?"":"rest"} ${i===di?"today":""}" ${r.k?`data-k="${r.k}"`:"disabled"}><span class="day">${r.d}</span>
+    ${PLAN.map((r,i)=>`<button class="li ${r.k?"":"rest"} ${i===di?"today":""}" data-day="${i}" ${r.k?`data-k="${r.k}"`:""}><span class="day">${r.d}</span>
       <span class="w"><b>${r.k?LABEL[r.k]:r.t}</b><small>${r.k?P[r.k].muscles:r.s}</small></span>${r.k?(done.has(r.k)?`<span class="r">✓ faite</span>`:`<span class="chev">›</span>`):""}</button>`).join("")}
   </div>
+  <p class="small muted" style="margin:8px 4px 0">Appui long sur un jour pour y mettre une autre séance ou un repos.</p>
   <p class="lead small">${PROG.nils?"Tes horaires changent ? Ne fais <b>jamais A et C deux jours de suite</b> (mêmes muscles du haut). B peut se placer n'importe où. Le Bonus se fait au moins 48 h après C : le dimanche est idéal."
       :PER_WEEK<=3&&/Corps entier/.test(PROG.split)?"Tes horaires changent ? Pas de souci : laisse juste <b>au moins un jour de repos entre deux séances</b>, les muscles se construisent pendant le repos."
       :"Tes horaires changent ? Garde l'ordre des séances et évite de faire <b>deux fois le même type de séance deux jours de suite</b> (haut puis haut, ou bas puis bas)."}</p>
@@ -2608,7 +2648,12 @@ function vPlan(){
   if($("pauseend"))$("pauseend").onclick=()=>{const pz=(store.pauses||[]).slice(-1)[0];if(pz)pz.to=today();delete store.pauseUntil;persist();render(true);toast("C'est reparti ! Commence en douceur.");};
   if($("tempend"))$("tempend").onclick=()=>{store.temp=null;store.returned=today();persist();applyProgram();sess=defaultSession();render();toast("Bon retour ! Si tu as arrêté 2 semaines ou plus, tes charges repartent un peu plus légères.");};
   if($("backnils"))$("backnils").onclick=()=>{store.profile={mode:"nils"};persist();applyProgram();sess=defaultSession();render();toast("Ancien programme rétabli");};
-  view.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>go("today",b.dataset.k));
+  view.querySelectorAll("[data-day]").forEach(b=>{let lp=null,long=false;
+    b.addEventListener("pointerdown",()=>{long=false;lp=setTimeout(()=>{long=true;try{navigator.vibrate&&navigator.vibrate(15);}catch(e){}daySheet(+b.dataset.day);},500);});
+    ["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,()=>clearTimeout(lp)));
+    b.addEventListener("contextmenu",ev=>ev.preventDefault());
+    b.onclick=()=>{if(long)return;if(b.dataset.k)go("today",b.dataset.k);else daySheet(+b.dataset.day);};});
+  foldSections(["Ta semaine","Séries par semaine"]);
 }
 
 /* ===================== PROGRÈS ===================== */
@@ -2735,6 +2780,32 @@ function guideGen(){
     <p class="note"><b>Les protéines en pratique :</b> 150 g de blanc de poulet (pesé cru) ≈ 35 g · 3 œufs ≈ 20 g · un pot de skyr de 150 g ≈ 15 g · 100 g de thon ≈ 25 g · 100 g de lentilles cuites ≈ 9 g · 150 g de tofu ≈ 20 g.</p>
   </div>`;
 }
+/* Guide rangé en onglets ; chaque partie est repliée, on ouvre seulement ce qu'on cherche */
+let gTab=0;
+const GTABS=[["Séance",["Déroulé","Douleur","erreurs"]],["Progresser",["progresser","Ton plan","Pourquoi ce programme","Photos de suivi"]],
+  ["Nutrition",["Nutrition"]],["Infos",["vocabulaire","iPhone","images"]]];
+function guideTabs(){
+  const hs=[...view.querySelectorAll("h3")],secs=hs.map(h=>{const els=[];let n=h.nextElementSibling;while(n&&n.tagName!=="H3"){els.push(n);n=n.nextElementSibling;}return {h,els,t:h.textContent};});
+  const box=document.createElement("div");
+  const seg=document.createElement("div");seg.className="seg";seg.setAttribute("role","tablist");
+  seg.innerHTML=GTABS.map(([n],i)=>`<button role="tab" data-g="${i}" aria-selected="${i===gTab}">${n}</button>`).join("");
+  box.appendChild(seg);
+  const used=new Set();
+  GTABS.forEach(([n,keys],i)=>{const pane=document.createElement("div");pane.dataset.pane=i;pane.hidden=i!==gTab;
+    let first=true;
+    secs.filter(x=>!used.has(x)&&keys.some(k=>x.t.toLowerCase().includes(k.toLowerCase()))).forEach(x=>{used.add(x);
+      const d=document.createElement("details");d.className="panel";d.style.padding="0 16px";if(first&&i===0)d.open=true;first=false;
+      d.innerHTML=`<summary style="cursor:pointer;padding:14px 0;font-weight:700;font-size:16px;list-style:none;display:flex;justify-content:space-between;gap:8px"><span>${x.t}</span><span class="muted">›</span></summary>`;
+      const inner=document.createElement("div");inner.style.paddingBottom="14px";x.els.forEach(el=>{el.classList.remove("panel");el.style.padding="0";el.style.border="0";el.style.boxShadow="none";el.style.background="none";inner.appendChild(el);});
+      d.appendChild(inner);pane.appendChild(d);});
+    box.appendChild(pane);});
+  secs.filter(x=>!used.has(x)).forEach(x=>{const pane=box.querySelector('[data-pane="3"]');const d=document.createElement("details");d.className="panel";d.style.padding="0 16px";
+    d.innerHTML=`<summary style="cursor:pointer;padding:14px 0;font-weight:700;list-style:none">${x.t}</summary>`;const inner=document.createElement("div");x.els.forEach(el=>{el.classList.remove("panel");inner.appendChild(el);});d.appendChild(inner);pane.appendChild(d);});
+  hs.forEach(h=>h.remove());
+  const lead=view.querySelector(".lead");(lead||view.firstChild).after(box);
+  seg.querySelectorAll("[data-g]").forEach(bt=>bt.onclick=()=>{gTab=+bt.dataset.g;seg.querySelectorAll("[data-g]").forEach(x=>x.setAttribute("aria-selected",x===bt));
+    box.querySelectorAll("[data-pane]").forEach(pn=>pn.hidden=+pn.dataset.pane!==gTab);});
+}
 function vGuide(){
   $("ttl").textContent="Guide";
   view.innerHTML=`
@@ -2755,7 +2826,7 @@ function vGuide(){
   <div class="panel"><ol class="clean">
     <li><b>Échauffement :</b> 5 min de vélo, puis les 2 séries É proposées par l'app sur les premiers exercices (la moitié de ta charge × 10, puis les trois quarts × 5).</li>
     <li><b>Respecte l'ordre :</b> du plus lourd au plus léger, tu es le plus frais au début.</li>
-    <li><b>Valide chaque série :</b> le chrono de repos se lance tout seul. À la fin, il devient vert et compte le temps en plus.</li>
+    <li><b>Valide chaque série :</b> le chrono de repos se lance tout seul. À la fin, il sonne, devient vert, puis disparaît : tu lances ta série. Les boutons −15 et +15 changent la durée et elle est retenue pour cet exercice.</li>
     <li><b>Dis comment c'était</b> après la dernière série (Facile, Dur, À l'échec) : l'app s'en sert pour savoir quand monter.</li>
   </ol></div>
   <h3>Comment l'app te fait progresser</h3>
@@ -2832,6 +2903,7 @@ function vGuide(){
   </ol><p class="note">L'icône apparaît comme une vraie app, s'ouvre en plein écran et marche sans réseau à la salle. Pour récupérer tes données d'ici, utilise Exporter puis Importer (onglet Progrès).</p></div>
   <h3>Les images</h3>
   <div class="panel"><p>${USE_GYM_PHOTOS?"Les photos viennent de la salle On Air Angers. ":""}Pour les exercices sans photo, le dessin montre la position et le sens du mouvement (flèche rouge). Touche l'image d'un exercice, puis « Ajouter une photo » : choisis-la dans ta galerie ou prends-la tout de suite. Elle remplace le dessin, pour toutes les séances qui utilisent cette machine.</p></div>`;
+  guideTabs();
 }
 
 
@@ -3080,15 +3152,19 @@ function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioConte
 async function lockWake(){try{if("wakeLock" in navigator&&!wake){wake=await navigator.wakeLock.request("screen");wake.addEventListener("release",()=>{wake=null;});}}catch(e){}}
 function startRest(s,label,e){
   try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();}catch(err){}
-  clearInterval(ti);tTot=s;tEnd=Date.now()+s*1000;tEx=e||null;$("tlabel").textContent=label||"Repos";
+  clearInterval(ti);tTot=s;tEnd=Date.now()+s*1000;tEx=e||null;$("tlabel").textContent=label||"Souffle, bois une gorgée d'eau";
   const tm=$("timer");tm.classList.remove("hidden","end");tm.dataset.rang="";tick();ti=setInterval(tick,250);}
 function stopRest(){clearInterval(ti);$("timer").classList.add("hidden");$("timer").classList.remove("end");}
 function tick(){const ms=tEnd-Date.now(),l=Math.ceil(ms/1000),tm=$("timer");
-  if(l>0){$("tdisp").textContent=clock(l);$("tring").style.strokeDashoffset=138.2*(1-l/tTot);return;}
-  if(!tm.classList.contains("end")){tm.classList.add("end");if(tm.dataset.rang!=="1"){tm.dataset.rang="1";beep();try{navigator.vibrate&&navigator.vibrate([300,120,300]);}catch(e){}}}
-  $("tdisp").textContent="+"+clock(Math.floor(-ms/1000));}
-$("tminus").onclick=()=>{if(Date.now()>tEnd)return;tEnd-=15000;tTot=Math.max(tTot-15,1);tick();};
-$("tplus").onclick=()=>{if(Date.now()>tEnd){startRest(15,$("tlabel").textContent,tEx);return;}tEnd+=15000;tTot+=15;tick();};
+  if(l>0){$("tdisp").textContent="Repos "+clock(l);$("tring").style.strokeDashoffset=138.2*(1-l/tTot);return;}
+  /* fin du repos : un signal, puis le chrono s'arrête et disparaît */
+  clearInterval(ti);tm.classList.add("end");$("tdisp").textContent="C'est reparti !";$("tlabel").textContent="Repos terminé : lance ta série";
+  if(tm.dataset.rang!=="1"){tm.dataset.rang="1";beep();try{navigator.vibrate&&navigator.vibrate([400,150,400]);}catch(e){}}
+  setTimeout(()=>{if(tm.classList.contains("end"))stopRest();},6000);}
+function keepRest(d){if(!tEx)return;const v=Math.max(30,Math.min(300,restFor(tEx)+d));if(v===tEx.rest)delete store.rest[tEx.uid];else store.rest[tEx.uid]=v;persist();
+  clearTimeout(keepRest.t);keepRest.t=setTimeout(()=>toast(`Repos de ${mmss(restFor(tEx))} retenu pour cet exercice`),700);}
+$("tminus").onclick=()=>{if(Date.now()>tEnd)return;tEnd-=15000;tTot=Math.max(tTot-15,1);keepRest(-15);tick();};
+$("tplus").onclick=()=>{if(Date.now()>tEnd){startRest(15,"Encore 15 secondes",tEx);return;}tEnd+=15000;tTot+=15;keepRest(15);tick();};
 $("tstop").onclick=stopRest;
 $("tbox").onclick=()=>{const e=tEx,cur=e?restFor(e):tTot;
   openSheet(`<div class="shd"><h3>Durée du repos</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
