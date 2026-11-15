@@ -1,7 +1,7 @@
 /* Stoa : fonctionne hors connexion à la salle.
    Page : réseau d'abord (pour recevoir les mises à jour), cache en secours.
    Photos, icônes, polices : cache d'abord. */
-const CACHE = "stoa-v21";
+const CACHE = "stoa-v22";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png",
   ...["legPress","legExt","legCurl","hipThrust","abductor","benchPlate","latPulldown","chestIncline","pecDeck","shoulderPress","seatedRow","cableRow","cableTower","smithBench","preacherCurl","machineCurl","dumbbells","bench","pullupBar"].map(k => `./photos/machines/${k}.jpg`)];
 
@@ -18,7 +18,8 @@ self.addEventListener("fetch", e => {
   const url = new URL(req.url);
   const isPage = req.mode === "navigate" || url.pathname.endsWith("/index.html");
   if (isPage) {
-    e.respondWith(fetch(req).then(r => {
+    /* toujours la page la plus récente (sans le cache du navigateur), sinon la copie hors connexion */
+    e.respondWith(fetch(req.url, { cache: "no-store", credentials: "same-origin" }).then(r => {
       const copy = r.clone(); caches.open(CACHE).then(c => c.put("./index.html", copy)); return r;
     }).catch(() => caches.match("./index.html")));
     return;

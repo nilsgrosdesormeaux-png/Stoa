@@ -3666,7 +3666,20 @@ applyTheme();loadLocal();applyProgram();sess=defaultSession();render();if(!store
 if(store.backToast){delete store.backToast;persist();setTimeout(()=>toast("Fin du programme temporaire : ton programme habituel est de retour !"),600);}
 openIDB().then(idbAll).then(()=>{if(Object.keys(PH).length)render(true);});
 initCloud();
-if("serviceWorker" in navigator&&location.protocol==="https:"&&!inFrame){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+/* mises à jour : on vérifie à chaque retour dans l'app ; une nouvelle version s'installe toute seule */
+if("serviceWorker" in navigator&&location.protocol==="https:"&&!inFrame){
+  const hadCtrl=!!navigator.serviceWorker.controller;let hiddenAt=0;
+  navigator.serviceWorker.register("sw.js").then(reg=>{
+    document.addEventListener("visibilitychange",()=>{
+      if(document.visibilityState==="hidden"){hiddenAt=Date.now();return;}
+      reg.update().catch(()=>{});
+      /* iPhone : l'app reste en mémoire ; après 30 min d'absence, on recharge pour prendre la dernière version */
+      if(hiddenAt&&Date.now()-hiddenAt>30*60*1000&&$("timer").classList.contains("hidden"))location.reload();});
+  }).catch(()=>{});
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!hadCtrl)return;
+    if($("timer").classList.contains("hidden"))location.reload();
+    else toast("Nouvelle version de Stoa prête","Mettre à jour",()=>location.reload());});
+}
 </script>
 </body>
 </html>
