@@ -2813,8 +2813,10 @@ function vProg(){
     <p class="small" style="color:var(--ink-2)">Exporte un fichier avec tes charges, ton poids et tes réglages. Tu peux le réimporter sur un autre appareil (par exemple de Claude vers l'app installée sur ton iPhone). Les photos restent sur le téléphone.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn line" id="exp">Exporter</button>
       <label class="btn line" style="display:inline-flex;align-items:center">Importer<input type="file" accept="application/json,.json" id="imp" style="display:none"></label></div>
-  </div>`;
+  </div>
+  <button class="btn line wide" id="resetall" style="margin-top:4px;color:var(--hot)">Réinitialiser mon compte et repartir de zéro</button>`;
   suiviRender();
+  $("resetall").onclick=resetSheet;
   view.querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>histSheet(b.dataset.u));
   view.querySelectorAll("[data-delbw]").forEach(b=>b.onclick=()=>{const d=b.dataset.delbw,old=store.bw.find(x=>x.d===d);
     store.bw=store.bw.filter(x=>x.d!==d);persist();render(true);toast("Relevé supprimé","Rétablir",()=>{store.bw.push(old);store.bw.sort((a,c)=>a.d<c.d?-1:1);persist();render(true);});});
@@ -2845,6 +2847,21 @@ function suiviRender(){
   el.querySelectorAll("[data-sv]").forEach(b=>b.onclick=()=>{const k=b.dataset.sv;openSheet(`<div class="shd"><h3>Photo du ${fr(k.split(":")[1])}</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
     <div class="pic"><img src="${PH[k]}" alt=""></div><button class="btn line wide" id="svdel">Supprimer cette photo</button>`,()=>{$("sx").onclick=closeSheet;
     $("svdel").onclick=async()=>{await idbDel(k);URL.revokeObjectURL(PH[k]);delete PH[k];closeSheet();suiviRender();};});});
+}
+/* tout effacer sur ce téléphone : séances, charges, poids, programme, réglages, photos */
+function resetSheet(){
+  openSheet(`<div class="shd"><h3>Repartir de zéro ?</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
+    <p>Tout ce qui est enregistré sur ce téléphone sera <b>effacé pour de bon</b> : ton programme, tes séances, tes charges, ton poids, tes mensurations, tes réglages et tes photos. Le questionnaire recommencera.</p>
+    <p class="small muted" style="margin-top:10px">Conseil : touche d'abord « Exporter » pour garder une sauvegarde.</p>
+    <label style="display:flex;gap:10px;align-items:center;margin-top:14px;font-size:15px"><input type="checkbox" id="rsok" style="width:22px;height:22px"> Je veux tout effacer</label>
+    <div style="display:grid;gap:8px;margin-top:16px"><button class="btn wide" id="rsno">Annuler</button><button class="btn hot wide" id="rsyes" disabled>Tout effacer et recommencer</button></div>`,
+  ()=>{$("sx").onclick=$("rsno").onclick=closeSheet;$("rsok").onchange=e=>{$("rsyes").disabled=!e.target.checked;};
+    $("rsyes").onclick=async()=>{
+      try{Object.keys(localStorage).filter(k=>/^(stoa|nils-training)/.test(k)).forEach(k=>localStorage.removeItem(k));}catch(e){}
+      try{if(idb)idb.close();}catch(e){}
+      await Promise.all(["stoa-photos","nils-gym-photos"].map(n=>new Promise(r=>{try{const q=indexedDB.deleteDatabase(n);q.onsuccess=q.onerror=q.onblocked=()=>r();}catch(e){r();}})));
+      if(db&&uid){try{await db.collection("data/users/"+uid).doc("training").delete();}catch(e){}}
+      location.hash="";location.reload();};});
 }
 function histSheet(u){
   const e=anyExo(u)||{nom:u,unit:"pile"},h=H(u).filter(x=>W(x).length);
