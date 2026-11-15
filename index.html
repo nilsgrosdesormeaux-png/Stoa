@@ -1904,7 +1904,9 @@ function generate(p){
   const L=Object.assign(estLoads(p),p.loads||{}),fam=e=>LOWER.includes(e.pat)?"legPress":["vpull","hpull","rear","bic"].includes(e.pat)?"latPulldown":"benchPlate";
   const factorOf=e=>{const r=fam(e),q=L[r]/LIBX[r].kg0,k=e.comp?q:e.pat==="core"?Math.pow(q,0.4):Math.pow(q,0.65);return k*(e.unit==="haltere"?0.7:1);};
   const keys=["A","B","C","D","E"].slice(0,split.s.length),PP={},used={};
-  const old=+p.age>=55,young=+p.age<16,SS=[];
+  const old=+p.age>=55,young=+p.age<16,teen=+p.age<18,SS=[];
+  /* durée réelle : séries + repos, échauffement (8 min à la salle, 5 ailleurs), séries d'échauffement É, cardio de fin s'il est proposé */
+  const sEst=ex=>Math.round(ex.reduce((a,e)=>a+e.series*(40+e.rest)+(e.warm?150:0),0)/60)+(p.place==="salle"?8:5)+(sw.cardio===true||goal==="gras"?(dur<=30?5:10):0);
   split.s.forEach((ss,si)=>{
     let roles=ss.r.slice();
     /* genoux fragiles : moins d'avant des cuisses ; épaules fragiles : rien au-dessus de la tête */
@@ -1951,6 +1953,8 @@ function generate(p){
       if(spats.includes(e0.pat))series=Math.max(2,series-1);
       if(old){rest+=30;if(!bw)min=Math.max(min,8),max=Math.max(max,12);}
       if(young&&!bw){min=Math.max(min,10);max=Math.max(max,15);}
+      else if(teen&&!bw){min=Math.max(min,8);max=Math.max(max,15);}
+      if(teen&&!bw)series=Math.min(series,3);
       let kg0=bw?0:Math.max(e.unit==="haltere"?2:(e.inc||1),roundTo((e.kg0||10)*factorOf(e0),e.inc||1));
       if(e.unit==="haltere"&&p.place!=="salle"&&p.dbMax)kg0=Math.min(kg0,p.dbMax);
       const alts=candidates(e0.pat,p).filter(x=>x.uid!==e.uid).slice(0,3).map(x=>({nom:x.nom}));
@@ -1959,14 +1963,19 @@ function generate(p){
         warm:sw.echauf===false?false:sw.echauf===true?comp&&!bw:comp&&!bw&&j<2&&p.place==="salle",alt:e.alt&&p.gym==="onair"?e.alt:(alts.length?alts:[{nom:p.place==="salle"?"Demande à l'accueil une machine qui travaille le même muscle":"Refais le même exercice, plus lentement"}])});};
     let exos=chosen.map(mk);
     /* respecter le temps choisi : trop long → on raccourcit ; trop court → on complète */
-    const est=()=>Math.round(exos.reduce((a,e)=>a+e.series*(40+e.rest),0)/60)+(p.place==="salle"?8:5);
-    for(let g2=0;g2<14&&est()>dur+5;g2++){
+    const est=()=>sEst(exos);
+    for(let g2=0;g2<30&&est()>dur+5;g2++){
       const iso2=[...exos].reverse().find(e=>!e.comp&&e.series>2);
       if(iso2){iso2.series--;continue;}
       const big=[...exos].reverse().find(e=>e.comp&&e.series>3);
       if(big){big.series--;continue;}
       if(dur<=45){const r=exos.find(e=>e.rest>90);if(r){r.rest=90;continue;}}
-      if(exos.length>4||(exos.length>3&&!wantCore)){let i=exos.length-1;if(wantCore&&exos[i].pat==="core")i--;exos.splice(Math.max(3,i),1);continue;}
+      if(dur<=45){const w2=exos.filter(e=>e.warm);if(w2.length>1){w2[w2.length-1].warm=false;continue;}}
+      if(dur<=30){const c=[...exos].reverse().find(e=>e.comp&&e.series>2);if(c){c.series--;continue;}}
+      if(exos.length>4||(exos.length>3&&!wantCore)){
+        /* on retire le dernier exercice qui n'est ni une priorité ni les abdos demandés (jamais une priorité) */
+        let i=-1;for(let q=exos.length-1;q>=3;q--){const e=exos[q];if(!fpats.includes(e.pat)&&!(wantCore&&e.pat==="core")){i=q;break;}}
+        if(i>=0){exos.splice(i,1);continue;}}
       const r=exos.find(e=>e.rest>90);if(r){r.rest-=30;continue;}break;}
     const more=roles.slice().concat(["bic","tri","latr","rear","calf","core","abd","ham","glute","quadIso","hpull","hpush"]);
     for(let g2=0;g2<10&&est()<dur-8;g2++){
@@ -1975,7 +1984,7 @@ function generate(p){
       let x=null;for(const r of more){const e=pick(r);if(e){x=mk(e,exos.length);const ci=exos.length&&exos[exos.length-1].pat==="core"?exos.length-1:exos.length;exos.splice(ci,0,x);break;}}
       if(!x)break;
       if(est()>dur+5){x.series=2;if(est()>dur+5){exos.splice(exos.indexOf(x),1);break;}}}
-    SS.push({si,ss,exos,pick,mk,est:()=>Math.round(SS[si].exos.reduce((a,e)=>a+e.series*(40+e.rest),0)/60)+(p.place==="salle"?8:5),isLower});
+    SS.push({si,ss,exos,pick,mk,est:()=>sEst(SS[si].exos),isLower});
   });
   /* minimum de séries par semaine pour les petits muscles souvent oubliés (bras, épaules) */
   const NEED=[["bic",4],["tri",4],["latr",4],["rear",3]];
@@ -2024,7 +2033,7 @@ function sessionIntro(p,t){
     muscle:"Objectif : prendre du muscle. Cherche à faire une répétition de plus ou un peu plus lourd à chaque fois.",
     forme:"Objectif : te remettre en forme. Bouge bien, sans te faire mal : la régularité compte plus que tout.",
     force:"Objectif : devenir plus fort. Les premiers exercices sont les plus importants, prends ton temps entre les séries."}[goal]||"";
-  if(sw.cardio===true||goal==="gras")s+=" À la fin : 10 minutes de cardio (vélo, rameur, marche rapide en pente ou corde à sauter), en pouvant encore parler.";
+  if(sw.cardio===true||goal==="gras")s+=` À la fin : ${+p.dur<=30?5:10} minutes de cardio (vélo, rameur, marche rapide en pente ou corde à sauter), en pouvant encore parler.`;
   if(sw.superset===true)s+=" Supersets : enchaîne les deux derniers petits exercices sans pause, puis prends ton repos.";
   if(sw.circuit===true)s+=" Repos courts : enchaîne dès que ton souffle revient.";
   if(p.place!=="salle")s+=" Sur les exercices au poids du corps, l'app te dira quand passer à la version plus dure.";
@@ -2036,9 +2045,10 @@ function nutrition(p){
   const bmr=10*w+6.25*h-5*a+(f?-161:5),tdee=bmr*(1.3+0.06*(+p.days||3));
   const adj={gras:-0.17*tdee,muscle:f?150:250,force:150,forme:0}[p.goal]||0;
   const kcal=Math.round((tdee+adj)/50)*50;
-  const bmi=w/((h/100)**2),pw=bmi>30?27*(h/100)**2:w;
-  const pr=p.goal==="gras"?[1.8,2.2]:p.goal==="forme"?[1.4,1.8]:[1.6,2.0];
-  return {kcal,prot:[Math.round(pw*pr[0]/5)*5,Math.round(pw*pr[1]/5)*5],bmi};
+  /* protéines : 1,6 à 2 g par kg de poids « cible » (IMC 25 si l'IMC dépasse 27), au plus 160 g */
+  const bmi=w/((h/100)**2),pw=bmi>27?25*(h/100)**2:w;
+  const pr=p.goal==="forme"?[1.4,1.8]:[1.6,2.0],hi=Math.min(160,Math.round(pw*pr[1]/5)*5);
+  return {kcal,prot:[Math.min(hi-15,Math.round(pw*pr[0]/5)*5),hi],bmi};
 }
 
 /* ===================== ACCUEIL (tableau de bord) ===================== */
@@ -2065,12 +2075,12 @@ function homeData(){
   const wk=new Set(store.hist.filter(h=>h.d>=ws&&abc(h)&&hp(h)).map(h=>h.k));
   const dow=(new Date().getDay()+6)%7;
   const days=["L","M","M","J","V","S","D"].map((l,i)=>{const d=new Date(ws+"T12:00");d.setDate(d.getDate()+i);const ds=iso(d);
-    const h=store.hist.find(x=>x.d===ds);return {l,k:h?(h.k===BONUS?"+":h.k):"",now:i===dow&&!h};});
+    const h=store.hist.find(x=>x.d===ds&&hp(x));return {l,k:h?(h.k===BONUS?"+":h.k):"",now:i===dow&&!h};});
   /* série de semaines complètes (3/3), la semaine en cours compte si elle est bouclée */
-  let streak=0;{const d=new Date(ws+"T12:00");if(wk.size<PER_WEEK)d.setDate(d.getDate()-7);
+  let streak=0;{const d=new Date(ws+"T12:00");if(wk.size<weekGoal(ws))d.setDate(d.getDate()-7);
     for(;;){const s=iso(d),e=new Date(d);e.setDate(e.getDate()+7);const es=iso(e);
       const n=new Set(store.hist.filter(h=>h.d>=s&&h.d<es&&abc(h)).map(h=>h.k+(h.pid||""))).size;
-      if(n>=PER_WEEK){streak++;d.setDate(d.getDate()-7);}
+      if(n>=weekGoal(s)){streak++;d.setDate(d.getDate()-7);}
       else if((store.pauses||[]).some(z=>z.from<es&&z.to>=s)){d.setDate(d.getDate()-7);if(d<new Date("2020-01-01"))break;}
       else break;}}
   /* tonnage par semaine (5 dernières) */
@@ -2095,7 +2105,7 @@ function homeData(){
     vol,vs:lastWkSame?Math.round((vol[4]-lastWkSame)/lastWkSame*100):null,totalT,sessions:store.hist.length,prs,hours,lifts,muscles,bw:store.bw.slice(-14).map(b=>b.kg)};
 }
 function motivation(d){
-  const left=PER_WEEK-d.done;
+  const left=weekGoal()-d.done;
   if(store.pauseUntil&&store.pauseUntil>=today())return `En <em>pause</em> jusqu'au ${fr(store.pauseUntil)}. Repose-toi : ta flamme est protégée.`;
   if(PROG.temp)return `Programme <em>${PROG.temp.kind==="pause"?"d'entretien":"vacances"}</em> jusqu'au ${fr(PROG.temp.until)}. Ensuite, retour automatique à ton programme.`;
   if(!d.sessions)return `Bienvenue. <em>Ta première séance</em> t'attend : l'app te dit quoi mettre sur chaque machine.`;
@@ -2113,7 +2123,7 @@ function bwNote(){const g=PROG.p&&PROG.p.goal;
 function vHome(){
   const d=homeData(),name=store.name||"";
   const dt=new Date().toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"});
-  const n=PER_WEEK,gap=10,seg=360/n,R=56;
+  const n=weekGoal(),gap=10,seg=360/n,R=56;
   let ring=`<defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF5A68"/><stop offset="1" stop-color="#C80E24"/></linearGradient>
     <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
   for(let i=0;i<n;i++){const a0=i*seg+gap/2,a1=(i+1)*seg-gap/2,p=arcP(68,68,R,a0,a1),len=(a1-a0)*Math.PI*R/180;
@@ -2128,7 +2138,7 @@ function vHome(){
     const s=hspark(l.pts,120,52),gain=l.pts[l.pts.length-1]-l.pts[0],pct=l.pts[0]?Math.round(gain/l.pts[0]*100):0,id="lg"+i;
     let len=0;for(let j=1;j<s.xy.length;j++)len+=Math.hypot(s.xy[j][0]-s.xy[j-1][0],s.xy[j][1]-s.xy[j-1][1]);
     return `<div class="h-lift"><div><div class="h-n">${esc(l.nom)}</div><div class="h-k num">${hkg(l.pts[l.pts.length-1])}<small>${l.un}</small></div>
-      <div class="h-sub">${gain>0?`<span class="h-delta">${HI.up}+${hkg(gain)} ${l.un}</span>+${pct} %`:`stable`} en ${l.pts.length} séances</div></div>
+      <div class="h-sub">${gain>0?`<span class="h-delta">${HI.up}+${hkg(gain)} ${l.un}</span>+${pct} %`:gain<0?`<span class="h-delta" style="background:var(--red-soft);color:var(--red-hi)">−${hkg(-gain)} ${l.un}</span>${pct} %`:`stable`} en ${l.pts.length} séances</div></div>
       <svg viewBox="0 0 120 52"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--red)" stop-opacity=".35"/><stop offset="1" style="stop-color:var(--red)" stop-opacity="0"/></linearGradient></defs>
       <path d="${s.area}" fill="url(#${id})"/><path class="h-spark-path" style="--len:${len.toFixed(0)};stroke:var(--red-hi)" d="${s.line}" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       <circle cx="${s.last[0]}" cy="${s.last[1]}" r="4.5" style="fill:var(--red-hi);stroke:var(--s1)" stroke-width="2.5"/></svg></div>`;}).join("");
@@ -2151,7 +2161,7 @@ function vHome(){
   <header class="h-hd h-rise"><div><div class="h-date"><b style="color:var(--red-hi);letter-spacing:.18em">STOA</b> · ${dt}</div><h1>Salut${name?" "+esc(name):""}</h1></div>
     <div class="h-r"><button class="h-icon-btn" id="hth" aria-label="Changer de thème">${THI[theme]}</button><button class="h-avatar" id="hname" aria-label="Mon prénom">${name?esc(name[0].toUpperCase()):"?"}</button></div></header>
   <section class="h-hero h-rise" aria-label="Ta semaine"><div class="h-hero-top">
-      <div class="h-ring"><svg viewBox="0 0 136 136">${ring}</svg><div class="h-c"><b class="num">${d.done}<small>/${PER_WEEK}</small></b><span>Séances</span></div></div>
+      <div class="h-ring"><svg viewBox="0 0 136 136">${ring}</svg><div class="h-c"><b class="num">${d.done}<small>/${weekGoal()}</small></b><span>Séances</span></div></div>
       <div class="h-hero-side"><div class="h-lbl" style="color:rgba(245,245,247,.5)">Série en cours</div>
         <div class="h-streak" style="margin-top:6px">${HI.flame}<b class="num" data-count="${d.streak}">${d.streak}</b></div>
         <div class="h-streak-l">semaine${d.streak>1?"s":""} complète${d.streak>1?"s":""} d'affilée<br>Cycle ${d.ci.cycle} · semaine ${d.ci.wk}/6</div></div></div>
@@ -2315,7 +2325,12 @@ const photoOf=e=>PH[e.uid]||(USE_GYM_PHOTOS&&PHOTO[e.uid])||machPhoto(e)||null;
 const picHTML=(e,alt)=>{const p=photoOf(e);if(p)return `<img src="${p}" alt="${esc(alt||e.nom)}" loading="lazy">`;const k=animKey(e);if(k&&ANIM[k]){setTimeout(startAnim,0);return animSVG(k);}return ART[e.pic]||"";};
 
 /* ===================== CYCLE ET PROGRESSION ===================== */
-function cycleInfo(){const w=Math.max(0,Math.floor(daysBetween(weekStart(store.start),weekStart(today()))/7));return {cycle:Math.floor(w/6)+1,wk:w%6+1,deload:w%6===5};}
+/* semaines du lundi au dimanche ; si on commence un samedi ou un dimanche, le cycle démarre le lundi suivant */
+function cycleBase(){const ws=weekStart(store.start||today()),dw=(new Date((store.start||today())+"T12:00").getDay()+6)%7;if(dw<5)return ws;const d=new Date(ws+"T12:00");d.setDate(d.getDate()+7);return iso(d);}
+/* séances à faire dans une semaine : la première semaine, seulement celles prévues à partir du jour où on a commencé */
+function weekGoal(ws){ws=ws||weekStart(today());if(!store.start||weekStart(store.start)!==ws||store.start===ws)return PER_WEEK;
+  const dw=(new Date(store.start+"T12:00").getDay()+6)%7;return Math.max(1,Math.min(PER_WEEK,PLAN.filter((r,i)=>i>=dw&&r.k&&MAIN.includes(r.k)).length));}
+function cycleInfo(){const w=Math.max(0,Math.floor(daysBetween(cycleBase(),weekStart(today()))/7));return {cycle:Math.floor(w/6)+1,wk:w%6+1,deload:w%6===5};}
 const seriesFor=e=>cycleInfo().deload?Math.ceil(e.series/2):e.series;
 const restFor=e=>store.rest[e.uid]||e.rest;
 const H=u=>store.log[u]||[];
@@ -2333,7 +2348,9 @@ function plan(e){
   const tot=x=>W(x).slice(0,n).reduce((a,s)=>a+s.reps,0),under=x=>W(x).slice(0,n).some(s=>s.reps<e.min);
   /* marche de charge trop grosse (ex. 2,5 → 5 kg) : on fait d'abord quelques répétitions de plus */
   const capKg=e.unit==="haltere"&&PROG.p&&PROG.p.place!=="salle"&&PROG.p.dbMax?PROG.p.dbMax:null,atCap=capKg!=null&&wk+e.inc>capKg;
-  const big=!BWU(e)&&wk>0&&e.inc/wk>0.25,MX=e.max+(big?4:0)+(atCap?6:0);
+  const big=!BWU(e)&&wk>0&&e.inc/wk>0.25,MX=e.max;
+  /* une baisse ne descend jamais sous la moitié de la charge de départ (ni sous une marche), jamais à 0 */
+  const down=()=>Math.min(wk,Math.max(roundTo(Math.max(0,wk-e.inc),e.inc/2),roundTo(Math.max(e.inc||1,(e.kg0||0)/2),e.inc||1)));
   const top=SS.length>=need&&SS.every(s=>s.reps>=MX&&s.kg>=wk);
   out.kg=wk;
   const lastAny=pastEntries(e.uid).slice(-1)[0]||last;
@@ -2348,17 +2365,17 @@ function plan(e){
     out.reps=Array.from({length:n},(_,j)=>Math.min(e.max,(S[j]||S[S.length-1]).reps+add));
     out.msg=add===0?`C'était à l'échec : <b>mêmes ${e.unit==="sec"?"secondes":"répétitions"}</b>, sans y aller cette fois.`:`Vise <b>${add===st?(e.unit==="sec"?"5 secondes":"une répétition"):(e.unit==="sec"?"10 secondes":"deux répétitions")} de plus</b> par série : ${out.reps.join(" · ")}.`;return out;}
   if(feel==="echec"&&prev&&prev.feel==="echec"&&tot(last)<=tot(prev)){
-    out.kg=roundTo(Math.max(0,wk-e.inc),e.inc/2);out.reps=Array(n).fill(Math.max(e.min,e.max-2));
+    out.kg=down();out.reps=Array(n).fill(Math.max(e.min,e.max-2));
     out.msg=`Deux fois à l'échec sans progrès : <b>redescends à ${fmt(out.kg)} kg</b> et reconstruis proprement.`;out.cls="down";return out;}
   if(top){
     if(feel==="echec"){out.reps=Array.from({length:n},(_,j)=>Math.min(e.max,(S[j]||S[S.length-1]).reps));
       out.msg="Haut de la fourchette, mais à l'échec : <b>consolide</b>. Même charge, mêmes répétitions, sans aller à l'échec. Quand ce sera « Dur », tu monteras.";out.cls="info";return out;}
-    if(atCap){out.kg=wk;out.reps=Array(n).fill(MX);out.msg=`Tu es au maximum de tes haltères (${fmt(capKg)} kg) : bravo ! On continue avec <b>plus de répétitions</b>, puis ralentis la descente (3 secondes). Des haltères plus lourds te feraient progresser plus vite.`;return out;}
+    if(atCap){out.kg=wk;out.reps=Array(n).fill(MX);out.msg=`Tu es au maximum de tes haltères (${fmt(capKg)} kg) : bravo ! Garde ${e.max} répétitions et <b>ralentis la descente (3 secondes)</b>, ou fais une pause d'une seconde en bas. Des haltères plus lourds te feraient progresser plus vite.`;return out;}
     const steps=feel==="facile"&&2*e.inc<=0.1*wk?2:1;out.kg=wk+steps*e.inc;
     out.reps=Array(n).fill(feel==="facile"?Math.min(e.max,e.min+2):e.min);
     out.msg=`${feel==="facile"?"C'était facile":"Haut de la fourchette partout"} : <b>monte à ${fmt(out.kg)} kg</b>${sideTxt(e,out.kg)} et vise ${out.reps[0]} répétitions.`;return out;}
   if(past.length>=2&&under(last)&&under(prev)){
-    out.kg=roundTo(Math.max(0,wk-e.inc),e.inc/2);out.reps=Array(n).fill(e.max);
+    out.kg=down();out.reps=Array(n).fill(e.max);
     out.msg=`Deux séances sous ${e.min} répétitions : <b>redescends à ${fmt(out.kg)} kg</b> et refais le plein de répétitions.`;out.cls="down";return out;}
   if(!atCap&&feel==="facile"&&prev&&prev.feel==="facile"&&workKg(W(prev).slice(0,n))===wk){
     out.kg=wk+e.inc;out.reps=Array(n).fill(e.min);
@@ -2369,7 +2386,7 @@ function plan(e){
   if(l3.length===3&&l3.every(x=>workKg(W(x).slice(0,n))===wk)&&tot(l3[2])<=tot(l3[0])){
     out.msg="Pas de progrès depuis 3 séances : dors bien, mange assez. Si ça dure, fais cette séance 10 % plus léger, puis remonte.";out.cls="down";return out;}
   out.msg=add===0?`C'était à l'échec : <b>mêmes répétitions</b>, sans y aller cette fois : ${out.reps.join(" · ")}.`
-    :`Même charge, <b>${add===2?"deux répétitions":"une répétition"} de plus</b> par série : ${out.reps.join(" · ")}.${big?` La prochaine marche (+${fmt(e.inc)} kg) est grosse pour cette charge : monte jusqu'à ${MX} répétitions avant d'augmenter.`:""}`;
+    :`Même charge, <b>${add===2?"deux répétitions":"une répétition"} de plus</b> par série : ${out.reps.join(" · ")}.${big?` La prochaine marche (+${fmt(e.inc)} kg) est grosse pour cette charge : quand tu y passes, c'est normal de perdre quelques répétitions.`:""}`;
   return out;
 }
 const warmups=(e,kg)=>e.warm&&!BWU(e)&&kg>0&&!cycleInfo().deload?[{kg:roundTo(kg*.5,e.inc),reps:10},{kg:roundTo(kg*.75,e.inc),reps:5}]:[];
@@ -2423,6 +2440,7 @@ function vSession(k){
   <p class="musc">${s.muscles}</p>
   <details class="about"><summary>${s.duree} · ${s.exos.length} exercices · à propos ›</summary><p>${s.intro}</p></details>
   ${ci.deload?`<div class="banner"><b>Semaine légère (semaine 6 du cycle).</b> Mêmes charges, moitié des séries, 3 répétitions en réserve. Ton corps encaisse les progrès des 5 dernières semaines.</div>`:""}
+  ${!PROG.nils&&PROG.p&&+PROG.p.age<18?`<div class="banner info small"><b>Moins de 18 ans :</b> technique d'abord, charges modérées, pas d'échec ni de « max ». Garde 2 ou 3 répétitions en réserve. Plus de détails dans le Guide.</div>`:""}
   ${!store.hist.length&&!PROG.nils&&(((PROG.p||{}).swipe||{}).first===true||(((PROG.p&&PROG.p.level)||0)===0&&((PROG.p||{}).swipe||{}).first!==false))?firstVisit():""}
   ${k!==BONUS?`<div class="banner info small">${PROG.place==="salle"?"Échauffement : 5 min de vélo ou de rameur, puis les séries <b>É</b> proposées sur les premiers exercices (elles ne comptent pas dans tes progrès).":"Échauffement : 5 min pour monter en température (marche rapide, montées de genoux, cercles de bras), puis une première série facile de chaque exercice."}</div>`:""}
   <div class="sprog">${fini?`<div class="row"><span style="color:var(--go)"><b style="color:var(--go)">✓ Séance terminée</b> · ${st.done}/${st.tot} séries</span></div>`:`<div class="row"><span>Exo <b>${Math.min(ai<0?s.exos.length:ai+1,s.exos.length)}/${s.exos.length}</b> · <b id="pdone">${st.done}</b>/${st.tot} séries</span>
@@ -2687,7 +2705,7 @@ function vPlan(){
   <div class="hero"><small>${done.has(nk)?"Cette semaine c'est bouclé":"Prochaine séance"}</small><b>${LABEL[nk]}</b><p>${P[nk].muscles} · ${P[nk].duree}</p><button class="btn hot" id="gonext">Ouvrir la séance</button></div>
   <div class="stats">
     <div class="stat"><small>Cycle ${ci.cycle}</small><b>${ci.wk}<i> / 6 sem.</i></b></div>
-    <div class="stat"><small>Semaine</small><b>${MAIN.filter(k=>done.has(k)).length}<i> / ${PER_WEEK}</i></b></div>
+    <div class="stat"><small>Semaine</small><b>${MAIN.filter(k=>done.has(k)).length}<i> / ${weekGoal()}</i></b></div>
     <div class="stat"><small>Séances</small><b>${store.hist.length}<i> au total</i></b></div>
   </div>
   ${ci.deload?`<div class="banner"><b>Semaine 6 : semaine légère.</b> Moitié des séries, mêmes charges. La semaine prochaine, un nouveau cycle commence.</div>`:ci.wk===5?`<div class="banner info small">La semaine prochaine sera une semaine légère (semaine 6 du cycle).</div>`:""}
@@ -2844,7 +2862,17 @@ function guideGen(){
     muscle:"Pour prendre du muscle : des séries assez dures (1 à 2 répétitions avant l'échec), un peu plus de répétitions ou de charge à chaque fois, et <b>assez de protéines</b>.",
     forme:"Pour te remettre en forme : des mouvements simples qui travaillent tout le corps, sans te détruire. Le plus important, c'est de <b>venir régulièrement</b>.",
     force:"Pour devenir plus fort : moins de répétitions, plus de charge sur les gros exercices, et des <b>repos plus longs</b> pour être à fond à chaque série."}[p.goal];
-  return `<h3>Ton plan, adapté à toi</h3>
+  return `${+p.age<18?`<h3>Moins de 18 ans : tes règles</h3>
+  <div class="panel"><ul class="clean">
+    <li><b>La technique d'abord.</b> Les premiers mois, apprends à bien faire chaque mouvement avec une charge légère. Si tu ne peux pas faire une répétition proprement, c'est trop lourd.</li>
+    <li><b>Charges modérées</b> : 8 à 15 répétitions par série, jamais moins. Pas de « max » (une seule répétition la plus lourde possible).</li>
+    <li><b>Pas d'échec</b> : arrête-toi quand il te reste 2 ou 3 répétitions en réserve.</li>
+    <li><b>Échauffe-toi toujours</b> : 5 minutes de cardio léger, puis une série légère avant chaque gros exercice.</li>
+    <li><b>Dors 8 à 10 heures</b> et mange à ta faim : ton corps grandit encore, il a besoin d'énergie pour ça <i>et</i> pour la muscu. Pas de régime strict.</li>
+    <li><b>Ta croissance n'est pas en danger</b> avec une muscu bien faite et encadrée. Les vrais risques viennent des charges trop lourdes et de la mauvaise technique.</li>
+    <li><b>Douleur aux articulations</b> (genoux, dos, épaules, poignets) : on arrête l'exercice et on en parle à un adulte ou à un médecin. Montre ton programme à un coach de ta salle si tu peux.</li>
+  </ul></div>`:""}
+  <h3>Ton plan, adapté à toi</h3>
   <div class="panel"><ul class="clean">
     <li><b>Ton découpage :</b> ${esc(PROG.split)}. ${PER_WEEK<=3?"Chaque muscle est travaillé 2 à 3 fois par semaine : c'est ce qui marche le mieux, surtout au début.":"Chaque muscle est travaillé 2 fois par semaine, avec assez de repos entre les deux."}</li>
     <li><b>Ton objectif :</b> ${why}</li>
@@ -2867,7 +2895,7 @@ function guideGen(){
 }
 /* Guide rangé en onglets ; chaque partie est repliée, on ouvre seulement ce qu'on cherche */
 let gTab=0;
-const GTABS=[["Séance",["Déroulé","Douleur","erreurs"]],["Progresser",["progresser","Ton plan","Pourquoi ce programme","Photos de suivi"]],
+const GTABS=[["Séance",["moins de 18","Déroulé","Douleur","erreurs"]],["Progresser",["progresser","Ton plan","Pourquoi ce programme","Photos de suivi"]],
   ["Nutrition",["Nutrition"]],["Infos",["vocabulaire","iPhone","images"]]];
 function guideTabs(){
   const hs=[...view.querySelectorAll("h3")],secs=hs.map(h=>{const els=[];let n=h.nextElementSibling;while(n&&n.tagName!=="H3"){els.push(n);n=n.nextElementSibling;}return {h,els,t:h.textContent};});
@@ -2927,7 +2955,7 @@ function vGuide(){
   <b>Dur</b> (la bonne zone) : +1 répétition, puis de la charge en haut de la fourchette.<br>
   <b>À l'échec</b> : on garde les mêmes répétitions. Deux échecs de suite sans progrès : la charge redescend d'une marche.<br>
   Sans réponse, l'app considère « Dur ». Touche encore ton choix pour le décocher.</p>
-  <p class="note">Sur une machine où la plus petite marche est trop grosse, l'app te fait d'abord faire quelques répétitions de plus avant de monter.</p>
+  <p class="note">Les répétitions ne dépassent jamais le haut de la fourchette : une fois en haut partout, c'est la charge qui monte (ou la version plus dure, au poids du corps). Une baisse de charge ne descend jamais sous la moitié de ta charge de départ.</p>
   <p class="note"><b>Au poids du corps</b> (pompes, squats, tractions…) : tu ajoutes des répétitions jusqu'au haut de la fourchette, puis l'app te propose <b>la version plus dure</b> de l'exercice (un bouton change l'exercice pour toi). Trop dur ? Elle te propose la version plus facile.</p></div>
   ${PROG.nils?`  <h3>Ton plan, adapté à ton physique</h3>
   <div class="panel"><ul class="clean">
@@ -3002,13 +3030,13 @@ const NILSP={sex:"H",age:20,height:179,weight:70,level:1,goal:"muscle",focus:["e
    Seuls les textes d'explication et les nouvelles fonctions viennent de la dernière version de l'app. */
 const NPAT={smithBench:"hpush",rearDeltRow:"rear",preacherCurl:"bic",pressLow:"hpush",rowWide:"hpull"};
 const snapOf=g=>JSON.parse(JSON.stringify({P:g.P,KEYS:g.KEYS,PLAN:g.PLAN,reps:g.reps||false,lifts:g.lifts||null,split:g.split||null}));
-function liveP(P0,onair){const sw=store.swaps||{},out={};
+function liveP(P0,onair,nils){const sw=store.swaps||{},out={};
   Object.keys(P0).forEach(k=>{const s0=P0[k];out[k]=Object.assign({},s0,{exos:s0.exos.map(fe=>{
     const pat=fe.pat||(LIBX[fe.uid]||{}).pat||NPAT[fe.uid];const to=sw[fe.uid];
     if(to&&LIBX[to]){const b=LIBX[to];return Object.assign({},b,{id:fe.id,series:fe.series,min:fe.min,max:fe.max,rest:fe.rest,opt:fe.opt,
       kg0:b.kg0!=null?b.kg0:null,depart:b.kg0!=null?fmt(b.kg0)+" kg (à ajuster)":"à ajuster",warm:false,alt:fe.alt,pat:b.pat||pat});}
     const b=(onair&&typeof POOL!=="undefined"&&POOL[fe.uid])||LIBX[fe.uid]||{},t={};
-    ["reco","how","pourquoi"].forEach(f=>{if(b[f])t[f]=b[f];});return Object.assign({},fe,t,{pat});})});});
+    ["reco","how","pourquoi"].forEach(f=>{const src=f==="pourquoi"&&!nils&&LIBX[fe.uid]?LIBX[fe.uid]:b;if(src[f])t[f]=src[f];});return Object.assign({},fe,t,{pat});})});});
   return out;}
 const saveNow=()=>{try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}};
 function applyProgram(){
@@ -3018,7 +3046,7 @@ function applyProgram(){
     PROG={nils:false,temp:store.temp,reps:g.reps,lifts:g.lifts,split:g.split,place:tp.place,gym:tp.gym,p:tp,nut:nutrition(tp)};}
   else if(!pr||pr.mode==="nils"){
     if(!store.nilsPlan){store.nilsPlan=snapOf({P:P_NILS,KEYS:["A","B","C","D"],PLAN:PLAN_NILS});saveNow();}
-    const f=store.nilsPlan;P=liveP(f.P,true);KEYS=f.KEYS;PLAN=f.PLAN;BONUS=KEYS.includes("D")?"D":(KEYS.find(k=>P[k].bonus)||null);
+    const f=store.nilsPlan;P=liveP(f.P,true,true);KEYS=f.KEYS;PLAN=f.PLAN;BONUS=KEYS.includes("D")?"D":(KEYS.find(k=>P[k].bonus)||null);
     PROG={nils:true,reps:false,lifts:["chestIncline","latPulldown","seatedRow"],place:"salle",gym:"onair",p:Object.assign({},NILSP,{place:"salle",gym:"onair"})};}
   else{if(!pr.frozen){pr.frozen=snapOf(generate(Object.assign({},pr,{swaps:{}})));saveNow();}
     const g=Object.assign({},pr.frozen,{P:liveP(pr.frozen.P,pr.gym==="onair")});P=g.P;KEYS=g.KEYS;PLAN=g.PLAN;BONUS=KEYS.find(k=>P[k].bonus)||null;
@@ -3126,6 +3154,7 @@ function buildExo(e0,p,key,j){
   else if(goal==="muscle"){min=comp?8:10;max=comp?12:15;rest=comp?120:75;}
   else{min=comp?10:12;max=15;rest=comp?90:60;}
   if(bw){min=e.min;max=e.max;rest=comp?90:60;}
+  else if(+p.age<18){min=Math.max(min,+p.age<16?10:8);max=Math.max(max,15);}
   const L=Object.assign(estLoads(p),p.loads||{}),fam=LOWER.includes(e0.pat)?"legPress":["vpull","hpull","rear","bic"].includes(e0.pat)?"latPulldown":"benchPlate";
   const q=L[fam]/LIBX[fam].kg0,k=(e0.comp?q:e0.pat==="core"?Math.pow(q,0.4):Math.pow(q,0.65))*(e.unit==="haltere"?0.7:1);
   let kg0=bw?0:Math.max(e.unit==="haltere"?2:(e.inc||1),roundTo((e.kg0||10)*k,e.inc||1));
@@ -3139,7 +3168,7 @@ function buildExo(e0,p,key,j){
 function bOrder(exos){const zones=[];exos.forEach(e=>{const z=BZONE[bPat(e)]||"autre";if(z!=="abdos"&&!zones.includes(z))zones.push(z);});zones.push("autre","abdos");
   const ISO=["calf","abd","add","latr","tri","rear","bic"],rank=e=>{const pt=bPat(e);return zones.indexOf(BZONE[pt]||"autre")*100+(e.comp?0:ISO.includes(pt)?20:10)+(e.opt?50:0);};
   const o=exos.slice();return o.sort((x,y)=>rank(x)-rank(y)||o.indexOf(x)-o.indexOf(y));}
-const bEst=(exos,p)=>Math.round(exos.filter(e=>!e.opt).reduce((a,e)=>a+e.series*(40+e.rest),0)/60)+(p.place==="salle"?8:5);
+const bEst=(exos,p)=>Math.round(exos.filter(e=>!e.opt).reduce((a,e)=>a+e.series*(40+e.rest)+(e.warm?150:0),0)/60)+(p.place==="salle"?8:5);
 const bSig=exos=>JSON.stringify(exos.map(e=>[e.uid,e.series,e.min,e.max,e.rest,!!e.opt]));
 const bRestTxt=s=>s%60?`${Math.floor(s/60)?Math.floor(s/60)+" min ":""}${s%60}${Math.floor(s/60)?"":" s"}`:`${s/60} min`;
 
@@ -3151,7 +3180,7 @@ function openBuilder(o){
   document.body.classList.add("onb-open");stopRest&&stopRest();bRender();}
 function closeBuilder(){const el=$("bld");if(el)el.remove();if(!$("onb"))document.body.classList.remove("onb-open");}
 /* séances d'un programme existant, avec les exercices changés (« Changer d'exercice ») et les repos retenus */
-function bFromProgram(f,onair,nils){const LP=liveP(f.P,onair);
+function bFromProgram(f,onair,nils){const LP=liveP(f.P,onair,nils);
   return f.KEYS.map(k=>{const s=JSON.parse(JSON.stringify(LP[k]));s.exos.forEach(e=>{delete e.k;if(store.rest[e.uid])e.rest=store.rest[e.uid];if(!e.pat)e.pat=bPat(e);});
     return {k,nom:s.nom,bonus:!!s.bonus||(nils&&k==="D"),src:s,exos:s.exos,parts:[],sig:bSig(s.exos),built:true};});}
 /* depuis l'onglet Programme */
@@ -3518,7 +3547,7 @@ function obWire(st){
     const db=$("obdb");if(db){const v=num(db.value);if(v&&v>0&&v<80)a.dbMax=v;else delete a.dbMax;}obGo(1);};return;}
   if(st.id==="body"){
     qa("[data-sex]").forEach(x=>x.onclick=()=>{a.sex=x.dataset.sex;qa("[data-sex]").forEach(y=>y.classList.toggle("on",y===x));});
-    const note=$("obbn"),upd=()=>{const ag=num($("obage").value);note.innerHTML=ag&&ag<16?"Moins de 16 ans : parles-en à un adulte. Le programme restera léger, sans charges lourdes.":ag&&ag>=55?"Après 55 ans, la muscu est excellente pour la santé. Le programme prévoit des repos plus longs et des charges modérées.":"";};
+    const note=$("obbn"),upd=()=>{const ag=num($("obage").value);note.innerHTML=ag&&ag<16?"Moins de 16 ans : parles-en à un adulte. Le programme restera léger, sans charges lourdes.":ag&&ag<18?"Moins de 18 ans : le programme privilégie la technique, avec des charges modérées (8 à 15 répétitions) et sans aller à l'échec.":ag&&ag>=55?"Après 55 ans, la muscu est excellente pour la santé. Le programme prévoit des repos plus longs et des charges modérées.":"";};
     $("obage").oninput=upd;upd();
     nx.onclick=()=>{const ag=num($("obage").value),h=num($("obh").value),w=num($("obw").value);
       if(!a.sex)return toast("Choisis Femme ou Homme (pour les calories et les charges de départ)");
