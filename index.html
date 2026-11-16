@@ -2245,6 +2245,18 @@ function generate(p){
   /* jours choisis par la personne (questionnaire ou Programme) : les séances vont sur ces jours */
   if(Array.isArray(p.wdays)&&p.wdays.length===keys.length){const pd=placeDays(keys,PP,p.wdays,restS);PLANG=pd.plan;dwarn=pd.warn;}
   else DN.forEach(d=>{const i=split.days.indexOf(d);PLANG.push(i>=0?{d,k:keys[i]}:{d,k:null,t:"Repos",s:restS});});
+  /* séance Bonus facultative (choisie dans le questionnaire) : bras, épaules, abdos et priorités du haut, plutôt légère, le week-end */
+  if(p.bonus&&SS.length&&keys.length<7){const bk="ABCDEFG"[keys.length],S0=SS[0],FP=[].concat(...(p.focus||[]).map(f=>FOCUSPAT[f]||[]));
+    const pats=[...new Set(["latr","bic","tri","rear"].concat(FP.filter(x=>!LOWER.includes(x))))].slice(0,5).concat(["core"]);
+    const ex=[];pats.forEach(pt=>{if(ex.length>=6)return;const e0=S0.pick(pt);if(!e0||ex.some(x=>x.uid===e0.uid))return;const y=S0.mk(e0,ex.length);
+      y.series=Math.min(3,Math.max(2,y.series));y.warm=false;y.main=false;if(y.rest>75)y.rest=75;ex.push(y);});
+    if(ex.length){ex.forEach((e,j)=>{e.id=bk.toLowerCase()+(j+1);});
+      PP[bk]={nom:"Bonus",bonus:true,muscles:"Bras · Épaules · Abdos",duree:`${Math.max(20,Math.round(ex.reduce((a,e)=>a+e.series*(45+e.rest),0)/300)*5)} min environ`,
+        intro:"Facultative : fais-la si tu as le temps et l'envie, au moins 48 h après une séance qui travaille les mêmes muscles. Reste à 2 répétitions de l'échec.",exos:ex};
+      let d=[6,5].find(x=>PLANG[x]&&!PLANG[x].k&&!(PLANG[(x+6)%7]&&PLANG[(x+6)%7].k&&PLANG[(x+1)%7]&&PLANG[(x+1)%7].k));
+      if(d==null)d=[6,5,4,3,2,1,0].find(x=>PLANG[x]&&!PLANG[x].k);
+      if(d!=null){PLANG[d]={d:PLANG[d].d,k:bk};}
+      keys.push(bk);}}
   const allEx=[].concat(...keys.map(k=>PP[k].exos));
   const bwShare=allEx.filter(BWU).length/Math.max(1,allEx.length);
   const liftU=[];keys.forEach(k=>{const e=PP[k].exos.find(x=>x.comp)||PP[k].exos[0];if(e&&!liftU.includes(e.uid))liftU.push(e.uid);});
@@ -3948,6 +3960,7 @@ function obRender(dir){
     body=`<div class="onb-wdays">${DL7.map((l,i)=>`<button class="${wd.includes(i)?"on":""}" data-wd="${i}" aria-label="${JOURS[i]}">${l}</button>`).join("")}</div>
       <p class="onb-note" style="margin-top:10px">${n<2?"Touche les jours où tu peux t'entraîner (2 au moins)."+((a.level||0)===0?" Pour commencer, 3 jours, c'est l'idéal.":""):n>mx?`${mx} jours au plus pour ton niveau : enlève un jour.`:`<b style="color:#F5F5F7">${n} séances par semaine</b> · ${lab}${(a.level||0)===0&&n>3?" (3 suffisent pour bien progresser au début)":""}`}</p>
       ${warn?`<p class="onb-warn">${warn}</p>`:""}
+      <button class="onb-pick bd-bon ${a.bonus?"on":""}" data-obbon style="margin-top:12px"><span class="ic">${a.bonus?"✓":"＋"}</span><span><b>Ajouter une séance Bonus</b><small>Facultative, le week-end si tu as le temps : bras, épaules, abdos</small></span></button>
       <h4 class="onb-h4">Combien de temps par séance ?</h4>
       <div class="onb-grid four">${[30,45,60,75].map(n=>`<button class="onb-chip ${+a.dur===n?"on":""}" data-dur="${n}">${n} min</button>`).join("")}</div>`;
     const okD=n>=2&&n<=mx;
@@ -4014,6 +4027,7 @@ function obWire(st){
   if(st.id==="days"){
     qa("[data-wd]").forEach(x=>x.onclick=()=>{const i=+x.dataset.wd,w=(a.wdays||[]).slice();a.wdays=w.includes(i)?w.filter(y=>y!==i):w.concat(i).sort((p,q)=>p-q);a.days=a.wdays.length;obRender();});
     qa("[data-dur]").forEach(x=>x.onclick=()=>{a.dur=+x.dataset.dur;obRender();});
+    const bb=q("[data-obbon]");if(bb)bb.onclick=()=>{a.bonus=!a.bonus;obRender();};
     nx.onclick=()=>{const mx=(a.level||0)>=2?6:5,n=(a.wdays||[]).length;if(n>=2&&n<=mx&&a.dur){a.days=n;obGo(1);}};return;}
   if(st.id==="swipe"||st.id==="zones"){
     const zn=st.id==="zones",cards=deckOf(st,a).cards;
