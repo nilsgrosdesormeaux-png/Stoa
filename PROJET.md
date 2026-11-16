@@ -280,4 +280,4 @@ Les valeurs exactes (2 min 30, semaine légère toutes les 6 semaines, échauffe
 
 ### Séance Bonus dans le questionnaire automatique (16 nov. 2026)
 - À l'étape des jours, bouton « Ajouter une séance Bonus » (`a.bonus`). `generate()` ajoute alors une séance facultative « Bonus » (épaules côté, biceps, triceps, arrière d'épaule, priorités du haut, abdos ; 2-3 séries, repos ≤ 75 s), placée le dimanche ou le samedi si possible, marquée `bonus:true` (exclue des 3 séances de la semaine, comme le Bonus de Nils).
-- Pour un programme déjà créé : Programme › « Modifier mes séances » › « Une séance Bonus ».
+- Pour un programme déjà créé : Programme › « ＋ Ajouter une séance Bonus » (visible s'il n'y en a pas), ou « Modifier mes séances » › onglet « ＋ Bonus ».

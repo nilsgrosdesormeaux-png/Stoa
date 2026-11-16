@@ -3074,7 +3074,7 @@ function vPlan(){
   </div>
   <p class="small muted" style="margin:8px 4px 0">Appui long sur un jour pour y mettre une autre séance ou un repos.</p>
   ${PROG.temp?"":`<button class="btn line wide" id="bdays" style="margin-top:12px">📅 Choisir mes jours d'entraînement</button>`}
-  ${PROG.temp?"":`<button class="btn line wide" id="bedit" style="margin-top:12px">✎ Modifier mes séances</button><p class="small muted" style="margin:6px 4px 0">Ajouter, retirer ou remplacer des exercices, changer les séries, les répétitions, les repos, ajouter une séance.</p>`}
+  ${PROG.temp?"":`${BONUS?"":`<button class="btn line wide" id="baddbon" style="margin-top:12px">＋ Ajouter une séance Bonus</button>`}<button class="btn line wide" id="bedit" style="margin-top:12px">✎ Modifier mes séances</button><p class="small muted" style="margin:6px 4px 0">Ajouter, retirer ou remplacer des exercices, changer les séries, les répétitions, les repos, ajouter une séance.</p>`}
   <p class="lead small">${PROG.nils?"Tes horaires changent ? Ne fais <b>jamais A et C deux jours de suite</b> (mêmes muscles du haut). B peut se placer n'importe où. Le Bonus se fait au moins 48 h après C : le dimanche est idéal."
       :PER_WEEK<=3&&/Corps entier/.test(PROG.split)?"Tes horaires changent ? Pas de souci : laisse juste <b>au moins un jour de repos entre deux séances</b>, les muscles se construisent pendant le repos."
       :"Tes horaires changent ? Garde l'ordre des séances et évite de faire <b>deux fois le même type de séance deux jours de suite</b> (haut puis haut, ou bas puis bas)."}</p>
@@ -3105,7 +3105,8 @@ function vPlan(){
   </ol></div>`;
   $("gonext").onclick=()=>go("today",nk);
   $("redo").onclick=()=>openOnboarding(true);
-  if($("bedit"))$("bedit").onclick=editProgram;
+  if($("bedit"))$("bedit").onclick=()=>editProgram();
+  if($("baddbon"))$("baddbon").onclick=()=>editProgram({addBonus:true});
   if($("bdays"))$("bdays").onclick=daysSheet;
   if($("away"))$("away").onclick=awaySheet;
   if($("pauseend"))$("pauseend").onclick=()=>{const pz=(store.pauses||[]).slice(-1)[0];if(pz)pz.to=today();delete store.pauseUntil;persist();render(true);toast("C'est reparti ! Commence en douceur.");};
@@ -3617,6 +3618,8 @@ let BD=null;
 /* o : {src:"onb"|"edit", p, target:"profile"|"nils", S:[séances], stage} */
 function openBuilder(o){
   BD=Object.assign({cur:0,stage:"setup",open:-1},o);
+  /* ajouter une séance Bonus : on choisit ses parties du corps puis ses exercices, comme pour une séance normale */
+  if(BD.addBonus&&BD.S&&!BD.S.some(x=>x.bonus)){const k=bNewKey();if(k){const b={k,nom:"Bonus",bonus:true,exos:[],parts:[]};BD.S.push(b);BD.cur=BD.S.indexOf(b);BD.stage="parts";BD.dirty=true;}}
   let el=$("bld");if(!el){el=document.createElement("div");el.id="bld";el.className="onb bld";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");document.body.appendChild(el);}
   document.body.classList.add("onb-open");stopRest&&stopRest();bRender();}
 function closeBuilder(){const el=$("bld");if(el)el.remove();if(!$("onb"))document.body.classList.remove("onb-open");}
@@ -3625,11 +3628,11 @@ function bFromProgram(f,onair,nils){const LP=liveP(f.P,onair,nils);
   return f.KEYS.map(k=>{const s=JSON.parse(JSON.stringify(LP[k]));s.exos.forEach(e=>{delete e.k;if(store.rest[e.uid])e.rest=store.rest[e.uid];if(!e.pat)e.pat=bPat(e);});
     return {k,nom:s.nom,bonus:!!s.bonus||(nils&&k==="D"),src:s,exos:s.exos,parts:[],sig:bSig(s.exos),built:true};});}
 /* depuis l'onglet Programme */
-function editProgram(){
+function editProgram(o){
   const pr=store.profile,nils=!pr||pr.mode==="nils";
   const f=nils?store.nilsPlan:pr.frozen;if(!f)return;
   const p=nils?Object.assign({},NILSP,{place:"salle",gym:"onair"}):pr;
-  openBuilder({src:"edit",target:nils?"nils":"profile",p,S:bFromProgram(f,nils||pr.gym==="onair",nils),stage:"recap",plan0:f.PLAN,base:f});
+  openBuilder({src:"edit",target:nils?"nils":"profile",p,S:bFromProgram(f,nils||pr.gym==="onair",nils),stage:"recap",plan0:f.PLAN,base:f,addBonus:!!(o&&o.addBonus)});
 }
 /* depuis le questionnaire */
 function obBuild(dir){const a=OB.a;
@@ -3694,7 +3697,7 @@ function bRender(dir){
   }else if(st==="recap"){
     const ex=s.exos,est=bEst(ex,BD.p),gs=[];ex.forEach(e=>(e.g||[]).forEach(g=>{if(!gs.includes(g))gs.push(g);}));
     const nxt=S.findIndex(x=>!x.built);
-    head=`<div class="bd-tabs">${S.map((x,i)=>`<button class="${i===BD.cur?"on":""}" data-tab="${i}">${x.bonus?"Bonus":x.k}${x.built?"":" ·"}</button>`).join("")}${BD.src==="edit"||S.length<7?`<button data-addses aria-label="Ajouter une séance">＋</button>`:""}</div>
+    head=`<div class="bd-tabs">${S.map((x,i)=>`<button class="${i===BD.cur?"on":""}" data-tab="${i}">${x.bonus?"Bonus":x.k}${x.built?"":" ·"}</button>`).join("")}${BD.src==="edit"||S.length<7?`<button data-addses aria-label="Ajouter une séance">＋</button>`:""}${S.some(x=>x.bonus)||S.length>=7?"":`<button data-addbon aria-label="Ajouter une séance Bonus">＋ Bonus</button>`}</div>
       <input class="bd-name" id="bdname" value="${esc(s.nom)}" maxlength="40" aria-label="Nom de la séance">
       <p class="onb-sub">${ex.length} exercice${ex.length>1?"s":""} · environ ${Math.max(15,Math.round(est/5)*5)} min${gs.length?" · "+gs.slice(0,4).join(", "):""}</p>${(BD.p.level||0)===0&&!s.bonus&&(est>60||ex.length>7)?`<p class="onb-warn" style="margin:-8px 0 12px">C'est long pour débuter : 5 ou 6 exercices suffisent les premiers mois.</p>`:est>90?`<p class="onb-warn" style="margin:-8px 0 12px">Séance très longue (plus de 90 min) : la qualité baisse en fin de séance. Pense à la répartir sur deux jours.</p>`:""}${ex.length&&BD.open<0?`<p class="onb-note" style="margin:-12px 0 12px">Touche un exercice pour régler séries, répétitions et repos. Flèches pour changer l'ordre.</p>`:""}`;
     const RP=e=>e.unit==="sec"?[[20,30],[30,45],[45,60]]:BWU(e)?[[5,10],[8,12],[10,15],[12,20],[15,25]]:[[5,8],[6,10],[8,12],[10,15],[12,20]];
@@ -3763,6 +3766,7 @@ function bWire(){
   if(st==="recap"){
     const ex=s.exos,re=()=>{BD.dirty=true;bRender();};
     qa("[data-tab]").forEach(b=>b.onclick=()=>{BD.cur=+b.dataset.tab;BD.open=-1;if(!BD.S[BD.cur].built&&!BD.S[BD.cur].exos.length){BD.stage="parts";}bRender();});
+    const ab=q("[data-addbon]");if(ab)ab.onclick=()=>{const k=bNewKey();if(!k)return;const b={k,nom:"Bonus",bonus:true,exos:[],parts:[]};BD.S.push(b);BD.cur=BD.S.indexOf(b);BD.stage="parts";BD.dirty=true;bRender(1);};
     const as=q("[data-addses]");if(as)as.onclick=()=>{const k=bNewKey();if(!k)return;const n={k,nom:"Séance "+k,exos:[],parts:[]};const bi=BD.S.findIndex(x=>x.bonus);
       if(bi>=0)BD.S.splice(bi,0,n);else BD.S.push(n);BD.cur=BD.S.indexOf(n);BD.stage="parts";BD.dirty=true;bRender(1);};
     const nm=$("bdname");nm.onchange=()=>{const v=nm.value.trim();if(v){s.nom=v.slice(0,40);BD.dirty=true;}};
