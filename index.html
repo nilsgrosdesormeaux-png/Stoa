@@ -367,6 +367,7 @@
 .h-day.h-now i{background:transparent;border:1.5px dashed rgba(var(--acc-hi-rgb),.8)}
 .h-quote{position:relative;z-index:1;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);font-size:15px;font-weight:600;line-height:1.35;letter-spacing:-.01em}
 .h-quote em{font-style:normal;color:var(--acc-lt)}
+.h-day.h-pre{opacity:.3}
 
 /* next */
 .h-next{margin-top:12px;padding:16px 18px;border-radius:var(--r-l);background:var(--s1);border:1px solid var(--line);box-shadow:var(--sh)}
@@ -640,6 +641,12 @@
   .onb-acc svg{width:100%;height:auto;display:block;margin-bottom:8px;border-radius:12px}
   .onb-acc b{font-size:16px}.onb-acc small{font-size:12.5px;color:#A9A9B3}
   .onb-acc.on{border-color:var(--acc-hi-d);background:rgba(var(--a-rgb),.14)}
+  .onb-wdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .onb-wdays button{aspect-ratio:1;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#F5F5F7;font:inherit;font-weight:800;font-size:16px;padding:0}
+  .onb-wdays button.on{background:linear-gradient(135deg,var(--acc-hi-d),var(--g3));border-color:transparent}
+  .wdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+  .wdays button{aspect-ratio:1;border-radius:50%;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font:inherit;font-weight:800;font-size:16px;padding:0}
+  .wdays button.on{background:var(--grad);color:#fff;border-color:transparent}
   .chipb{border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:99px;min-height:40px;padding:0 14px;font:inherit;font-size:14.5px;font-weight:600}
   .chipb.on{background:var(--hot-soft);border-color:var(--hot);color:var(--ink)}
   .mphoto{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:18px;margin:6px 0 10px;background:#0A0A0C}
@@ -1976,6 +1983,27 @@ const SPLITS={
 function pickSplit(p){const d=+p.days||3,sw=p.swipe||{};
   if(d<=2)return "fb2";if(d===3&&sw.split!=null)return sw.split?"ulf":"fb3";if(d===3)return (p.level||0)>=2?"ulf":"fb3";if(d===4)return "ul4";if(d>=6&&(p.level||0)>=2)return "ppl6";return "ppl5";}
 
+/* ===== jours d'entraînement choisis : placer les séances sur ces jours =====
+   On essaie tous les ordres possibles et on garde celui qui évite deux séances qui travaillent
+   les mêmes muscles deux jours de suite (dimanche → lundi compris). À égalité, l'ordre A, B, C… */
+const DN7=["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"],DL7=["L","M","M","J","V","S","D"];
+const sesGroups=s=>{const g=new Set();(s.exos||[]).forEach(e=>{if(e.opt)return;(e.g||[]).forEach(x=>{if(!["Abdos","Équilibre","Mollets"].includes(x))g.add(x);});});return g;};
+function placeDays(keys,P0,wdays,restS){
+  const d=[...new Set(wdays)].filter(x=>x>=0&&x<7).sort((a,b)=>a-b),n=Math.min(keys.length,d.length);
+  const G={};keys.forEach(k=>{G[k]=sesGroups(P0[k]||{});});
+  const ov=(a,b)=>{let c=0;G[a].forEach(x=>{if(G[b].has(x))c++;});return c;};
+  const adj=(i,j)=>{const x=d[i],y=d[j];return (y-x+7)%7===1;};
+  let best=null;const ks=keys.slice(0,n),perm=(arr,used)=>{if(arr.length===n){let c=0,inv=0;
+      for(let i=0;i<n;i++)for(let j=0;j<n;j++){if(i!==j&&adj(i,j)&&ov(arr[i],arr[j])>=2)c+=ov(arr[i],arr[j]);if(i<j&&ks.indexOf(arr[i])>ks.indexOf(arr[j]))inv++;}
+      const sc=c*100+inv;if(!best||sc<best.sc)best={sc,arr:arr.slice()};return;}
+    ks.forEach(k=>{if(!used.has(k)){used.add(k);arr.push(k);perm(arr,used);arr.pop();used.delete(k);}});};
+  perm([],new Set());
+  const plan=DN7.map(x=>({d:x,k:null,t:"Repos",s:restS||"Récupération"}));
+  (best?best.arr:[]).forEach((k,i)=>{plan[d[i]]={d:DN7[d[i]],k};});
+  /* deux jours collés qui travaillent les mêmes muscles : on prévient gentiment */
+  const warn=[];for(let i=0;i<7;i++){const a=plan[i],b=plan[(i+1)%7];if(a.k&&b.k&&ov(a.k,b.k)>=2)warn.push([i,(i+1)%7]);}
+  return {plan,warn};}
+const daysWarn=(w,P0)=>w.length?`Tu as choisi des jours collés (${w.map(([i,j])=>`${JOURS[i]} et ${JOURS[j]}`).join(", ")}) : les mêmes muscles travaillent deux jours de suite. Ça marche, mais ton corps récupère mieux avec un jour de repos entre les deux. Si tu peux, décale un jour.`:"";
 function generate(p){
   const split=SPLITS[pickSplit(p)],dur=+p.dur||45,sw=p.swipe||{},lvl=p.level||0,goal=p.goal||"forme";
   const nEx=(dur<=30?4:dur<=45?5:dur<=60?6:7)+(sw.superset===true&&dur>=45?1:0);
@@ -2160,14 +2188,15 @@ function generate(p){
   });
   /* sans rien pour tirer, le dos travaille peu : on le dit simplement */
   if(!SS.some(s=>s.exos.some(e=>["hpull","vpull"].includes(e.pat))))keys.forEach(k=>{PP[k].intro+=" Ton dos travaille peu sans matériel : un élastique (environ 10 €) ou une barre de traction change tout. Tu peux aussi dire oui à la table ou au sac à dos dans le questionnaire.";});
-  const PLANG=[];const DN=["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
-  DN.forEach(d=>{const i=split.days.indexOf(d);
-    PLANG.push(i>=0?{d,k:keys[i]}:{d,k:null,t:"Repos",s:sw.walk===true?"Marche 30 à 45 min (environ 8 000 pas)":sw.walk===false?"Récupération":goal==="gras"||sw.cardio===true?"Marche 30 min ou cardio léger":"Repos ou 20 min de marche"});});
+  let PLANG=[],dwarn=[];const DN=DN7,restS=sw.walk===true?"Marche 30 à 45 min (environ 8 000 pas)":sw.walk===false?"Récupération":goal==="gras"||sw.cardio===true?"Marche 30 min ou cardio léger":"Repos ou 20 min de marche";
+  /* jours choisis par la personne (questionnaire ou Programme) : les séances vont sur ces jours */
+  if(Array.isArray(p.wdays)&&p.wdays.length===keys.length){const pd=placeDays(keys,PP,p.wdays,restS);PLANG=pd.plan;dwarn=pd.warn;}
+  else DN.forEach(d=>{const i=split.days.indexOf(d);PLANG.push(i>=0?{d,k:keys[i]}:{d,k:null,t:"Repos",s:restS});});
   const allEx=[].concat(...keys.map(k=>PP[k].exos));
   const bwShare=allEx.filter(BWU).length/Math.max(1,allEx.length);
   const liftU=[];keys.forEach(k=>{const e=PP[k].exos.find(x=>x.comp)||PP[k].exos[0];if(e&&!liftU.includes(e.uid))liftU.push(e.uid);});
   allEx.forEach(e=>{if(liftU.length<3&&e.comp&&!liftU.includes(e.uid))liftU.push(e.uid);});
-  return {P:PP,KEYS:keys,PLAN:PLANG,split:split.nom,reps:bwShare>0.5,lifts:liftU.slice(0,3)};
+  return {P:PP,KEYS:keys,PLAN:PLANG,split:split.nom,reps:bwShare>0.5,lifts:liftU.slice(0,3),dwarn};
 }
 function sessionIntro(p,t){
   const goal=p.goal,sw=p.swipe||{};
@@ -2228,7 +2257,7 @@ function homeData(){
   const wk=new Set(store.hist.filter(h=>h.d>=ws&&abc(h)&&hp(h)).map(h=>h.k));
   const dow=(new Date().getDay()+6)%7;
   const days=["L","M","M","J","V","S","D"].map((l,i)=>{const d=new Date(ws+"T12:00");d.setDate(d.getDate()+i);const ds=iso(d);
-    const h=store.hist.find(x=>x.d===ds&&hp(x));return {l,k:h?(h.k===BONUS?"+":h.k):"",now:i===dow&&!h};});
+    const h=store.hist.find(x=>x.d===ds&&hp(x));return {l,k:h?(h.k===BONUS?"+":h.k):"",now:i===dow&&!h,pre:!!store.start&&ds<store.start};});
   /* série de semaines complètes (3/3), la semaine en cours compte si elle est bouclée */
   let streak=0;{const d=new Date(ws+"T12:00");if(wk.size<weekGoal(ws))d.setDate(d.getDate()-7);
     for(;;){const s=iso(d),e=new Date(d);e.setDate(e.getDate()+7);const es=iso(e);
@@ -2261,7 +2290,7 @@ function motivation(d){
   const left=weekGoal()-d.done;
   if(store.pauseUntil&&store.pauseUntil>=today())return `En <em>pause</em> jusqu'au ${fr(store.pauseUntil)}. Repose-toi : ta flamme est protégée.`;
   if(PROG.temp)return `Programme <em>${PROG.temp.kind==="pause"?"d'entretien":"vacances"}</em> jusqu'au ${fr(PROG.temp.until)}. Ensuite, retour automatique à ton programme.`;
-  if(!d.sessions)return `Bienvenue. <em>Ta première séance</em> t'attend : l'app te dit quoi mettre sur chaque machine.`;
+  if(!d.sessions)return `Bienvenue. <em>Ta première séance</em> t'attend, même aujourd'hui : l'app te dit quoi faire${PROG.place==="salle"?" sur chaque machine":" à chaque exercice"}.`;
   if(d.ci.deload)return `Semaine <em>légère</em> : moitié des séries. Ton corps encaisse 5 semaines de progrès.`;
   if(left<=0)return `Semaine <em>bouclée</em>. ${d.streak} semaine${d.streak>1?"s":""} d'affilée : la régularité, c'est ce qui fait ${PROG.nils?"grossir":"la différence"}.`;
   const prw=d.prs.filter(p=>p.d>=weekStart(today())).length;
@@ -2295,7 +2324,7 @@ function vHome(){
   for(let i=0;i<n;i++){const a0=i*seg+gap/2,a1=(i+1)*seg-gap/2,p=arcP(68,68,R,a0,a1),len=(a1-a0)*Math.PI*R/180;
     ring+=`<path d="${p}" fill="none" stroke="rgba(255,255,255,.09)" stroke-width="13" stroke-linecap="round"/>`;
     if(i<d.done)ring+=`<path class="h-arc" d="${p}" fill="none" stroke="url(#rg)" stroke-width="13" stroke-linecap="round" filter="url(#glow)" style="stroke-dasharray:${len};stroke-dashoffset:${len};transition-delay:${.2+i*.25}s"/>`;}
-  const days=d.days.map(x=>`<div class="h-day ${x.k?"h-on":""} ${x.now?"h-now":""}">${x.l}<i>${x.k}</i></div>`).join("");
+  const days=d.days.map(x=>`<div class="h-day ${x.k?"h-on":""} ${x.now?"h-now":""} ${x.pre?"h-pre":""}">${x.l}<i>${x.k}</i></div>`).join("");
   const vmax=Math.max(...d.vol,1),cur=d.vol[4];
   const bars=d.vol.map((v,i)=>`<div class="h-bar ${i===4?"h-cur h-partial":""}"><i style="height:${Math.max(6,v/vmax*80)}px;transition-delay:${.1+i*.07}s"></i><span>${i===4?"Cette":"S-"+(4-i)}</span></div>`).join("");
   const prs=d.prs.slice(0,6).map(p=>{const e=EXO[p.u]||{nom:p.u};return `<div class="h-pr"><div class="h-pr-top"><span class="h-pr-tag">${HI.trophy}Record</span><span class="h-pr-d">${fr(p.d)}</span></div>
@@ -2585,7 +2614,10 @@ function defaultSession(){
   for(const k of KEYS)if(P[k].exos.some(e=>{const te=todayEntry(e.uid);return te&&W(te).length;})&&!store.hist.some(h=>h.k===k&&h.d===t&&hp(h)))return k;
   const ws=weekStart(t),done=new Set(store.hist.filter(h=>h.d>=ws&&hp(h)).map(h=>h.k));
   const dow=(new Date().getDay()+6)%7;
-  if(BONUS&&dow===6&&!done.has(BONUS))return BONUS;
+  if(BONUS&&PLAN[dow]&&PLAN[dow].k===BONUS&&!done.has(BONUS))return BONUS;
+  /* on a commencé en cours de semaine (ex. un dimanche) : la semaine suivante continue dans l'ordre (B après A), sans refaire A */
+  if(!done.size&&store.start&&weekStart(store.start)!==store.start){const last=store.hist.filter(h=>hp(h)&&MAIN.includes(h.k)).sort((a,b)=>a.d<b.d?-1:1).pop();
+    if(last&&weekStart(last.d)===weekStart(store.start)&&daysBetween(last.d,t)<=7){const i=MAIN.indexOf(last.k);return MAIN[(i+1)%MAIN.length];}}
   return MAIN.find(k=>!done.has(k))||BONUS||MAIN[0];
 }
 function go(t,k){tab=t;if(k)sess=k;$("toast").classList.add("hidden");try{localStorage.setItem(KEY+"-tab",t);}catch(e){}render();}
@@ -2869,6 +2901,27 @@ function daySheet(i){const r=PLAN[i];
     const j=k?PLAN.findIndex((x,q)=>q!==i&&x.k===k):-1;
     const setK=(row,kk)=>{if(kk){row.k=kk;delete row.t;delete row.s;}else{row.k=null;row.t="Repos";row.s="Récupération";}};
     if(j>=0)setK(PLAN[j],old);setK(r,k);persist();closeSheet();render(true);toast(k?`${LABEL[k]} le ${JOURS[i]}`:`Repos le ${JOURS[i]}`);});});}
+/* choisir ses jours d'entraînement : les séances se placent sur ces jours (écart conseillé respecté) */
+function daysSheet(){
+  const pr=store.profile||{},gen=pr.mode==="gen",mx=(PROG.p&&(PROG.p.level||0)>=2)?6:5;
+  const cur=PLAN.map((r,i)=>r.k?i:-1).filter(i=>i>=0);let sel=cur.slice();
+  const rest=(PLAN.find(r=>!r.k)||{}).s||"Récupération";
+  const keysFor=n=>n===MAIN.length?MAIN.slice():(BONUS&&n===MAIN.length+1)?MAIN.concat(BONUS):null;
+  const draw=()=>{const n=sel.length,ks=keysFor(n),same=sel.join()===cur.join(),pd=same?{plan:PLAN,warn:[]}:ks?placeDays(ks,P,sel,rest):null,regen=!ks&&gen&&n>=2&&n<=mx;
+    openSheet(`<div class="shd"><h3>Mes jours d'entraînement</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
+      <p class="small muted">Touche les jours où tu peux t'entraîner. Stoa place tes séances en laissant si possible un jour de repos entre deux séances qui travaillent les mêmes muscles.</p>
+      <div class="wdays">${DL7.map((l,i)=>`<button class="${sel.includes(i)?"on":""}" data-wd="${i}" aria-label="${JOURS[i]}">${l}</button>`).join("")}</div>
+      ${pd?`<div class="panel flat list" style="margin-top:12px">${pd.plan.map(r=>`<div class="li ${r.k?"":"rest"}"><span class="day">${r.d}</span><span class="w"><b>${r.k?esc(LABEL[r.k]):"Repos"}</b></span></div>`).join("")}</div>
+        ${pd.warn.length?`<div class="tip down" style="margin-top:10px">${daysWarn(pd.warn)}</div>`:""}
+        ${same?`<p class="small muted" style="margin-top:10px">Ce sont tes jours actuels. Touche un jour pour changer.</p>`:`<button class="btn hot wide" id="dsave" style="margin-top:14px">Enregistrer mes jours</button>`}`
+      :regen?`<div class="tip info" style="margin-top:12px">Ton programme a <b>${MAIN.length} séances</b>. Avec ${n} jours, Stoa refait ton programme sur <b>${n} séances</b> (mêmes réglages, ton historique est gardé).</div>
+        <button class="btn hot wide" id="dregen" style="margin-top:14px">Refaire mon programme sur ${n} jours</button>`
+      :`<p class="note" style="margin-top:12px">${n<2?"Choisis au moins 2 jours.":n>mx&&gen?`${mx} jours au plus.`:`Ton programme a <b>${MAIN.length} séances</b>${BONUS?" + le Bonus":""} : choisis ${MAIN.length} jours${BONUS?` (ou ${MAIN.length+1} avec le Bonus)`:""}. Pour changer le nombre de séances, utilise « Modifier mes séances ».`}</p>`}`,
+    ()=>{$("sx").onclick=closeSheet;const S=$("sheet");
+      S.querySelectorAll("[data-wd]").forEach(b=>b.onclick=()=>{const i=+b.dataset.wd;sel=sel.includes(i)?sel.filter(x=>x!==i):sel.concat(i).sort((a,b)=>a-b);draw();});
+      const sv=$("dsave");if(sv)sv.onclick=()=>{PLAN.splice(0,PLAN.length,...pd.plan);if(gen)pr.wdays=sel.slice();persist();closeSheet();render(true);toast("Tes jours sont enregistrés");};
+      const rg=$("dregen");if(rg)rg.onclick=()=>{pr.days=n;pr.wdays=sel.slice();pr.frozen=null;persist();applyProgram();sess=defaultSession();closeSheet();render();toast(`Ton programme passe à ${n} séances par semaine`);};});};
+  draw();}
 /* replie les parties secondaires d'une page : on n'ouvre que ce qu'on veut lire */
 function foldSections(keep){
   [...view.querySelectorAll("h3")].forEach(h=>{const t=h.textContent;if(keep.some(k=>t.includes(k)))return;
@@ -2905,6 +2958,7 @@ function vPlan(){
       <span class="w"><b>${r.k?LABEL[r.k]:r.t}</b><small>${r.k?P[r.k].muscles:r.s}</small></span>${r.k?(done.has(r.k)?`<span class="r">✓ faite</span>`:`<span class="chev">›</span>`):""}</button>`).join("")}
   </div>
   <p class="small muted" style="margin:8px 4px 0">Appui long sur un jour pour y mettre une autre séance ou un repos.</p>
+  ${PROG.temp?"":`<button class="btn line wide" id="bdays" style="margin-top:12px">📅 Choisir mes jours d'entraînement</button>`}
   ${PROG.temp?"":`<button class="btn line wide" id="bedit" style="margin-top:12px">✎ Modifier mes séances</button><p class="small muted" style="margin:6px 4px 0">Ajouter, retirer ou remplacer des exercices, changer les séries, les répétitions, les repos, ajouter une séance.</p>`}
   <p class="lead small">${PROG.nils?"Tes horaires changent ? Ne fais <b>jamais A et C deux jours de suite</b> (mêmes muscles du haut). B peut se placer n'importe où. Le Bonus se fait au moins 48 h après C : le dimanche est idéal."
       :PER_WEEK<=3&&/Corps entier/.test(PROG.split)?"Tes horaires changent ? Pas de souci : laisse juste <b>au moins un jour de repos entre deux séances</b>, les muscles se construisent pendant le repos."
@@ -2936,6 +2990,7 @@ function vPlan(){
   $("gonext").onclick=()=>go("today",nk);
   $("redo").onclick=()=>openOnboarding(true);
   if($("bedit"))$("bedit").onclick=editProgram;
+  if($("bdays"))$("bdays").onclick=daysSheet;
   if($("away"))$("away").onclick=awaySheet;
   if($("pauseend"))$("pauseend").onclick=()=>{const pz=(store.pauses||[]).slice(-1)[0];if(pz)pz.to=today();delete store.pauseUntil;persist();render(true);toast("C'est reparti ! Commence en douceur.");};
   if($("tempend"))$("tempend").onclick=()=>{store.temp=null;store.returned=today();persist();applyProgram();sess=defaultSession();render();toast("Bon retour ! Si tu as arrêté 2 semaines ou plus, tes charges repartent un peu plus légères.");};
@@ -3701,7 +3756,7 @@ const OSTEPS=[
   {id:"level",t:"Ton niveau en musculation ?",s:"Sois honnête : l'app s'adapte.",pick:[[0,"🌱","Je n'en ai jamais fait","Ou presque jamais"],[1,"🌿","Moins d'un an","Je connais un peu les exercices"],[2,"🌳","1 à 3 ans","Je m'entraîne régulièrement"],[3,"🏔️","Plus de 3 ans","Je connais bien mes charges"]]},
   {id:"goal2",when:a=>a.how!=="manual",t:"Un objectif en plus ?",s:"Facultatif. Ton objectif principal décide des calories et des répétitions ; le second ajoute un bloc.",pick:[["non","✓","Non, un seul objectif","Le plus simple et le plus efficace"],["gras","🔥","Perdre du gras",""],["muscle","💪","Prendre du muscle",""],["force","🏆","Gagner en force",""],["forme","⚡","Me remettre en forme",""]]},
   {id:"loads",when:a=>(a.place==="salle"||(a.place==="maison"&&(a.equip||[]).includes("halteres"))),t:"Tes charges",s:""},
-  {id:"days",when:a=>a.how!=="manual",t:"Combien de séances par semaine ?",s:"Mieux vaut 2 séances tenues que 5 abandonnées."},
+  {id:"days",when:a=>a.how!=="manual",t:"Quels jours tu t'entraînes ?",s:"Choisis tes jours. Mieux vaut 2 séances tenues que 5 abandonnées."},
   {id:"zones",when:a=>a.how!=="manual",t:"Qu'est-ce que tu veux renforcer en priorité ?",s:"Glisse à droite pour « Priorité », à gauche pour « Déjà bien », ou touche « Normal »."},
   {id:"pain",t:"Tu as mal quelque part ?",s:"On évitera les exercices qui pourraient gêner.",multi:[["genoux","Aux genoux"],["dos","Au bas du dos"],["epaules","Aux épaules"]],none:"Non, tout va bien"},
   {id:"health",t:"Ta santé",s:"Pour ta sécurité. Coche ce qui te concerne, ça reste sur ton téléphone.",multi:[["coeur","Un médecin m'a parlé d'un problème au cœur ou de tension"],["malaise","Douleur dans la poitrine, malaise ou perte de connaissance à l'effort"],["grossesse","Je suis enceinte","F"],["postpartum","J'ai accouché il y a moins d'un an","F"],["opere","Opéré(e) ou blessé(e) il y a moins de 6 mois"],["maladie","Diabète traité, ostéoporose ou autre maladie suivie"]],none:"Rien de tout ça"},
@@ -3777,12 +3832,16 @@ function obRender(dir){
       <p class="onb-note" id="obbn"></p>`;
     foot=`<button class="btn hot wide" data-next>Continuer</button>`;
   }else if(st.id==="days"){
-    const rec=(a.level||0)===0?3:null;
-    const dl=(a.level||0)>=2?[2,3,4,5,6]:[2,3,4,5];
-    body=`<div class="onb-days" style="grid-template-columns:repeat(${dl.length},1fr)">${dl.map(n=>`<button class="${+a.days===n?"on":""}" data-days="${n}"><b>${n}</b><small>${{2:"Tranquille",3:"Idéal",4:"Régulier",5:"À fond",6:"Expert"}[n]}</small>${rec===n?`<em>Conseillé</em>`:""}</button>`).join("")}</div>
+    const mx=(a.level||0)>=2?6:5,wd=a.wdays||[],n=wd.length;
+    const lab={2:"Tranquille",3:"Idéal",4:"Régulier",5:"À fond",6:"Expert"}[n];
+    let warn="";if(n>=2&&n<=mx){try{warn=daysWarn(generate(Object.assign({},a,{days:n,wdays:wd,dur:a.dur||45})).dwarn);}catch(e){}}
+    body=`<div class="onb-wdays">${DL7.map((l,i)=>`<button class="${wd.includes(i)?"on":""}" data-wd="${i}" aria-label="${JOURS[i]}">${l}</button>`).join("")}</div>
+      <p class="onb-note" style="margin-top:10px">${n<2?"Touche les jours où tu peux t'entraîner (2 au moins)."+((a.level||0)===0?" Pour commencer, 3 jours, c'est l'idéal.":""):n>mx?`${mx} jours au plus pour ton niveau : enlève un jour.`:`<b style="color:#F5F5F7">${n} séances par semaine</b> · ${lab}${(a.level||0)===0&&n>3?" (3 suffisent pour bien progresser au début)":""}`}</p>
+      ${warn?`<p class="onb-warn">${warn}</p>`:""}
       <h4 class="onb-h4">Combien de temps par séance ?</h4>
       <div class="onb-grid four">${[30,45,60,75].map(n=>`<button class="onb-chip ${+a.dur===n?"on":""}" data-dur="${n}">${n} min</button>`).join("")}</div>`;
-    foot=`<button class="btn hot wide" data-next ${a.days&&a.dur?"":"disabled"}>Continuer</button>`;
+    const okD=n>=2&&n<=mx;
+    foot=`<button class="btn hot wide" data-next ${okD&&a.dur?"":"disabled"}>Continuer</button>`;
   }else if(st.id==="swipe"||st.id==="zones"){
     const dk=deckOf(st,a),cards=dk.cards,c=cards[OB.sw],zn=st.id==="zones";
     body=`<div class="onb-deck ${zn?"zones":""}">${c?cards.slice(OB.sw,OB.sw+2).reverse().map((x,j,arr)=>`<div class="onb-card ${j===arr.length-1?"top":"under"}" ${j===arr.length-1?'id="obcard"':""}>
@@ -3843,9 +3902,9 @@ function obWire(st){
       if(a.goal==="gras"&&w/((h/100)**2)<18.5){a.goal="forme";a.goalNote="Ton poids est déjà bas pour ta taille : perdre encore n'est pas bon pour ta santé. On part sur « Me remettre en forme ». Si tu te trouves trop gros(se) malgré tout, parles-en à un médecin, c'est important.";toast("Objectif changé : « Me remettre en forme »");}
       obGo(1);};return;}
   if(st.id==="days"){
-    qa("[data-days]").forEach(x=>x.onclick=()=>{a.days=+x.dataset.days;obRender();});
+    qa("[data-wd]").forEach(x=>x.onclick=()=>{const i=+x.dataset.wd,w=(a.wdays||[]).slice();a.wdays=w.includes(i)?w.filter(y=>y!==i):w.concat(i).sort((p,q)=>p-q);a.days=a.wdays.length;obRender();});
     qa("[data-dur]").forEach(x=>x.onclick=()=>{a.dur=+x.dataset.dur;obRender();});
-    nx.onclick=()=>{if(a.days&&a.dur)obGo(1);};return;}
+    nx.onclick=()=>{const mx=(a.level||0)>=2?6:5,n=(a.wdays||[]).length;if(n>=2&&n<=mx&&a.dur){a.days=n;obGo(1);}};return;}
   if(st.id==="swipe"||st.id==="zones"){
     const zn=st.id==="zones",cards=deckOf(st,a).cards;
     if(zn)a.zones=a.zones||{};
