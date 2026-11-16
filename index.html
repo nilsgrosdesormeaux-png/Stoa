@@ -626,6 +626,9 @@
   .chipb{border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:99px;min-height:40px;padding:0 14px;font:inherit;font-size:14.5px;font-weight:600}
   .chipb.on{background:var(--hot-soft);border-color:var(--hot);color:var(--ink)}
   .mphoto{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:18px;margin:6px 0 10px;background:#0A0A0C}
+  .onb-warn{background:rgba(255,178,36,.12);border:1px solid rgba(255,178,36,.35);border-radius:16px;padding:12px 14px;font-size:13.5px;color:#F5F5F7;line-height:1.45;margin:12px 0 0}
+  .onb-pick.off{opacity:.45}
+  .onb-grid.one{grid-template-columns:1fr}
   .onb-ok{display:flex;gap:12px;align-items:flex-start;margin-top:16px;font-size:13.5px;color:#B4B4BC;line-height:1.45}
   .onb-ok input{width:22px;height:22px;flex:none;accent-color:#E8132B;margin-top:1px}
   @media (prefers-reduced-motion: reduce){.onb-body{animation:none}}
@@ -1806,7 +1809,13 @@ const LIB=[
  {uid:"bagRow",pat:"hpull",on:["maison","dehors"],comp:1,bw:1,easy:1,min:10,max:20,nom:"Rowing penché avec un sac à dos",muscle:"Dos, épaisseur",g:["Dos"],unit:"corps",inc:0,pic:"rdl",
   reco:"Un sac à dos rempli (bouteilles d'eau, livres) tenu par les bretelles.",how:["Debout, penché en avant, dos plat, genoux légèrement pliés.","Le sac pend sous la poitrine.","Tire le sac vers le ventre en serrant les omoplates.","Redescends lentement. Ajoute des bouteilles quand ça devient facile."],pourquoi:"Le dos sans barre ni machine : un sac à dos suffit."},
  {uid:"bagCurl",pat:"bic",on:["maison","dehors"],bw:1,easy:1,min:10,max:20,nom:"Curl avec un sac à dos",muscle:"Biceps",g:["Biceps"],unit:"corps",inc:0,pic:"standCurl",
-  reco:"Un sac à dos rempli, tenu par la poignée du haut.",how:["Debout, le sac tenu à deux mains devant toi.","Plie les coudes pour le monter vers la poitrine.","Coudes collés au corps.","Redescends lentement."],pourquoi:"Les biceps sans haltères."}
+  reco:"Un sac à dos rempli, tenu par la poignée du haut.",how:["Debout, le sac tenu à deux mains devant toi.","Plie les coudes pour le monter vers la poitrine.","Coudes collés au corps.","Redescends lentement."],pourquoi:"Les biceps sans haltères."},
+ {uid:"chairStand",pat:"quadIso",on:["rien"],bw:1,easy:1,min:8,max:15,nom:"Se lever d'une chaise vite, se rasseoir lentement",muscle:"Cuisses, fessiers, puissance",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"squatBW",
+  reco:"Une chaise stable, sans roulettes, calée contre un mur.",how:["Assis au bord de la chaise, pieds à plat, écartés comme les hanches.","Lève-toi le plus vite possible, sans t'aider des mains si tu peux.","Rassieds-toi lentement, en 3 secondes, en contrôlant.","Plus facile : aide-toi des mains sur les cuisses. Plus dur : un bras croisé sur la poitrine."],
+  pourquoi:"La force et la vitesse des jambes, sans saut ni choc : c'est ce qui aide le plus à se relever et à éviter les chutes."},
+ {uid:"balance",pat:"bal",on:["rien"],bw:1,easy:1,min:15,max:40,nom:"Équilibre sur un pied (près d'un appui)",muscle:"Équilibre, chevilles, hanches",g:["Équilibre"],unit:"sec",inc:0,pic:"standCurl",
+  reco:"Un mur, un dossier de chaise ou une barre à portée de main.",how:["Debout à côté de l'appui, une main posée dessus si besoin.","Lève un pied de quelques centimètres et tiens, le regard droit devant.","Quand c'est facile : sans la main, puis les yeux fermés quelques secondes (toujours près de l'appui).","Note les secondes tenues sur chaque pied."],
+  pourquoi:"Après 55 ans, l'équilibre baisse vite si on ne le travaille pas. Quelques minutes par séance réduisent nettement le risque de chute."}
 ];
 const LIBX={};LIB.forEach(e=>{LIBX[e.uid]=e;});
 /* version plus dure / plus facile d'un exercice au poids du corps */
@@ -1841,11 +1850,20 @@ function envTokens(p){
   return ["rien","dehors"].concat(p.bars==="oui"?["barre","dips","barrebasse"]:[]);
 }
 /* les candidats d'un rôle, du meilleur au moins bon pour cette personne */
+/* règles de sécurité communes (générateur, constructeur, version plus dure) : âge, grossesse, post-partum */
+const PREG_OUT=["jumpSquat","crunch","cableCrunch","kneeRaise","legRaise","lSit","plank","hipThrust","gluteBridge","slideCurl","deadBug","barBench","dbBench","floorPress","smithBench","sideLegRaise"];
+const PP_OUT=["jumpSquat","crunch","cableCrunch","kneeRaise","legRaise","lSit","plank","hipThrust"];
+function ruleOut(e,p){if(!e)return true;const a=+p.age||25,h=p.health||[];
+  if(a<16&&(e.unit==="barre"||["weightedPull","weightedDip","jumpSquat"].includes(e.uid)))return true;
+  if(a>=55&&e.uid==="jumpSquat")return true;
+  if(h.includes("grossesse")&&(PREG_OUT.includes(e.uid)||e.unit==="barre"))return true;
+  if(h.includes("postpartum")&&PP_OUT.includes(e.uid))return true;
+  return false;}
 function candidates(pat,p){
   const tk=envTokens(p),pain=p.pain||[],lvl=p.level||0,sw=p.swipe||{};
   /* matériel absent (cartes du questionnaire) : chaise ou marche, table, sac à dos */
   const EXCL=[].concat(sw.meuble===false?["stepUp","bulgarian","chairDips"]:[],sw.table===false?["tableRow"]:[],sw.sac===false?["bagRow","bagCurl"]:[]);
-  const ok=LIB.filter(e=>e.pat===pat&&!EXCL.includes(e.uid)&&e.on.some(t=>tk.includes(t))&&!(e.not||[]).some(x=>tk.includes(x))&&!(e.avoid||[]).some(x=>pain.includes(x))&&(e.lvl||0)<=Math.max(lvl,0));
+  const ok=LIB.filter(e=>e.pat===pat&&!EXCL.includes(e.uid)&&e.on.some(t=>tk.includes(t))&&!(e.not||[]).some(x=>tk.includes(x))&&!(e.avoid||[]).some(x=>pain.includes(x))&&(e.lvl||0)<=Math.max(lvl,0)&&!ruleOut(e,p));
   const score=e=>{let s=0;
     if(p.place==="salle"){if(e.bw&&e.pat!=="core")s-=6;if(e.on.includes("salle"))s+=2;
       if(sw.mach===true||sw.peur===true||lvl===0)s+=e.mach?2:0;if(sw.mach===false)s+=e.mach?-1:1.5;}
@@ -2012,6 +2030,13 @@ function generate(p){
      while(exos.length>cap){let i=-1;for(let q=exos.length-1;q>=0;q--){const e=exos[q];if(e.pat!=="core"&&!e.comp&&!fpats.includes(e.pat)){i=q;break;}}
        if(i<0)for(let q=exos.length-1;q>=0;q--){if(exos[q].pat!=="core"&&!fpats.includes(exos[q].pat)){i=q;break;}}
        if(i<0)break;exos.splice(i,1);const big=exos.find(e=>e.comp&&e.series<4);if(big)big.series++;}}
+    /* règles finales, appliquées en dernier pour qu'aucune étape ne les défasse :
+       moins de 18 ans et grands débutants 3 séries max ; barre : 6-10 avant 18 ans, jamais moins que la barre seule (20 kg) */
+    if(old&&!exos.some(e=>e.pat==="bal")){const b=SS[si].mk(LIBX.balance,exos.length);b.series=2;b.rest=45;exos.push(b);}
+    exos.forEach(e=>{
+      if(teen||lvl===0)e.series=Math.min(e.series,3);
+      if(e.unit==="barre"){e.kg0=Math.max(20,e.kg0||0);e.depart=`${fmt(e.kg0)} kg (barre comprise, à ajuster)`;
+        if(teen){e.min=6;e.max=10;e.reco="<b>Moins de 18 ans : seulement avec un coach ou un adulte formé à côté de toi, la première fois.</b> "+e.reco;}}});
     exos.forEach((e,j)=>{e.id=keys[si].toLowerCase()+(j+1);});
     const gs=[];exos.forEach(e=>e.g.forEach(g=>{if(!gs.includes(g))gs.push(g);}));
     const min=est();
@@ -2041,14 +2066,23 @@ function sessionIntro(p,t){
 }
 /* besoins nutritionnels : estimation de départ (formule de Mifflin-St Jeor) */
 function nutrition(p){
-  const w=+p.weight||70,h=+p.height||170,a=+p.age||25,f=p.sex==="F";
+  const w=+p.weight||70,h=+p.height||170,a=+p.age||25,f=p.sex==="F",hl=p.health||[];
   const bmr=10*w+6.25*h-5*a+(f?-161:5),tdee=bmr*(1.3+0.06*(+p.days||3));
-  const adj={gras:-0.17*tdee,muscle:f?150:250,force:150,forme:0}[p.goal]||0;
-  const kcal=Math.round((tdee+adj)/50)*50;
-  /* protéines : 1,6 à 2 g par kg de poids « cible » (IMC 25 si l'IMC dépasse 27), au plus 160 g */
-  const bmi=w/((h/100)**2),pw=bmi>27?25*(h/100)**2:w;
-  const pr=p.goal==="forme"?[1.4,1.8]:[1.6,2.0],hi=Math.min(160,Math.round(pw*pr[1]/5)*5);
-  return {kcal,prot:[Math.min(hi-15,Math.round(pw*pr[0]/5)*5),hi],bmi};
+  const bmi=w/((h/100)**2),teen=a<18,preg=hl.includes("grossesse")||hl.includes("postpartum");
+  /* objectif : jamais de déficit avant 18 ans, sous un IMC de 20, enceinte ou après l'accouchement ;
+     déficit au plus 500 kcal ; en surpoids, muscle et force se font autour du maintien (recomposition) */
+  let adj=0;
+  if(p.goal==="gras")adj=bmi<20?0:-Math.min(0.17*tdee,500);
+  else if(p.goal==="muscle"||p.goal==="force")adj=bmi>=30?-0.10*tdee:bmi>=27?0:p.goal==="force"?150:(f?150:250);
+  if(teen||preg)adj=Math.max(0,adj);
+  /* plancher : jamais sous 1,1 × le métabolisme de base, ni sous 1 500 kcal (femme) / 1 800 kcal (homme) */
+  const floor=Math.round(Math.max(bmr*1.1,f?1500:1800)/50)*50;
+  const kcal=Math.max(floor,Math.round((tdee+adj)/50)*50);
+  /* protéines : poids « cible » (IMC 25 au-delà de 27) ; ados 1,2 à 1,6 g/kg */
+  const pw=bmi>27?25*(h/100)**2:w;
+  if(teen)return {kcal:null,floor:null,prot:[Math.round(w*1.2/5)*5,Math.round(w*1.6/5)*5],bmi,teen:true,preg};
+  const pr=p.goal==="forme"?[1.4,1.8]:p.goal==="gras"&&bmi<25?[1.8,2.2]:[1.6,2.0],hi=Math.min(160,Math.round(pw*pr[1]/5)*5);
+  return {kcal,floor,prot:[Math.min(hi-15,Math.round(pw*pr[0]/5)*5),hi],bmi,teen:false,preg,thin:bmi<18.5,recompo:(p.goal==="muscle"||p.goal==="force")&&bmi>=27};
 }
 
 /* ===================== ACCUEIL (tableau de bord) ===================== */
@@ -2115,9 +2149,22 @@ function motivation(d){
   if(left===1)return `Encore <em>1 séance</em> et ta semaine est dans la boîte.${prw?` ${prw} record${prw>1?"s":""} cette semaine, ne lâche rien.`:""}`;
   return `<em>${left} séances</em> pour boucler la semaine. Le plus dur, c'est de passer la porte.`;
 }
-function bwNote(){const g=PROG.p&&PROG.p.goal;
-  return {gras:"Objectif : une baisse lente, environ 0,3 à 0,7 kg par semaine. Regarde la moyenne, pas un jour isolé.",
-    muscle:"Objectif : prendre doucement, 1 à 2 kg par mois au maximum. Plus vite, c'est surtout du gras.",
+/* alertes de poids, en % du poids et selon l'objectif (moyennes sur 7 jours) */
+function weightAlert(w1,w2,avg,t){
+  if(w1.length<3||w2.length<3)return "";
+  const p=PROG.p||{age:20,goal:"muscle"},teen=(+p.age||25)<18,a1=avg(w1),a2=avg(w2),pct=(a1-a2)/a2*100;
+  const m=store.bw.filter(x=>daysBetween(x.d,t)>=28&&daysBetween(x.d,t)<35),month=m.length?(a1-avg(m))/avg(m)*100:null;
+  const box=(cls,s)=>`<div class="tip ${cls}" style="margin:10px 0 0">${s}</div>`;
+  if(pct<-1||(month!=null&&month<-5))return box("down",teen||(month!=null&&month<-5)?"<b>Ton poids baisse vite.</b> Parles-en à un adulte ou à ton médecin.":"<b>Tu perds plus de 1 % de ton poids par semaine</b> : c'est trop rapide, tu risques de perdre du muscle. Ajoute environ 200 kcal par jour.");
+  if(teen)return "";
+  if((p.goal==="muscle"||p.goal==="force")&&pct<-0.3)return box("down","Ton poids baisse alors que tu veux prendre du muscle : ajoute environ 150 kcal par jour.");
+  if(p.goal==="gras"&&pct>0){const w3=store.bw.filter(x=>{const d=daysBetween(x.d,t);return d>=14&&d<21;});if(w3.length>=3&&a2>avg(w3))return box("down","Ta moyenne remonte depuis 2 semaines : enlève environ 150 kcal par jour.");}
+  if(p.goal!=="gras"&&pct>0.5)return box("down","Tu prends plus vite que prévu, c'est surtout du gras : enlève environ 150 kcal par jour."+(PROG.nils?" (La créatine peut faire monter l'eau de 0,5 à 1 kg au début.)":""));
+  return "";}
+function bwNote(){const p=PROG.p||{},g=p.goal,w=store.bw.length?store.bw[store.bw.length-1].kg:(+p.weight||70),r=x=>fmt(Math.round(w*x)/100);
+  if((+p.age||25)<18)return "Ton poids n'est qu'un repère : tu grandis encore. Suis plutôt tes progrès en séance et tes photos.";
+  return {gras:`Objectif : une baisse lente, entre <b>${r(0.5)} et ${r(1)} kg</b> par semaine. Regarde la moyenne, pas un jour isolé.`,
+    muscle:`Objectif : prendre doucement, environ <b>${r(0.25)} à ${r(0.5)} kg</b> par semaine. Plus vite, c'est surtout du gras.`,
     force:"Ton poids peut rester stable : ce sont tes charges qui doivent monter.",
     forme:"Le poids n'est qu'un repère : regarde aussi tes photos, ton énergie et tes progrès en séance."}[g]||"Pèse-toi le matin, à jeun, 3 fois par semaine.";}
 function vHome(){
@@ -2155,7 +2202,9 @@ function vHome(){
       <text x="${Wd-8}" y="${Y(goal[1])+14}" text-anchor="end" font-size="11" font-weight="700" style="fill:var(--up)">objectif 70-71 kg</text>`:""}
       <path d="${bl}" fill="none" style="stroke:var(--ink)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
       ${b.map((v,i)=>`<circle cx="${Xx(i)}" cy="${Y(v)}" r="${i===b.length-1?5:2.2}" style="fill:${i===b.length-1?"var(--red-hi)":"var(--ink-3)"}"/>`).join("")}</svg>
-      <p class="h-bw-note">${!goal?bwNote():lst<70?`Plus que <b>${hkg(Math.round((70-lst)*10)/10)} kg</b> pour entrer dans ta zone.`:lst<=71?`Tu es <b>dans ta zone</b> : garde ce rythme.`:`<b>Au-dessus de ta zone</b> : enlève 150 kcal par jour si ça continue.`}</p></div>`;}
+      <p class="h-bw-note">${!goal?bwNote():(()=>{const r7=store.bw.filter(x=>daysBetween(x.d,today())<7),m=r7.length>=3?r7.reduce((s,x)=>s+x.kg,0)/r7.length:null;
+        if(m==null)return "Pèse-toi 3 fois cette semaine : on compare ta <b>moyenne</b> à ta zone, pas une seule pesée.";
+        return m<70?`Moyenne de la semaine : <b>${hkg(Math.round(m*10)/10)} kg</b>. Plus que <b>${hkg(Math.round((70-m)*10)/10)} kg</b> pour entrer dans ta zone.`:m<=71?`Moyenne de la semaine : <b>${hkg(Math.round(m*10)/10)} kg</b>. Tu es <b>dans ta zone</b> : garde ce rythme.`:`Moyenne de la semaine : <b>${hkg(Math.round(m*10)/10)} kg</b>, <b>au-dessus de ta zone</b> : enlève 150 kcal par jour si ça continue.`;})()}</p></div>`;}
   else bw=`<div class="h-card h-rise"><p class="h-bw-note" style="margin:0">Note ton poids 3 fois par semaine pour voir ta courbe ici.</p><button class="h-go" id="hbw" style="height:48px;font-size:16px">Noter mon poids</button></div>`;
   view.innerHTML=`<div class="home">
   <header class="h-hd h-rise"><div><div class="h-date"><b style="color:var(--red-hi);letter-spacing:.18em">STOA</b> · ${dt}</div><h1>Salut${name?" "+esc(name):""}</h1></div>
@@ -2441,6 +2490,7 @@ function vSession(k){
   <details class="about"><summary>${s.duree} · ${s.exos.length} exercices · à propos ›</summary><p>${s.intro}</p></details>
   ${ci.deload?`<div class="banner"><b>Semaine légère (semaine 6 du cycle).</b> Mêmes charges, moitié des séries, 3 répétitions en réserve. Ton corps encaisse les progrès des 5 dernières semaines.</div>`:""}
   ${!PROG.nils&&PROG.p&&+PROG.p.age<18?`<div class="banner info small"><b>Moins de 18 ans :</b> technique d'abord, charges modérées, pas d'échec ni de « max ». Garde 2 ou 3 répétitions en réserve. Plus de détails dans le Guide.</div>`:""}
+  ${PROG.p&&!PROG.nils&&healthMsg(PROG.p)?`<details class="banner"><summary style="cursor:pointer;font-weight:700">⚠︎ Ta santé : à lire avant de commencer</summary><p style="margin-top:8px">${healthMsg(PROG.p)}</p></details>`:""}
   ${!store.hist.length&&!PROG.nils&&(((PROG.p||{}).swipe||{}).first===true||(((PROG.p&&PROG.p.level)||0)===0&&((PROG.p||{}).swipe||{}).first!==false))?firstVisit():""}
   ${k!==BONUS?`<div class="banner info small">${PROG.place==="salle"?"Échauffement : 5 min de vélo ou de rameur, puis les séries <b>É</b> proposées sur les premiers exercices (elles ne comptent pas dans tes progrès).":"Échauffement : 5 min pour monter en température (marche rapide, montées de genoux, cercles de bras), puis une première série facile de chaque exercice."}</div>`:""}
   <div class="sprog">${fini?`<div class="row"><span style="color:var(--go)"><b style="color:var(--go)">✓ Séance terminée</b> · ${st.done}/${st.tot} séries</span></div>`:`<div class="row"><span>Exo <b>${Math.min(ai<0?s.exos.length:ai+1,s.exos.length)}/${s.exos.length}</b> · <b id="pdone">${st.done}</b>/${st.tot} séries</span>
@@ -2789,7 +2839,7 @@ function vProg(){
     <div class="row-in"><label>Poids du jour (kg)<input type="text" inputmode="decimal" id="bwin" placeholder="${last?fmt(last.kg):"70"}" autocomplete="off"></label><button class="btn" id="bwsave">Enregistrer</button></div>
     <p class="small" style="margin-top:10px;color:var(--ink-2)">${last?`Dernier : <b class="num">${fmt(last.kg)} kg</b> le ${fr(last.d)}${avg7!=null?` · moyenne 7 jours <b class="num">${fmt(Math.round(avg7*10)/10)} kg</b>`:""}${trend!=null?` · <b class="num">${trend>0?"+":""}${fmt(Math.round(trend*10)/10)} kg</b> en une semaine`:""}`:"Pèse-toi 3 fois par semaine, le matin à jeun, après les toilettes."}</p>
     ${sparkline(store.bw.slice(-40).map(b=>({v:b.kg})))}
-    ${trend!=null&&trend>.4?`<div class="tip down" style="margin:10px 0 0">Ça monte vite : enlève environ 150 kcal par jour.</div>`:""}
+    ${weightAlert(w1,w2,avg,t)}
     <p class="note">${PROG.nils?"<b>Les 4 prochaines semaines :</b> stabiliser autour de 70-71 kg. <b>Ensuite :</b> prendre au maximum 0,1 à 0,25 kg par semaine. La créatine peut faire prendre 0,5 à 1 kg d'eau au début : ce n'est pas du gras.":bwNote()}</p>
     ${store.bw.length?`<details style="margin-top:10px"><summary class="small muted" style="cursor:pointer;padding:6px 0">Tous les relevés (${store.bw.length})</summary>
       <div class="list" style="margin-top:6px">${store.bw.slice().reverse().map(b=>`<div class="li" style="min-height:44px;padding:6px 0"><span class="w"><b class="num">${fmt(b.kg)} kg</b></span><span class="muted small">${fr(b.d)}</span><button class="icon-btn" data-delbw="${b.d}" aria-label="Supprimer le relevé du ${fr(b.d)}">✕</button></div>`).join("")}</div></details>`:""}
@@ -2902,14 +2952,30 @@ function guideGen(){
   <div class="panel">
     <div class="macro">
       <div><small>Protéines</small><b>${n.prot[0]}-${n.prot[1]} g</b><span>par jour, en 3-4 repas</span></div>
-      <div><small>Calories</small><b>≈ ${nfr(n.kcal)}</b><span>kcal, point de départ</span></div>
+      <div><small>Calories</small><b>${n.teen?"À ta faim":"≈ "+nfr(n.kcal)}</b><span>${n.teen?"3 repas + 1 ou 2 collations":"kcal, point de départ"}</span></div>
       <div><small>Sommeil</small><b>7 à 9 h</b><span>par nuit</span></div>
       <div><small>Eau</small><b>1,5 à 2,5 L</b><span>par jour, plus s'il fait chaud</span></div>
     </div>
-    <p class="note"><b>Les calories :</b> c'est une estimation calculée avec ton âge, ta taille, ton poids et tes séances. Regarde ta moyenne de poids sur 2 semaines et ajuste de 150 kcal si besoin. ${p.goal==="gras"?"Ne descends jamais très bas : perdre trop vite fait perdre du muscle.":""}</p>
+    ${nutriNotes(p,n)}
     <p class="note"><b>Les protéines en pratique :</b> 150 g de blanc de poulet (pesé cru) ≈ 35 g · 3 œufs ≈ 20 g · un pot de skyr de 150 g ≈ 15 g · 100 g de thon ≈ 25 g · 100 g de lentilles cuites ≈ 9 g · 150 g de tofu ≈ 20 g.</p>
   </div>`;
 }
+/* santé : message à montrer (questionnaire, accueil, guide) */
+function healthMsg(p){const h=p.health||[];if(!h.length)return "";
+  let s="<b>Montre ce programme à ton médecin avant de commencer.</b> En attendant, commence très léger.";
+  if(h.includes("malaise"))s="<b>Douleur dans la poitrine ou malaise à l'effort : consulte un médecin avant de commencer.</b> Si ça arrive pendant une séance, arrête et appelle le 15.";
+  if(h.includes("grossesse"))s+=" <b>Enceinte :</b> la muscu modérée est bonne pour toi et le bébé si ton médecin ou ta sage-femme est d'accord. Tu dois pouvoir parler pendant l'effort, sans bloquer ta respiration. Après 4 mois, évite de rester longtemps allongée sur le dos. Arrête et consulte en cas de saignement, perte de liquide, contractions, vertiges, douleur dans la poitrine ou dans un mollet. Stoa a retiré les abdos, les sauts et les charges lourdes.";
+  if(h.includes("postpartum"))s+=" <b>Après l'accouchement :</b> fais d'abord le bilan du périnée et ta rééducation, avec l'accord de ta sage-femme (en général pas avant 3 mois). Pas de sauts ni de crunchs tant que le ventre fait un « dôme » au milieu. Fuites urinaires, lourdeur dans le bas du ventre ? Parles-en à ta sage-femme ou à un kiné, ça se rééduque.";
+  return s;}
+/* textes calories : ados, maigreur, plancher, femmes, grossesse, recomposition */
+function nutriNotes(p,n){
+  if(n.teen)return `<p class="note"><b>Tu grandis encore : pas de régime.</b> Mange à ta faim, 3 repas et 1 ou 2 collations. Ton corps a besoin d'énergie pour grandir et progresser.${p.goal==="gras"?" À ton âge, on ne fait pas de régime : on bouge plus, on dort bien, on limite les boissons sucrées et le grignotage devant les écrans. Si ton poids t'inquiète, parles-en à ton médecin.":""}</p>`;
+  let s=`<p class="note"><b>Les calories :</b> c'est une estimation calculée avec ton âge, ta taille, ton poids et tes séances. Regarde ta moyenne de poids sur 2 semaines et ajuste de 150 kcal si besoin. <b>Ne descends jamais sous ${nfr(n.floor)} kcal par jour.</b></p>`;
+  if(n.preg)s+=`<p class="note"><b>Enceinte ou après l'accouchement : pas de régime.</b> Mange à ta faim et suis les conseils de ta sage-femme ou de ton médecin.</p>`;
+  else if(p.goal==="gras"&&n.bmi<20)s+=`<p class="note"><b>Ton poids est déjà bas :</b> Stoa ne te propose pas de manger moins. Tu changeras ta silhouette en prenant de la force.${n.bmi<18.5?" Parles-en à ton médecin avant de chercher à perdre du poids.":""}</p>`;
+  if(n.recompo)s+=`<p class="note"><b>Tu peux prendre du muscle tout en perdant un peu de gras :</b> on mange autour du maintien, avec beaucoup de protéines.</p>`;
+  if(p.sex==="F"&&p.goal==="gras")s+=`<p class="note"><b>Signal d'alarme :</b> si tes règles deviennent irrégulières ou s'arrêtent, si tu es très fatiguée ou as souvent froid, arrête de réduire, remonte tes calories et consulte un médecin.</p>`;
+  return s;}
 /* Guide rangé en onglets ; chaque partie est repliée, on ouvre seulement ce qu'on cherche */
 let gTab=0;
 const GTABS=[["Séance",["moins de 18","Déroulé","Douleur","erreurs"]],["Progresser",["progresser","Ton plan","Pourquoi ce programme","Photos de suivi"]],
@@ -3149,7 +3215,7 @@ const bKind=e=>BWU(e)?(e.unit==="elastique"?"Élastique":"Poids du corps"):e.uni
 function bCands(part,p,skip){
   const tk=envTokens(p),pain=p.pain||[],lvl=p.level||0,pref=p.pref||"mix",pats=BPARTS[part][1],sk=skip||[];
   const ok=LIB.concat(LIBB).filter(e=>pats.includes(e.pat)&&!sk.includes(e.uid)&&e.on.some(t=>tk.includes(t))&&!(e.not||[]).some(x=>tk.includes(x))
-    &&!(e.avoid||[]).some(x=>pain.includes(x))&&(e.lvl||0)<=lvl+1);
+    &&!(e.avoid||[]).some(x=>pain.includes(x))&&(e.lvl||0)<=lvl+1&&!ruleOut(e,p));
   const sc=e=>{let s=-pats.indexOf(e.pat)*0.6+(e.comp?1:0);
     if(p.place==="salle"){if(BWU(e)&&e.pat!=="core"&&e.pat!=="hinge")s-=/pull|chinup|dip/i.test(e.uid)?(lvl>=2?0.5:2):6;
       if(pref==="machines"||(pref==="mix"&&lvl===0))s+=e.mach?3:e.unit==="poulie"?1.5:0;
@@ -3455,6 +3521,7 @@ const OSTEPS=[
   {id:"days",when:a=>a.how!=="manual",t:"Combien de séances par semaine ?",s:"Mieux vaut 2 séances tenues que 5 abandonnées."},
   {id:"zones",when:a=>a.how!=="manual",t:"Tes points forts, tes points faibles",s:"Glisse à droite ce que tu veux travailler en priorité, à gauche ce qui est déjà ton point fort."},
   {id:"pain",t:"Tu as mal quelque part ?",s:"On évitera les exercices qui pourraient gêner.",multi:[["genoux","Aux genoux"],["dos","Au bas du dos"],["epaules","Aux épaules"]],none:"Non, tout va bien"},
+  {id:"health",t:"Ta santé",s:"Pour ta sécurité. Coche ce qui te concerne, ça reste sur ton téléphone.",multi:[["coeur","Un médecin m'a parlé d'un problème au cœur ou de tension"],["malaise","Douleur dans la poitrine, malaise ou perte de connaissance à l'effort"],["grossesse","Je suis enceinte","F"],["postpartum","J'ai accouché il y a moins d'un an","F"],["opere","Opéré(e) ou blessé(e) il y a moins de 6 mois"],["maladie","Diabète traité, ostéoporose ou autre maladie suivie"]],none:"Rien de tout ça"},
   {id:"pref",when:a=>a.how==="manual"&&a.place==="salle",t:"Tu préfères quoi ?",s:"Les cartes d'exercices viendront dans cet ordre.",pick:[["machines","🏋️","Les machines guidées","Simples à régler, le mouvement est guidé"],["halteres","💪","Les haltères","Plus libres, chaque bras travaille seul"],["barres","🏗️","Les barres","Squat, développé couché, rowing à la barre"],["mix","🔀","Un peu de tout","Le meilleur exercice pour chaque muscle"]]},
   {id:"swipe",when:a=>a.how!=="manual",t:"Dernière étape : glisse !",s:"À droite si tu es d'accord, à gauche sinon. Les cartes suivantes dépendent de tes réponses."},
   {id:"build",when:a=>a.how==="manual"||a.how==="propose"},
@@ -3487,13 +3554,14 @@ function obRender(dir){
     body=`<input class="onb-in" id="obname" type="text" maxlength="20" autocomplete="given-name" placeholder="Ton prénom" value="${esc(a.name||"")}" enterkeyhint="next">`;
     foot=`<button class="btn hot wide" data-next>Continuer</button>`;
   }else if(st.pick){
-    body=`<div class="onb-picks">${st.pick.map(([v,ic,t,s])=>`<button class="onb-pick ${a[st.id]===v?"on":""}" data-v="${v}"><span class="ic">${ic}</span><span><b>${t}</b><small>${s}</small></span></button>`).join("")}</div>`;
+    const thin=st.id==="goal"&&a.weight&&a.height&&a.weight/((a.height/100)**2)<18.5;
+    body=`<div class="onb-picks">${st.pick.map(([v,ic,t,s])=>{const off=thin&&v==="gras";return `<button class="onb-pick ${a[st.id]===v?"on":""} ${off?"off":""}" data-v="${v}" ${off?"disabled":""}><span class="ic">${ic}</span><span><b>${t}</b><small>${off?"Ton poids est déjà bas pour ta taille : ce n'est pas bon pour ta santé.":s}</small></span></button>`;}).join("")}</div>`;
   }else if(st.list){
     body=`<div class="onb-grid">${st.list.map(([v,t])=>`<button class="onb-chip ${a[st.id]===v?"on":""}" data-v="${v}">${t}</button>`).join("")}</div>
       <p class="onb-note">Les machines changent d'un club à l'autre. Si une machine n'existe pas dans ta salle, l'app te propose toujours une autre option.</p>`;
   }else if(st.multi){
     const cur=a[st.id]||[];
-    body=`<div class="onb-grid">${st.multi.map(([v,t])=>`<button class="onb-chip ${cur.includes(v)?"on":""}" data-m="${v}">${t}</button>`).join("")}
+    body=`<div class="onb-grid ${st.id==="health"?"one":""}">${st.multi.filter(o=>!o[2]||o[2]===a.sex).map(([v,t])=>`<button class="onb-chip ${st.id==="health"?"wide":""} ${cur.includes(v)?"on":""}" data-m="${v}">${t}</button>`).join("")}
       <button class="onb-chip wide ${a[st.id]&&!cur.length?"on":""}" data-none>${st.none}</button></div>`;
     foot=`<button class="btn hot wide" data-next ${a[st.id]?"":"disabled"}>Continuer</button>`;
   }else if(st.id==="loads"){
@@ -3532,7 +3600,8 @@ function obRender(dir){
       <div class="onb-tags"><span>${g.KEYS.filter(k=>!g.P[k].bonus).length} séances / semaine${g.KEYS.some(k=>g.P[k].bonus)?" + Bonus":""}</span>${a.dur&&a.how!=="manual"?`<span>${a.dur} min</span>`:""}<span>${{salle:"À la salle",maison:"Chez toi",dehors:"Dehors"}[a.place]}${a.place==="salle"&&a.gym&&a.gym!=="autre"?" · "+GYMNAME[a.gym]:""}</span><span>${GOALS[a.goal]}</span></div>
       <p class="onb-split">${g.split}${OB.built?` · <button class="onb-edit" data-back>Modifier</button>`:""}</p>
       <div class="onb-sess">${g.KEYS.map(k=>`<div><b>${k}</b><span><strong>${esc(g.P[k].nom)}</strong><small>${g.P[k].exos.length} exercices · ${g.P[k].muscles}</small></span></div>`).join("")}</div>
-      <div class="onb-nut"><div><small>Calories (repère)</small><b>${nfr(n.kcal)}</b><span>kcal / jour</span></div><div><small>Protéines</small><b>${n.prot[0]}-${n.prot[1]} g</b><span>par jour</span></div></div>
+      <div class="onb-nut"><div><small>Calories (repère)</small><b>${n.teen?"À ta faim":"≈ "+nfr(n.kcal)}</b><span>${n.teen?"pas de régime : tu grandis":"kcal / jour"}</span></div><div><small>Protéines</small><b>${n.prot[0]}-${n.prot[1]} g</b><span>par jour</span></div></div>
+      ${a.goalNote?`<p class="onb-warn">${a.goalNote}</p>`:""}${healthMsg(a)?`<p class="onb-warn">${healthMsg(a)}</p>`:""}
       <label class="onb-ok"><input type="checkbox" id="obok"><span>J'ai compris : Stoa ne remplace pas un médecin. Si j'ai un problème de santé, je demande d'abord un avis médical. <b>Douleur vive = j'arrête l'exercice.</b></span></label></div>`;
     foot=`<button class="btn hot wide" id="obgo" disabled>Commencer</button>`;
   }
@@ -3552,8 +3621,8 @@ function obWire(st){
     if(bn)bn.onclick=()=>{store.profile={mode:"nils"};persist();applyProgram();sess=defaultSession();closeOnboarding();render();toast("Ton programme est rétabli");};
     if(im)im.onchange=async ev=>{const f=ev.target.files[0];if(!f)return;try{const s=JSON.parse(await f.text());if(!s.log)throw 0;
       store=migrate(s);if(!store.profile)store.profile={mode:"nils"};persist();applyProgram();sess=defaultSession();closeOnboarding();render();toast("Sauvegarde importée");}catch(e){toast("Fichier invalide");}};return;}
-  if(st.pick||st.list){qa("[data-v]").forEach(x=>x.onclick=()=>{let v=x.dataset.v;if(st.id==="level")v=+v;a[st.id]=v;
-      qa("[data-v]").forEach(y=>y.classList.toggle("on",y===x));setTimeout(()=>obGo(1),220);});return;}
+  if(st.pick||st.list){qa("[data-v]").forEach(x=>x.onclick=()=>{if(OB.lock)return;OB.lock=1;let v=x.dataset.v;if(st.id==="level")v=+v;a[st.id]=v;
+      qa("[data-v]").forEach(y=>y.classList.toggle("on",y===x));setTimeout(()=>{OB.lock=0;obGo(1);},220);});return;}
   if(st.multi){
     qa("[data-m]").forEach(x=>x.onclick=()=>{let cur=(a[st.id]||[]).slice();const v=x.dataset.m;
       if(cur.includes(v))cur=cur.filter(y=>y!==v);else{cur.push(v);if(st.max&&cur.length>st.max)cur.shift();}
@@ -3568,10 +3637,13 @@ function obWire(st){
     $("obage").oninput=upd;upd();
     nx.onclick=()=>{const ag=num($("obage").value),h=num($("obh").value),w=num($("obw").value);
       if(!a.sex)return toast("Choisis Femme ou Homme (pour les calories et les charges de départ)");
-      if(!ag||ag<12||ag>95)return toast("Indique ton âge");
+      if(!ag||ag>95)return toast("Indique ton âge");
+      if(ag<14)return toast("Stoa est fait pour les 14 ans et plus. Avant, demande conseil à un adulte, à ton club ou à ton médecin.");
       if(!h||h<120||h>230)return toast("Indique ta taille en cm (ex. 172)");
       if(!w||w<30||w>250)return toast("Indique ton poids en kg (ex. 64,5)");
-      Object.assign(a,{age:Math.round(ag),height:Math.round(h),weight:w});obGo(1);};return;}
+      Object.assign(a,{age:Math.round(ag),height:Math.round(h),weight:w});
+      if(a.goal==="gras"&&w/((h/100)**2)<18.5){a.goal="forme";a.goalNote="Ton poids est déjà bas pour ta taille : perdre encore n'est pas bon pour ta santé. On part sur « Me remettre en forme ». Si tu te trouves trop gros(se) malgré tout, parles-en à un médecin, c'est important.";toast("Objectif changé : « Me remettre en forme »");}
+      obGo(1);};return;}
   if(st.id==="days"){
     qa("[data-days]").forEach(x=>x.onclick=()=>{a.days=+x.dataset.days;obRender();});
     qa("[data-dur]").forEach(x=>x.onclick=()=>{a.dur=+x.dataset.dur;obRender();});

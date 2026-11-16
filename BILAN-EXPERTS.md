@@ -16,16 +16,16 @@ Les rapports complets, avec chaque correction exacte (valeurs, textes à écrire
 ## 1. DANGEREUX : à corriger en premier
 
 ### Calories et poids (nutri, prep, femmes, kine : les 4 l'ont trouvé)
-- [ ] **Jamais de déficit de calories avant 18 ans** : l'objectif « perdre du gras » est bloqué, ou remplacé par « bouger plus et bien manger » sans baisse de calories (ex. actuel : fille de 14 ans, 45 kg → 1 600 kcal). → nutri, prep, femmes
-- [ ] **Jamais de déficit sous un IMC de 18,5** (et pas de baisse sous un IMC de 20 selon femmes.md) : objectif « perdre du gras » bloqué avec une phrase bienveillante, proposition de « muscle » ou « forme ». → nutri, prep, femmes
-- [ ] **Plancher de calories** : jamais sous le métabolisme de base (ex. actuel : femme de 60 ans à 1 100 kcal). → nutri, prep, femmes
-- [ ] **Alerte si le poids baisse de plus de 1 % par semaine** (moyenne sur plusieurs pesées) ; parler de l'arrêt des règles comme signal d'alarme chez les femmes. → nutri
+- [x] **Jamais de déficit de calories avant 18 ans** : l'objectif « perdre du gras » est bloqué, ou remplacé par « bouger plus et bien manger » sans baisse de calories (ex. actuel : fille de 14 ans, 45 kg → 1 600 kcal). → nutri, prep, femmes
+- [x] **Jamais de déficit sous un IMC de 18,5** (et pas de baisse sous un IMC de 20 selon femmes.md) : objectif « perdre du gras » bloqué avec une phrase bienveillante, proposition de « muscle » ou « forme ». → nutri, prep, femmes
+- [x] **Plancher de calories** : jamais sous le métabolisme de base (ex. actuel : femme de 60 ans à 1 100 kcal). → nutri, prep, femmes
+- [x] **Alerte si le poids baisse de plus de 1 % par semaine** (moyenne sur plusieurs pesées) ; parler de l'arrêt des règles comme signal d'alarme chez les femmes. → nutri
 
 ### Âge et sécurité (kine, maison, prep)
-- [ ] **Moins de 18 ans** : retirer les exercices lourds à la barre (soulevé de terre, squat barre…) et les charges hautes (ex. actuel : garçon de 13 ans, soulevé de terre 3 × 10-15 à 55 kg). Le questionnaire accepte dès 12 ans : revoir l'âge minimum et les règles. → kine
-- [ ] **Plus de 55 ans** : retirer les sauts (squats sautés à 60 ans), ajouter équilibre et consignes adaptées. → kine, maison
-- [ ] **Questions de santé avant de commencer** : cœur, tension, malaise à l'effort, grossesse ou post-partum, opération récente → message « demande l'avis de ton médecin / ta sage-femme » et exercices adaptés. → kine, femmes
-- [ ] **Grossesse et post-partum** : une case dédiée ; retirer crunchs, planche, hip thrust sur le dos et tout ce qui est contre-indiqué ; renvoi vers la sage-femme. → femmes, kine
+- [x] **Moins de 18 ans** : retirer les exercices lourds à la barre (soulevé de terre, squat barre…) et les charges hautes (ex. actuel : garçon de 13 ans, soulevé de terre 3 × 10-15 à 55 kg). Le questionnaire accepte dès 12 ans : revoir l'âge minimum et les règles. → kine
+- [x] **Plus de 55 ans** : retirer les sauts (squats sautés à 60 ans), ajouter équilibre et consignes adaptées. → kine, maison
+- [x] **Questions de santé avant de commencer** : cœur, tension, malaise à l'effort, grossesse ou post-partum, opération récente → message « demande l'avis de ton médecin / ta sage-femme » et exercices adaptés. → kine, femmes
+- [x] **Grossesse et post-partum** : une case dédiée ; retirer crunchs, planche, hip thrust sur le dos et tout ce qui est contre-indiqué ; renvoi vers la sage-femme. → femmes, kine
 
 ### Bouton « version plus dure » (kine, maison)
 - [ ] Il doit **tenir compte des douleurs, de l'âge, du niveau et du matériel disponible** (ex. actuel : femme de 60 ans, genoux douloureux, sans chaise → squat sur une jambe ; dehors sans barres → dips aux barres). Ne jamais proposer une version qui change de muscle ou demande du matériel absent. → maison, kine
