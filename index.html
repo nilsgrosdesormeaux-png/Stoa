@@ -1847,6 +1847,16 @@ const GYMS=[["basicfit","Basic-Fit"],["fitnesspark","Fitness Park"],["orangebleu
   ["neoness","Neoness"],["cmg","Club Med Gym"],["magicform","Magic Form"],["vita","Vita Liberté"],["autre","Une autre salle"]];
 const GYMNAME=Object.fromEntries(GYMS);
 const GOALS={gras:"Perdre du gras",muscle:"Prendre du muscle",forme:"Me remettre en forme",force:"Gagner en force"};
+/* 2 objectifs au plus : un principal (calories et répétitions) et un secondaire. Renvoie la raison si la paire est interdite. */
+function goalBlock(a,g){const g1=a.goal,bmi=a.weight&&a.height?a.weight/((a.height/100)**2):22,lvl=a.level||0;
+  if(!g1||g===g1)return null;const s=new Set([g1,g]);
+  if(s.has("gras")&&(+a.age||25)<18)return "Avant 18 ans, on ne fait pas de régime.";
+  if(s.has("gras")&&bmi<18.5)return "Ton poids est déjà bas : perdre encore serait mauvais pour ta santé.";
+  if(s.has("forme")&&s.has("muscle"))return "Prendre du muscle te remet déjà en forme : active le cardio si tu veux bouger plus.";
+  if(s.has("forme")&&s.has("force"))return "Gagner en force te remet déjà en forme : active le cardio si tu veux bouger plus.";
+  if(s.has("gras")&&s.has("muscle")&&lvl>=2&&bmi<25)return "Après un an de muscu, perdre du gras et prendre du muscle en même temps devient très lent : fais d'abord l'un, puis l'autre.";
+  return null;}
+const goalTxt=p=>(GOALS[p.goal]||"—")+(p.goal2?` · en plus : ${GOALS[p.goal2].toLowerCase()}`:"");
 const FOCUS={fessiers:"Fessiers",jambes:"Jambes",ventre:"Ventre",dos:"Dos",epaules:"Épaules",bras:"Bras",pecs:"Pectoraux"};
 const FOCUSPAT={fessiers:["glute","abd"],jambes:["quad","ham"],ventre:["core"],dos:["vpull","hpull"],epaules:["latr","rear"],bras:["tri","bic"],pecs:["hpush"]};
 const FOCUSG={fessiers:"Fessiers",jambes:"Quadriceps",ventre:"Abdos",dos:"Dos",epaules:"Épaules",bras:"Triceps",pecs:"Pectoraux"};
@@ -1946,7 +1956,8 @@ function generate(p){
   const keys=["A","B","C","D","E","F"].slice(0,split.s.length),PP={},used={};
   const old=+p.age>=55,young=+p.age<16,teen=+p.age<18,SS=[];
   /* durée réelle : séries + repos, échauffement (8 min à la salle, 5 ailleurs), séries d'échauffement É, cardio de fin s'il est proposé */
-  const sEst=ex=>Math.round(ex.reduce((a,e)=>a+e.series*(45+e.rest)+75+(e.warm?150:0),0)/60)+(p.place==="salle"?(dur<=30?6:8):5)+(sw.cardio===true||goal==="gras"?(dur<=30?0:10):0);
+  const g2=p.goal2||null,cardioOn=sw.cardio===true||(sw.cardio!==false&&(goal==="gras"||g2==="gras"||g2==="forme"));
+  const sEst=ex=>Math.round(ex.reduce((a,e)=>a+e.series*(45+e.rest)+75+(e.warm?150:0),0)/60)+(p.place==="salle"?(dur<=30?6:8):5)+(cardioOn?(dur<=30?0:10):0);
   split.s.forEach((ss,si)=>{
     let roles=ss.r.slice();
     /* genoux fragiles : moins d'avant des cuisses ; épaules fragiles : rien au-dessus de la tête */
@@ -2081,6 +2092,11 @@ function generate(p){
     const list=[];SS.forEach(s=>s.exos.forEach(e=>{if(grpOf(e)===g)list.push({s,e});}));
     trim(list,()=>list.reduce((a,x)=>a+x.e.series,0)-capW(g));
     SS.forEach(s=>{const l2=list.filter(x=>x.s===s);trim(l2,()=>l2.reduce((a,x)=>a+x.e.series,0)-capS);});});
+  /* 6b. 2e objectif « force » (avec muscle ou gras en principal) : le 1er gros exercice en 4 × 4-6, repos 3 min */
+  if(goal!=="force"&&g2==="force")SS.forEach(s=>{const m=s.exos.find(e=>e.comp&&!BWU(e));if(!m)return;
+    m.series=teen?3:4;m.min=lvl<=1?5:4;m.max=6;m.rest=180;m.main=true;});
+  /* 2e objectif « muscle » avec la force en principal : gros exercices secondaires en 6-10, isolation en 8-12 */
+  if(goal==="force"&&g2==="muscle")SS.forEach(s=>s.exos.forEach(e=>{if(!e.main&&!BWU(e)){if(e.comp){e.min=6;e.max=10;}else{e.min=8;e.max=12;}}}));
   /* 6. objectif force : le 1er gros exercice de chaque séance est le mouvement principal, en charges lourdes */
   if(goal==="force")SS.forEach(s=>{const m=s.exos.find(e=>e.comp&&!BWU(e));if(!m)return;
     m.series=Math.min(4,Math.max(m.series,teen?3:4));m.min=lvl<=1?5:3;m.max=6;m.rest=210;m.main=true;
@@ -2128,7 +2144,7 @@ function sessionIntro(p,t){
     muscle:"Objectif : prendre du muscle. Cherche à faire une répétition de plus ou un peu plus lourd à chaque fois.",
     forme:"Objectif : te remettre en forme. Bouge bien, sans te faire mal : la régularité compte plus que tout.",
     force:"Objectif : devenir plus fort. Les premiers exercices sont les plus importants, prends ton temps entre les séries."}[goal]||"";
-  if(sw.cardio===true||goal==="gras")s+=` À la fin : ${+p.dur<=30?5:10} minutes de cardio (vélo, rameur, marche rapide en pente ou corde à sauter), en pouvant encore parler.`;
+  if(sw.cardio===true||(sw.cardio!==false&&(goal==="gras"||p.goal2==="gras"||p.goal2==="forme")))s+=` À la fin : ${+p.dur<=30?5:10} minutes de cardio (vélo, rameur, marche rapide en pente ou corde à sauter), en pouvant encore parler.`;
   if(sw.superset===true)s+=" Supersets : enchaîne les deux derniers petits exercices sans pause, puis prends ton repos.";
   if(sw.circuit===true)s+=" Repos courts : enchaîne dès que ton souffle revient.";
   if(p.place!=="salle")s+=" Sur les exercices au poids du corps, l'app te dira quand passer à la version plus dure.";
@@ -2141,9 +2157,10 @@ function nutrition(p){
   const bmi=w/((h/100)**2),teen=a<18,preg=hl.includes("grossesse")||hl.includes("postpartum");
   /* objectif : jamais de déficit avant 18 ans, sous un IMC de 20, enceinte ou après l'accouchement ;
      déficit au plus 500 kcal ; en surpoids, muscle et force se font autour du maintien (recomposition) */
-  let adj=0;
-  if(p.goal==="gras")adj=bmi<20?0:-Math.min(0.17*tdee,500);
-  else if(p.goal==="muscle"||p.goal==="force")adj=bmi>=30?-0.10*tdee:bmi>=27?0:p.goal==="force"?150:(f?150:250);
+  let adj=0;const G=new Set([p.goal,p.goal2].filter(Boolean));
+  if(G.has("gras")&&G.size>1){adj=bmi<20?0:G.has("muscle")?(bmi>=25?-0.10*tdee:-0.05*tdee):p.goal==="gras"?-Math.min(0.15*tdee,500):-0.10*tdee;}
+  else if(p.goal==="gras")adj=bmi<20?0:-Math.min(0.17*tdee,500);
+  else if(p.goal==="muscle"||p.goal==="force")adj=bmi>=30?-0.10*tdee:bmi>=27?0:(G.has("muscle")&&G.has("force"))?(f?150:250):p.goal==="force"?150:(f?150:250);
   if(teen||preg)adj=Math.max(0,adj);
   /* plancher : jamais sous 1,1 × le métabolisme de base, ni sous 1 500 kcal (femme) / 1 800 kcal (homme) */
   const floor=Math.round(Math.max(bmr*1.1,f?1500:1800)/50)*50;
@@ -2151,7 +2168,8 @@ function nutrition(p){
   /* protéines : poids « cible » (IMC 25 au-delà de 27) ; ados 1,2 à 1,6 g/kg */
   const pw=bmi>27?25*(h/100)**2:w;
   if(teen)return {kcal:null,floor:null,prot:[Math.round(w*1.2/5)*5,Math.round(w*1.6/5)*5],bmi,teen:true,preg};
-  const pr=p.goal==="forme"?[1.4,1.8]:p.goal==="gras"&&bmi<25?[1.8,2.2]:[1.6,2.0],hi=Math.min(160,Math.round(pw*pr[1]/5)*5);
+  const PROT2={gras_muscle:[2.0,2.4],force_gras:[1.8,2.2],forme_gras:[1.6,2.0],force_muscle:[1.6,2.0]},key=[...G].sort().join("_");
+  const pr=PROT2[key]||(p.goal==="forme"?[1.4,1.8]:p.goal==="gras"&&bmi<25?[1.8,2.2]:[1.6,2.0]),hi=Math.min(160,Math.round(pw*pr[1]/5)*5);
   return {kcal,floor,prot:[Math.min(hi-15,Math.round(pw*pr[0]/5)*5),hi],bmi,teen:false,preg,thin:bmi<18.5,recompo:(p.goal==="muscle"||p.goal==="force")&&bmi>=27};
 }
 
@@ -2862,7 +2880,7 @@ function vPlan(){
   <div class="panel">${PROG.nils?`<p><b>Programme de Nils</b>, fait sur mesure : ses exercices à On Air Angers, ses points faibles (épaules, dos, bras).</p>
       <p class="note">Tu veux un programme fait pour toi ? Réponds au questionnaire : 2 minutes. Ton historique est gardé.</p>`
     :`<p><b>${esc(PROG.split||"Mes séances")}</b>${pr.dur&&pr.mode!=="manual"?` · ${pr.dur} min`:""} · ${{salle:"à la salle",maison:"chez toi",dehors:"dehors"}[pr.place]}${pr.place==="salle"&&pr.gym&&pr.gym!=="autre"?" ("+GYMNAME[pr.gym]+")":""}</p>
-      <p class="small" style="color:var(--ink-2);margin-top:6px">Objectif : <b style="color:var(--ink)">${GOALS[pr.goal]||"—"}</b>${(pr.focus||[]).length?` · Priorités : ${pr.focus.map(x=>FOCUS[x]).join(", ")}`:""}${(pr.strong||[]).length?` · Points forts : ${pr.strong.map(x=>FOCUS[x]).join(", ")}`:""}${(pr.pain||[]).length?` · Exercices adaptés pour : ${pr.pain.map(x=>({genoux:"genoux",dos:"bas du dos",epaules:"épaules"})[x]).join(", ")}`:""}</p>`}
+      <p class="small" style="color:var(--ink-2);margin-top:6px">Objectif : <b style="color:var(--ink)">${goalTxt(pr)}</b>${(pr.focus||[]).length?` · Priorités : ${pr.focus.map(x=>FOCUS[x]).join(", ")}`:""}${(pr.strong||[]).length?` · Points forts : ${pr.strong.map(x=>FOCUS[x]).join(", ")}`:""}${(pr.pain||[]).length?` · Exercices adaptés pour : ${pr.pain.map(x=>({genoux:"genoux",dos:"bas du dos",epaules:"épaules"})[x]).join(", ")}`:""}</p>`}
     ${PROG.temp?`<div class="banner" style="margin-top:12px"><b>Programme temporaire jusqu'au ${fr(PROG.temp.until)}</b> (${PROG.temp.kind==="pause"?"entretien":"vacances, sans ta salle"}). Ton vrai programme, tes charges et ton niveau sont gardés : tu le retrouves automatiquement après.</div>`:""}
     <div style="display:grid;gap:8px;margin-top:14px">${store.pauseUntil&&store.pauseUntil>=today()?`<div class="banner" style="margin-top:12px"><b>En pause jusqu'au ${fr(store.pauseUntil)}.</b> Ta flamme est protégée.</div><button class="btn hot wide" id="pauseend">Je reprends maintenant</button>`:""}
     ${PROG.temp?`<button class="btn hot wide" id="tempend">Je suis de retour : reprendre mon programme</button>`:`<button class="btn line wide" id="away">✈︎ Vacances, pause, plus accès à ma salle…</button>`}
@@ -3607,6 +3625,7 @@ const OSTEPS=[
   {id:"goal",t:"Ton objectif principal ?",s:"Choisis le plus important pour toi maintenant.",pick:[["gras","🔥","Perdre du gras","Affiner la silhouette"],["muscle","💪","Prendre du muscle","Plus de volume, plus dessiné"],["forme","⚡","Me remettre en forme","Bouger, avoir de l'énergie"],["force","🏆","Gagner en force","Soulever plus lourd"]]},
   {id:"body",t:"Parle-moi de toi",s:"Pour adapter les charges de départ et tes besoins en calories. Ça reste sur ton téléphone."},
   {id:"level",t:"Ton niveau en musculation ?",s:"Sois honnête : l'app s'adapte.",pick:[[0,"🌱","Je n'en ai jamais fait","Ou presque jamais"],[1,"🌿","Moins d'un an","Je connais un peu les exercices"],[2,"🌳","1 à 3 ans","Je m'entraîne régulièrement"],[3,"🏔️","Plus de 3 ans","Je connais bien mes charges"]]},
+  {id:"goal2",when:a=>a.how!=="manual",t:"Un objectif en plus ?",s:"Facultatif. Ton objectif principal décide des calories et des répétitions ; le second ajoute un bloc.",pick:[["non","✓","Non, un seul objectif","Le plus simple et le plus efficace"],["gras","🔥","Perdre du gras",""],["muscle","💪","Prendre du muscle",""],["force","🏆","Gagner en force",""],["forme","⚡","Me remettre en forme",""]]},
   {id:"loads",when:a=>(a.place==="salle"||(a.place==="maison"&&(a.equip||[]).includes("halteres"))),t:"Tes charges",s:""},
   {id:"days",when:a=>a.how!=="manual",t:"Combien de séances par semaine ?",s:"Mieux vaut 2 séances tenues que 5 abandonnées."},
   {id:"zones",when:a=>a.how!=="manual",t:"Tes points forts, tes points faibles",s:"Glisse à droite ce que tu veux travailler en priorité, à gauche ce qui est déjà ton point fort."},
@@ -3645,7 +3664,10 @@ function obRender(dir){
     foot=`<button class="btn hot wide" data-next>Continuer</button>`;
   }else if(st.pick){
     const thin=st.id==="goal"&&a.weight&&a.height&&a.weight/((a.height/100)**2)<18.5;
-    body=`<div class="onb-picks">${st.pick.map(([v,ic,t,s])=>{const off=thin&&v==="gras";return `<button class="onb-pick ${a[st.id]===v?"on":""} ${off?"off":""}" data-v="${v}" ${off?"disabled":""}><span class="ic">${ic}</span><span><b>${t}</b><small>${off?"Ton poids est déjà bas pour ta taille : ce n'est pas bon pour ta santé.":s}</small></span></button>`;}).join("")}</div>`;
+    const opts=st.id==="goal2"?st.pick.filter(o=>o[0]!==a.goal):st.pick;
+    body=`<div class="onb-picks">${opts.map(([v,ic,t,s])=>{const why=thin&&v==="gras"?"Ton poids est déjà bas pour ta taille : ce n'est pas bon pour ta santé.":st.id==="goal2"&&v!=="non"?goalBlock(a,v):null,off=!!why;
+      const cur=st.id==="goal2"?(a.goal2||(a.goal2===null?"non":"")):a[st.id];
+      return `<button class="onb-pick ${cur===v?"on":""} ${off?"off":""}" data-v="${v}" ${off?"disabled":""}><span class="ic">${ic}</span><span><b>${t}</b><small>${off?why:s}</small></span></button>`;}).join("")}</div>`;
   }else if(st.list){
     body=`<div class="onb-grid">${st.list.map(([v,t])=>`<button class="onb-chip ${a[st.id]===v?"on":""}" data-v="${v}">${t}</button>`).join("")}</div>
       <p class="onb-note">Les machines changent d'un club à l'autre. Si une machine n'existe pas dans ta salle, l'app te propose toujours une autre option.</p>`;
@@ -3690,7 +3712,7 @@ function obRender(dir){
   }else if(st.id==="done"){
     const g=OB.built||generate(a),n=nutrition(Object.assign({},a,{days:a.days||g.KEYS.filter(k=>!g.P[k].bonus).length}));
     body=`<div class="onb-ready"><div class="onb-kick">C'EST PRÊT${a.name?", "+esc(a.name.toUpperCase()):""}</div><h1>Ton programme</h1>
-      <div class="onb-tags"><span>${g.KEYS.filter(k=>!g.P[k].bonus).length} séances / semaine${g.KEYS.some(k=>g.P[k].bonus)?" + Bonus":""}</span>${a.dur&&a.how!=="manual"?`<span>${a.dur} min</span>`:""}<span>${{salle:"À la salle",maison:"Chez toi",dehors:"Dehors"}[a.place]}${a.place==="salle"&&a.gym&&a.gym!=="autre"?" · "+GYMNAME[a.gym]:""}</span><span>${GOALS[a.goal]}</span></div>
+      <div class="onb-tags"><span>${g.KEYS.filter(k=>!g.P[k].bonus).length} séances / semaine${g.KEYS.some(k=>g.P[k].bonus)?" + Bonus":""}</span>${a.dur&&a.how!=="manual"?`<span>${a.dur} min</span>`:""}<span>${{salle:"À la salle",maison:"Chez toi",dehors:"Dehors"}[a.place]}${a.place==="salle"&&a.gym&&a.gym!=="autre"?" · "+GYMNAME[a.gym]:""}</span><span>${a.goal2?"Principal : "+GOALS[a.goal]+" · En plus : "+GOALS[a.goal2].toLowerCase():GOALS[a.goal]}</span></div>
       <p class="onb-split">${g.split}${OB.built?` · <button class="onb-edit" data-back>Modifier</button>`:""}</p>
       <div class="onb-sess">${g.KEYS.map(k=>`<div><b>${k}</b><span><strong>${esc(g.P[k].nom)}</strong><small>${g.P[k].exos.length} exercices · ${g.P[k].muscles}</small></span></div>`).join("")}</div>
       <div class="onb-nut"><div><small>Calories (repère)</small><b>${n.teen?"À ta faim":"≈ "+nfr(n.kcal)}</b><span>${n.teen?"pas de régime : tu grandis":"kcal / jour"}</span></div><div><small>Protéines</small><b>${n.prot[0]}-${n.prot[1]} g</b><span>par jour</span></div></div>
@@ -3714,7 +3736,8 @@ function obWire(st){
     if(bn)bn.onclick=()=>{store.profile={mode:"nils"};persist();applyProgram();sess=defaultSession();closeOnboarding();render();toast("Ton programme est rétabli");};
     if(im)im.onchange=async ev=>{const f=ev.target.files[0];if(!f)return;try{const s=JSON.parse(await f.text());if(!s.log)throw 0;
       store=migrate(s);if(!store.profile)store.profile={mode:"nils"};persist();applyProgram();sess=defaultSession();closeOnboarding();render();toast("Sauvegarde importée");}catch(e){toast("Fichier invalide");}};return;}
-  if(st.pick||st.list){qa("[data-v]").forEach(x=>x.onclick=()=>{if(OB.lock)return;OB.lock=1;let v=x.dataset.v;if(st.id==="level")v=+v;a[st.id]=v;
+  if(st.pick||st.list){qa("[data-v]").forEach(x=>x.onclick=()=>{if(OB.lock)return;OB.lock=1;let v=x.dataset.v;if(st.id==="level")v=+v;
+      if(st.id==="goal2")a.goal2=v==="non"?null:v;else a[st.id]=v;if(st.id==="goal"&&a.goal2===v)a.goal2=null;
       qa("[data-v]").forEach(y=>y.classList.toggle("on",y===x));setTimeout(()=>{OB.lock=0;obGo(1);},220);});return;}
   if(st.multi){
     qa("[data-m]").forEach(x=>x.onclick=()=>{let cur=(a[st.id]||[]).slice();const v=x.dataset.m;

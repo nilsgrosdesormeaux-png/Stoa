@@ -60,6 +60,7 @@ Les rapports complets, avec chaque correction exacte (valeurs, textes à écrire
 ---
 
 ## 3. Décision : 2 objectifs combinés (préparateur physique + diététicien)
+- [x] **Fait et publié** : étape « Un objectif en plus ? » (paires interdites grisées avec la phrase des experts), dosage dans le générateur, calories et protéines du tableau du diététicien, affichage « Principal · En plus ».
 Le propriétaire veut pouvoir choisir 2 objectifs, certains combinables, d'autres non. Décision des experts :
 - **Au maximum 2 objectifs**, un **principal** (il décide des calories et des répétitions) et un **secondaire**.
 - **Autorisés** : Muscle + Force, Gras + Force, Gras + Forme, Gras + Muscle (seulement niveau 0-1 ou IMC ≥ 25).
