@@ -1,7 +1,7 @@
 # Stoa : document de reprise du projet
 
 Ce document résume tout ce qui a été fait et décidé, pour reprendre le projet depuis un autre compte Claude sans rien perdre.
-Dernière mise à jour : 14 novembre 2026 (questionnaire et générateur de programmes ajoutés).
+Dernière mise à jour : 16 novembre 2026 (phase 2 : couleurs, jours, durée réelle, ailleurs aujourd'hui).
 
 
 > **À faire en priorité (15 nov. 2026)** : appliquer `BILAN-EXPERTS.md`, le bilan de 6 experts (préparateur physique, kiné, diététicien, coach femmes, coach maison, coach force). Rapports complets dans `experts/`. Commencer par la partie « Dangereux ».
@@ -97,6 +97,16 @@ Détail case par case dans `BILAN-EXPERTS.md` (toutes les cases « Dangereux » 
 - **2 objectifs** : principal + secondaire (`goalBlock()`), paires interdites expliquées, nutrition du tableau du diététicien.
 - **Améliorable fait** : Guide (douleur complète, respiration, seniors, croissance, idées reçues, règles, ménopause), protéines jusqu'à 200 g, créatine en option, « Je ne veux pas suivre mon poids », constructeur (alerte séance longue, règles de niveau et d'âge), RM estimé, export CSV.
 - **Reste à faire** (améliorable) : RPE par série, incréments réglables, dupliquer une séance, plus d'exercices à la barre, calcul des disques, échauffement plus long pour les charges lourdes, semaine légère au ressenti, test de pompes/tractions, ischios sans matériel.
+
+### Phase 2 (16 novembre 2026) : retours de Nils et de sa mère
+- **4 couleurs au choix** : Rouge (l'original), Rose (doux, élégant), Océan (bleu), Violet ; chacune en sombre et en clair (Auto / Clair / Sombre gardé). Choix dans le questionnaire (étape « Choisis tes couleurs », juste après le prénom, avec aperçu) et ensuite avec le bouton Apparence en haut (accueil et autres onglets). Technique : attribut `data-accent` sur `<html>`, variables `--acc-*`, `--g1..3`, `--rg1/2`, `--fl1..4` (flamme) ; anneau, flamme, dégradés, barre d'onglets, boutons et balise `theme-color` suivent. Choix gardé dans `store.accent`.
+- **Texte sur la provenance des images retiré** (section du Guide remplacée par « Ajouter ta photo d'une machine »).
+- **« Pas au même endroit aujourd'hui ? »** (lien discret dans Séance) : maison (avec le matériel), dehors (barres ou non) ou autre salle, pour 1, 2, 3 ou 5 jours. Chaque exercice est remplacé par un exercice du même rôle possible sur place (`awayP()`), la séance garde sa lettre et le même programme (même PID) : la semaine, la flamme et l'historique restent cohérents. Retour automatique après la date (`store.away`), ou bouton « Revenir au programme normal ». Pour plus longtemps : l'ancien « Vacances, pause » (`store.temp`).
+- **Durée réelle** (`sessMin()`) : temps d'une série = répétitions × 3 s (3,5 s sur machine) + 10 s, deux côtés pour les exercices à un bras ou une jambe, + repos, installation, échauffements. Le générateur complète la séance (une série, puis un exercice) jusqu'à la durée choisie à ±5 min sans dépasser les plafonds du bilan ; si un débutant atteint les plafonds, « Pour finir : N min de cardio doux ». À la maison et dehors : repos 45-75 s en isolation, 90-120 s sur les gros exercices. Tests : 98 % des 9 800 séances simulées à ±5 min ; maison débutante sans matériel : 30 → 26-28 min, 45 → 41-47 min, 60 → 59-60 min (dont 20 min de cardio doux). La durée affichée des programmes déjà créés est recalculée (les exercices ne changent pas) ; si elle est bien plus courte que prévu, Programme propose de refaire le questionnaire.
+- **Exercices à un bras ou une jambe** (champ `uni:1` dans LIB/POOL, fonction `isUni()`) : « 3 × 8-12 par côté », colonne « Reps / côté », consigne « un côté, puis l'autre ; note le nombre d'un seul côté ». Séries et répétitions du programme de Nils inchangées.
+- **Exercices en secondes** (planche, chaise contre le mur, équilibre…) : bouton ▶ dans chaque série, 3 s pour se placer, compte à rebours en grand, bip et vibration à la fin (un côté puis l'autre si besoin), secondes remplies dans la case (modifiable) ; « Arrêter » garde le temps tenu.
+- **Début de programme** : on peut commencer n'importe quel jour ; la première semaine ne compte que les séances à partir de ce jour, les jours d'avant sont grisés sur l'accueil (pas « ratés ») ; si on a commencé en fin de semaine, la semaine suivante continue dans l'ordre (B après A) au lieu de refaire A.
+- **Choisir ses jours** : dans le questionnaire (L M M J V S D, le nombre de jours = séances par semaine) et dans Programme (« Choisir mes jours d'entraînement »). Les séances sont placées pour éviter deux séances qui travaillent les mêmes muscles deux jours de suite (`placeDays()`), avec un message gentil si les jours sont collés ; le Bonus peut aller sur un jour choisi en plus. Un programme généré qui change de nombre de jours est refait sur ce nombre (bouton explicite). Le programme de Nils ne bouge que s'il enregistre de nouveaux jours.
 
 ### Les écrans (barre d'onglets en bas, style iOS)
 1. **Accueil** (tableau de bord « Hammer Night », noir et rouge) :
@@ -209,13 +219,13 @@ Les valeurs exactes (2 min 30, semaine légère toutes les 6 semaines, échauffe
 - [ ] **Faire tester le questionnaire** à la copine de Nils et à 2-3 potes (salle, maison, dehors) et noter ce qui bloque.
 - [ ] Faire relire la bibliothèque d'exercices et les règles du générateur par un agent coach.
 - [ ] Listes de machines par chaîne (Basic-Fit, Fitness Park…) : pour l'instant, toutes les salles sont supposées avoir le matériel standard.
-- [ ] Choisir ses jours d'entraînement (aujourd'hui : jours proposés automatiquement).
+- [x] Choisir ses jours d'entraînement (fait le 16 nov., phase 2).
 - [ ] Le côté jeu : niveaux, badges, défis entre amis.
 - [ ] Activer GitHub Pages (Settings, puis Pages, Branch `main`, dossier root) et tester l'installation sur iPhone.
 - [ ] Ajouter la photo de la machine Life Fitness « Hip Abduction / Adduction » (la même pour les deux exercices), dans `photos/` et dans la table `PHOTO` de `index.html` (uid `abductor` et `adductor`), plus dans la liste `CORE` de `sw.js`.
 - [ ] Redessiner le logo en vectoriel (même dessin : S ivoire qui monte vers un sommet rouge).
 - [ ] Améliorer les illustrations des exercices sans photo (les dessins actuels sont jugés trop basiques).
-- [ ] Après chaque modification : changer `CACHE` dans `sw.js` (dernière valeur : `stoa-v3`) pour que les iPhone récupèrent la nouvelle version.
+- [ ] Après chaque modification : changer `CACHE` dans `sw.js` (dernière valeur : `stoa-v35`) pour que les iPhone récupèrent la nouvelle version.
 
 ---
 
