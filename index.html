@@ -1985,9 +1985,13 @@ function candidates(pat,p){
     if(e.unit==="barre"){s+=(p.goal==="force"&&lvl>=1?4:lvl>=2&&sw.mach!==true?2.5:-1);if(sw.peur===true)s-=3;}
     if(e.uid==="tableRow")s-=1;
     if(e.uid==="perinee")s+=8;
+    if(p.place!=="salle"&&lvl>=1&&["pullup","chinup"].includes(e.uid))s+=3;
+    if(p.place!=="salle"&&e.uid==="doorRow"&&(tk.includes("halteres")||tk.includes("barrebasse")||tk.includes("elastiques")))s-=3;
+    /* 40 ans et plus, ou dos fragile : pas de figures risquées par défaut (elles restent en « version plus dure ») */
+    if((+p.age>=40||pain.includes("dos"))&&["pistol","archerPush","weightedPull","weightedDip","jumpSquat"].includes(e.uid))s-=6;
     if(p.place==="salle"&&lvl>=2&&["superman","kneeRaise","gluteBridge"].includes(e.uid))s-=6;
     if(p.goal==="force"&&lvl>=1&&e.uid==="gobletSquat")s-=4;
-    if(lvl>=2&&e.bw&&HARDER[e.uid]&&LIBX[HARDER[e.uid]]&&LIBX[HARDER[e.uid]].on.some(x=>tk.includes(x))&&!(LIBX[HARDER[e.uid]].avoid||[]).some(x=>pain.includes(x))&&!ruleOut(LIBX[HARDER[e.uid]],p))s-=4;
+    if(lvl>=2&&e.bw&&HARDER[e.uid]&&!((+p.age>=40||pain.includes("dos"))&&["pistol","archerPush","weightedPull","weightedDip","jumpSquat"].includes(HARDER[e.uid]))&&LIBX[HARDER[e.uid]]&&LIBX[HARDER[e.uid]].on.some(x=>tk.includes(x))&&!(LIBX[HARDER[e.uid]].avoid||[]).some(x=>pain.includes(x))&&!ruleOut(LIBX[HARDER[e.uid]],p))s-=4;
     if(p.place==="salle"&&pat==="core")s+=e.on.includes("salle")?4:e.lvl===2?-4:0;
     if(pat==="core"&&pain.includes("dos"))s+=e.uid==="deadBug"?3:0;
     if(sw.libre===true){if(e.unit==="barre")s+=3;if(e.unit==="haltere")s+=1;if(e.mach)s-=1.5;}
@@ -2285,6 +2289,8 @@ function generate(p){
       /* cœur, tension, malaise : jamais lourd (8 répétitions minimum), repos complets */
       if(heart&&!BWU(e)){e.min=Math.max(e.min,8);e.max=Math.max(e.max,12);e.main=false;e.rest=Math.max(e.rest,90);}
       if(teen&&!BWU(e)&&e.unit!=="barre"){e.min=Math.max(e.min,young?10:8);e.max=Math.max(e.max,young?15:12);}
+      /* charge déclarée à la barre (pour environ 8 répétitions) : recalculée selon la fourchette de l'exercice */
+      if(e.unit==="barre"&&(p.loads||{})[e.uid]>0){const L8=+p.loads[e.uid];e.kg0=roundTo(L8*(1+8/30)/(1+Math.min(12,e.min+2)/30),2.5);}
       if(e.unit==="barre"){e.kg0=Math.max(20,e.kg0||0);e.depart=`${fmt(e.kg0)} kg (barre comprise, à ajuster)`;
         if(teen){e.min=6;e.max=10;e.reco="<b>Moins de 18 ans : seulement avec un coach ou un adulte formé à côté de toi, la première fois.</b> "+e.reco;}}});
     /* 8. séance trop courte : on complète (une série de plus, puis un exercice de plus) jusqu'à la durée choisie, à 5 min près,
@@ -2413,8 +2419,11 @@ function homeData(){
   const lastWkSame=(()=>{const s=weeks[3],lim=new Date(s+"T12:00");lim.setDate(lim.getDate()+dow+1);const ls=iso(lim);let v=0;
     Object.values(store.log).forEach(a=>a.forEach(x=>{if(x.d>=s&&x.d<ls)v+=tonnage(x);}));return v;})();
   let totalT=0,prs=[];
-  Object.entries(store.log).forEach(([u,a])=>{let b=null;a.forEach(x=>{totalT+=tonnage(x);const v=best(x);if(!W(x).length)return;
-    if(b!=null&&v>b&&(EXO[u]||{}).comp){const s=W(x).filter(z=>z.kg===v)[0];prs.push({u,d:x.d,kg:v,reps:s.reps,up:v-b});}b=b==null?v:Math.max(b,v);});});
+  /* record = meilleure force estimée (charge × répétitions) ; au poids du corps, meilleur nombre de répétitions */
+  Object.entries(store.log).forEach(([u,a])=>{let b=null,bk=null;const ex=EXO[u]||LIBX[u]||{},bw=BWU(ex)&&ex.unit!=="elastique";a.forEach(x=>{totalT+=tonnage(x);if(!W(x).length)return;
+    const top=W(x).reduce((m,z)=>{const v=bw?z.reps+(z.kg||0)*0.4:z.kg*(1+z.reps/30);return !m||v>m.v?{v,z}:m;},null);
+    if(b!=null&&top.v>b+0.01&&(ex.comp||bw)&&!x.dl){prs.push({u,d:x.d,kg:top.z.kg,reps:top.z.reps,bw,up:bw?top.z.reps-(bk?bk.reps:0):top.z.kg-(bk?bk.kg:0)});}
+    if(b==null||top.v>b){b=top.v;bk=top.z;}});});
   prs.sort((a,b)=>a.d<b.d?1:-1);
   const byDay={};Object.values(store.log).forEach(a=>a.forEach(x=>W(x).forEach(s=>{if(!s.t)return;const r=byDay[x.d]=byDay[x.d]||[s.t,s.t];r[0]=Math.min(r[0],s.t);r[1]=Math.max(r[1],s.t);})));
   const hours=store.hist.reduce((acc,h)=>{const r=byDay[h.d];return acc+(r?(r[1]-r[0])/36e5+0.1:1);},0);
@@ -2479,7 +2488,7 @@ function vHome(){
   const vmax=Math.max(...d.vol,1),cur=d.vol[4];
   const bars=d.vol.map((v,i)=>`<div class="h-bar ${i===4?"h-cur h-partial":""}"><i style="height:${Math.max(6,v/vmax*80)}px;transition-delay:${.1+i*.07}s"></i><span>${i===4?"Cette":"S-"+(4-i)}</span></div>`).join("");
   const prs=d.prs.slice(0,6).map(p=>{const e=EXO[p.u]||{nom:p.u};return `<div class="h-pr"><div class="h-pr-top"><span class="h-pr-tag">${HI.trophy}Record</span><span class="h-pr-d">${fr(p.d)}</span></div>
-    <div class="h-pr-n">${esc(e.nom)}</div><div class="h-pr-v num">${hkg(p.kg)}<small> kg × ${p.reps}</small></div><div class="h-pr-up">+${hkg(p.up)} kg vs ton ancien record</div></div>`;}).join("");
+    <div class="h-pr-n">${esc(e.nom)}</div><div class="h-pr-v num">${p.bw?`${p.reps}<small> ${e.unit==="sec"?"s":"reps"}${p.kg?" + "+hkg(p.kg)+" kg":""}</small>`:`${hkg(p.kg)}<small> kg × ${p.reps}</small>`}</div><div class="h-pr-up">${p.bw?(p.up>0?`+${p.up} vs ton ancien record`:"nouveau record"):p.up>0?`+${hkg(p.up)} kg vs ton ancien record`:p.up<0?"plus de répétitions : force estimée en hausse":"plus de répétitions à cette charge"}</div></div>`;}).join("");
   const lifts=d.lifts.map((l,i)=>{if(l.pts.length<2)return `<div class="h-lift"><div><div class="h-n">${esc(l.nom)}</div><div class="h-k num">${l.pts.length?hkg(l.pts[0])+"<small>"+l.un+"</small>":"—"}</div><div class="h-sub">La courbe apparaît après 2 séances</div></div><svg viewBox="0 0 120 52"></svg></div>`;
     const s=hspark(l.pts,120,52),gain=l.pts[l.pts.length-1]-l.pts[0],pct=l.pts[0]?Math.round(gain/l.pts[0]*100):0,id="lg"+i;
     let len=0;for(let j=1;j<s.xy.length;j++)len+=Math.hypot(s.xy[j][0]-s.xy[j-1][0],s.xy[j][1]-s.xy[j-1][1]);
@@ -3034,7 +3043,8 @@ function pauseAdvice(w){
   if(w<=3)return {t:"Presque rien.",d:"Jusqu'à environ 3 semaines, la force et le muscle se maintiennent presque entièrement. Le léger « dégonflement » que tu peux voir, c'est surtout de l'eau dans les muscles, pas du muscle perdu. 1 à 2 petites séances par semaine suffisent pour tout garder."};
   return {t:"Une petite perte, vite récupérée.",d:"Au-delà de 3-4 semaines sans rien faire, on commence à perdre un peu de force et de muscle. Mais la « mémoire musculaire » fait qu'on récupère beaucoup plus vite que la première fois. Le mieux : 1 à 2 séances d'entretien par semaine, environ un tiers de ton volume habituel, en gardant des séries dures. Ça suffit pour garder presque tout."};}
 function awaySheet(){
-  const base=store.profile&&store.profile.mode==="gen"?store.profile:Object.assign({},NILSP,{place:"salle"});
+  /* le profil de la personne (programme généré ou construit à la main) ; celui de Nils seulement pour son programme */
+  const base=store.profile&&!PROG.nils&&(store.profile.mode==="gen"||store.profile.age||store.profile.sex)?Object.assign({goal:"muscle",level:1,focus:[],strong:[],pain:[]},store.profile,{mode:"gen"}):Object.assign({},NILSP,{place:"salle"});
   const st={w:2,kind:"vacances",place:"maison",equip:[],bars:"non",days:2,dur:30};
   const draw=()=>{const ad=pauseAdvice(st.w),ch=(k,v,l,on)=>`<button class="chipb ${on?"on":""}" data-${k}="${v}">${l}</button>`;
     openSheet(`<div class="shd"><h3>Vacances ou pause</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
@@ -3171,13 +3181,14 @@ function vPlan(){
   </div>
   ${ci.deload?`<div class="banner"><b>Semaine 6 : semaine légère.</b> Moitié des séries, mêmes charges. La semaine prochaine, un nouveau cycle commence.</div>`:ci.wk===5?`<div class="banner info small">La semaine prochaine sera une semaine légère (semaine 6 du cycle).</div>`:""}
   ${ios&&!standalone&&!inFrame?`<div class="banner info"><b style="color:var(--ink)">Installe l'app sur ton iPhone :</b> dans Safari, touche le bouton Partager (carré avec une flèche), puis « Sur l'écran d'accueil ». Elle s'ouvrira en plein écran, même sans réseau.</div>`:""}
+  ${PROG.temp?`<div class="banner" style="margin-top:12px">✈︎ <b>${PROG.temp.kind==="pause"?"Programme d'entretien":"Programme vacances"} jusqu'au ${fr(PROG.temp.until)}.</b> Ton vrai programme et tes charges sont gardés.<button class="btn hot wide" id="tempend2" style="margin-top:10px">Je suis de retour : reprendre mon programme</button></div>`:""}
   <h3>Ta semaine</h3>
   <div class="panel flat list">
     ${PLAN.map((r,i)=>`<button class="li ${r.k?"":"rest"} ${i===di?"today":""}" data-day="${i}" ${r.k?`data-k="${r.k}"`:""}><span class="day">${r.d}</span>
       <span class="w"><b>${r.k?LABEL[r.k]:r.t}</b><small>${r.k?P[r.k].muscles:r.s}</small></span>${r.k?(done.has(r.k)?`<span class="r">✓ faite</span>`:`<span class="chev">›</span>`):""}</button>`).join("")}
   </div>
   <p class="small muted" style="margin:8px 4px 0">Appui long sur un jour pour y mettre une autre séance ou un repos.</p>
-  ${PROG.temp?"":`<button class="btn line wide" id="bdays" style="margin-top:12px">📅 Choisir mes jours d'entraînement</button>`}
+  ${PROG.temp?"":`<button class="btn line wide" id="bdays" style="margin-top:12px">📅 Choisir mes jours d'entraînement</button><button class="btn line wide" id="away2" style="margin-top:12px">✈︎ Vacances ou pause</button>`}
   ${PROG.temp?"":`${BONUS?"":`<button class="btn line wide" id="baddbon" style="margin-top:12px">＋ Ajouter une séance Bonus</button>`}<button class="btn line wide" id="bedit" style="margin-top:12px">✎ Modifier mes séances</button><p class="small muted" style="margin:6px 4px 0">Ajouter, retirer ou remplacer des exercices, changer les séries, les répétitions, les repos, ajouter une séance.</p>`}
   <p class="lead small">${PROG.nils?"Tes horaires changent ? Ne fais <b>jamais A et C deux jours de suite</b> (mêmes muscles du haut). B peut se placer n'importe où. Le Bonus se fait au moins 48 h après C : le dimanche est idéal."
       :PER_WEEK<=3&&/Corps entier/.test(PROG.split)?"Tes horaires changent ? Pas de souci : laisse juste <b>au moins un jour de repos entre deux séances</b>, les muscles se construisent pendant le repos."
@@ -3212,7 +3223,8 @@ function vPlan(){
   if($("bedit"))$("bedit").onclick=()=>editProgram();
   if($("baddbon"))$("baddbon").onclick=()=>editProgram({addBonus:true});
   if($("bdays"))$("bdays").onclick=daysSheet;
-  if($("away"))$("away").onclick=awaySheet;
+  if($("away"))$("away").onclick=awaySheet;if($("away2"))$("away2").onclick=awaySheet;
+  if($("tempend2"))$("tempend2").onclick=()=>$("tempend").click();
   if($("pauseend"))$("pauseend").onclick=()=>{const pz=(store.pauses||[]).slice(-1)[0];if(pz)pz.to=today();delete store.pauseUntil;persist();render(true);toast("C'est reparti ! Commence en douceur.");};
   if($("tempend"))$("tempend").onclick=()=>{store.temp=null;store.returned=today();persist();applyProgram();sess=defaultSession();render();toast("Bon retour ! Si tu as arrêté 2 semaines ou plus, tes charges repartent un peu plus légères.");};
   if($("backnils"))$("backnils").onclick=()=>{store.profile={mode:"nils"};persist();applyProgram();sess=defaultSession();render();toast("Ancien programme rétabli");};
