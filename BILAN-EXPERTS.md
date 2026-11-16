@@ -41,21 +41,21 @@ Les rapports complets, avec chaque correction exacte (valeurs, textes à écrire
 ---
 
 ## 2. FAUX : à corriger ensuite
-- [ ] **Programmes déséquilibrés** : 75 combinaisons débutantes sur 378 n'ont aucun exercice de dos ou aucun développé dans la semaine. Cause : le plafond de 6 exercices (ajouté le 15 nov.) retire des gros exercices qui ne sont pas une priorité. Il faut garantir au moins un tirage et une poussée par semaine (et l'équilibre poussée/tirage). → femmes, maison
-- [ ] **Durée choisie toujours pas tenue** : 30 min → environ 45, 45 → environ 62. → prep
-- [ ] **Plafond de volume selon le niveau** (ex. : débutante 5 jours → 93 séries par semaine ; l'objectif « forme » reçoit plus de volume que « muscle »). → prep
-- [ ] **Pectoraux à 6 séries par semaine en haut/bas**, même en priorité. → prep
-- [ ] **Perte de gras** : répétitions trop hautes, repos trop courts, textes « brûler » et « repos courts, tu brûles plus » faux. → prep, femmes, nutri
-- [ ] **Douleur au genou** : les cuisses sont presque supprimées alors que les renforcer fait partie du traitement ; garder des variantes douces. Rowings penchés malgré le mal de dos, triceps au-dessus de la tête malgré les épaules, « chaise contre un mur, doux pour les genoux » inexact. → prep, kine
-- [ ] **Force** : chaque grand mouvement une seule fois par semaine ; squat goblet et haltères en 5-8 reps ; toujours 5-8 toute l'année sans travail plus lourd ni périodisation ; repos coupés à 90 s sur les gros exercices. → prep, force, femmes
+- [x] **Programmes déséquilibrés** : 75 combinaisons débutantes sur 378 n'ont aucun exercice de dos ou aucun développé dans la semaine. Cause : le plafond de 6 exercices (ajouté le 15 nov.) retire des gros exercices qui ne sont pas une priorité. Il faut garantir au moins un tirage et une poussée par semaine (et l'équilibre poussée/tirage). → femmes, maison
+- [x] **Durée choisie toujours pas tenue** : 30 min → environ 45, 45 → environ 62. → prep
+- [x] **Plafond de volume selon le niveau** (ex. : débutante 5 jours → 93 séries par semaine ; l'objectif « forme » reçoit plus de volume que « muscle »). → prep
+- [x] **Pectoraux à 6 séries par semaine en haut/bas**, même en priorité. → prep
+- [x] **Perte de gras** : répétitions trop hautes, repos trop courts, textes « brûler » et « repos courts, tu brûles plus » faux. → prep, femmes, nutri
+- [x] **Douleur au genou** : les cuisses sont presque supprimées alors que les renforcer fait partie du traitement ; garder des variantes douces. Rowings penchés malgré le mal de dos, triceps au-dessus de la tête malgré les épaules, « chaise contre un mur, doux pour les genoux » inexact. → prep, kine
+- [x] **Force** : chaque grand mouvement une seule fois par semaine ; squat goblet et haltères en 5-8 reps ; toujours 5-8 toute l'année sans travail plus lourd ni périodisation ; repos coupés à 90 s sur les gros exercices. → prep, force, femmes
 - [ ] **Baisses de charge** trop petites (70 kg × 4 → 67,5 kg × 8, l'app tourne en boucle sur l'échec) : recalculer depuis le RM estimé (−5 à −10 %) et viser le bas de la fourchette. Séries à charges différentes mal lues. → force
 - [ ] **Progression au poids du corps** : tractions négatives et tractions qui se renvoient en boucle ; retour à la version facile dès une série ratée ; lest des tractions et dips qui n'augmente jamais ; niveau d'élastique non noté ; leg curl à la serviette proposé dehors ; table ou sac prescrits sans confirmation ; aucun échauffement à la maison et dehors ; objectif force sans effet sans charge. → maison, force
-- [ ] **Barre** : une charge de 15 kg proposée alors que la barre seule pèse 20 kg. → femmes
-- [ ] **Priorité fessiers débutante** : seulement 2 séries par exercice. → femmes
-- [ ] **Superman compté comme travail du dos** ; 14 séries de cuisses dans une séance dehors. → prep
-- [ ] **Rythmes de poids** en kg fixes au lieu de % du poids ; alerte « ça monte vite » identique pour tous les objectifs ; accueil de Nils : alerte sur une seule pesée ; calories en plus données aux personnes en surpoids qui veulent du muscle ou de la force. → nutri
-- [ ] **Textes** : « guidé pas à pas » (mode qui n'existe pas), « Personne ne te regarde » affiché à la maison, textes au masculin. → femmes
-- [ ] **Plus de 55 ans forcés en 8-12 même au niveau 3** ; 6 jours demandés donnent 5 séances sans prévenir ; pas de dips en salle. → force
+- [x] **Barre** : une charge de 15 kg proposée alors que la barre seule pèse 20 kg. → femmes
+- [x] **Priorité fessiers débutante** : seulement 2 séries par exercice. → femmes
+- [x] **Superman compté comme travail du dos** ; 14 séries de cuisses dans une séance dehors. → prep
+- [x] **Rythmes de poids** en kg fixes au lieu de % du poids ; alerte « ça monte vite » identique pour tous les objectifs ; accueil de Nils : alerte sur une seule pesée ; calories en plus données aux personnes en surpoids qui veulent du muscle ou de la force. → nutri
+- [x] **Textes** : « guidé pas à pas » (mode qui n'existe pas), « Personne ne te regarde » affiché à la maison, textes au masculin. → femmes
+- [x] **Plus de 55 ans forcés en 8-12 même au niveau 3** ; 6 jours demandés donnent 5 séances sans prévenir ; pas de dips en salle. → force
 
 ---
 

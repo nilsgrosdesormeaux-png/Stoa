@@ -1514,7 +1514,7 @@ const LIB=[
   how:["Debout, fais un grand pas en arrière.","Descends jusqu'à ce que le genou arrière frôle le sol.","Le buste reste droit, le genou avant au-dessus du pied.","Reviens et change de jambe. Compte les répétitions par jambe."],
   pourquoi:"Travaille les cuisses et les fessiers, et l'équilibre. Le pas en arrière est plus doux pour les genoux que le pas en avant."},
  {uid:"legExt",pat:"quadIso",on:["salle"],mach:1,easy:1,avoid:["genoux"],nom:"Leg extension (machine)",muscle:"Cuisses, avant",g:["Quadriceps"],unit:"machine",inc:5,kg0:30,pic:"legExt",
-  reco:"Tu es assis, un boudin rembourré devant le bas de tes tibias, et tu tends les jambes.",
+  reco:"En position assise, un boudin rembourré devant le bas de tes tibias, et tu tends les jambes.",
   how:["Règle le dossier pour que tes genoux soient au bord du siège.","Le boudin se place juste au-dessus des chevilles.","Tends les jambes en 1 seconde, serre 1 seconde en haut.","Redescends lentement en 2 à 3 secondes."],
   pourquoi:"Isole l'avant des cuisses, en complément de la presse."},
  {uid:"stepUp",pat:"quadIso",on:["rien"],bw:1,easy:1,min:10,max:15,nom:"Montées sur une marche ou un banc",muscle:"Cuisses et fessiers",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"lunge",next:"une marche plus haute ou un sac à dos lesté",easier:"une marche plus basse",
@@ -1530,9 +1530,9 @@ const LIB=[
   reco:"Un sol lisse (parquet, carrelage) et une serviette ou des chaussettes sous les talons.",
   how:["Allongé sur le dos, talons sur la serviette, genoux pliés.","Monte les fesses comme pour un pont.","Glisse les talons loin devant toi en gardant les fesses en l'air, puis ramène-les.","Si c'est trop dur, fais seulement la partie où tu ramènes les talons."],
   pourquoi:"Remplace la machine de leg curl à la maison."},
- {uid:"rdlDB",pat:"hinge",on:["salle","halteres"],comp:1,lvl:0,avoid:["dos"],nom:"Soulevé de terre jambes tendues aux haltères",muscle:"Arrière des cuisses et fessiers",g:["Ischios","Fessiers"],unit:"haltere",inc:2,kg0:12,pic:"rdl",
+ {uid:"rdlDB",pat:"hinge",on:["salle","halteres"],comp:1,lvl:0,avoid:["dos"],nom:"Soulevé de terre roumain aux haltères (genoux souples)",muscle:"Arrière des cuisses et fessiers",g:["Ischios","Fessiers"],unit:"haltere",inc:2,kg0:12,pic:"rdl",
   reco:"Deux haltères, debout.",
-  how:["Debout, un haltère dans chaque main devant les cuisses, genoux très légèrement pliés.","Pousse les fesses loin en arrière, le dos reste plat comme une table.","Descends les haltères le long des jambes jusqu'à sentir l'étirement derrière les cuisses (souvent sous les genoux).","Remonte en serrant les fesses. Le dos ne s'arrondit jamais."],
+  how:["Debout, un haltère dans chaque main devant les cuisses, genoux légèrement pliés (jamais verrouillés). Les haltères restent collés aux cuisses.","Pousse les fesses loin en arrière, le dos reste plat comme une table.","Descends les haltères le long des jambes jusqu'à sentir l'étirement derrière les cuisses. Arrête la descente dès que ton dos commence à s'arrondir, même si tes mains sont encore au-dessus des genoux.","Remonte en serrant les fesses. Le dos ne s'arrondit jamais."],
   pourquoi:"Le mouvement roi pour l'arrière des cuisses et les fessiers. Il apprend aussi à soulever sans se faire mal au dos."},
  {uid:"bandRdl",pat:"hinge",on:["elastiques"],comp:1,bw:1,avoid:["dos"],min:12,max:20,nom:"Soulevé de terre à l'élastique",muscle:"Arrière des cuisses et fessiers",g:["Ischios","Fessiers"],unit:"elastique",inc:0,pic:"rdl",next:"un élastique plus dur",easier:"un élastique plus souple",
   reco:"Un élastique coincé sous les pieds.",
@@ -1547,7 +1547,7 @@ const LIB=[
   how:["Allongé sur le dos, genoux pliés, pieds à plat près des fesses.","Pousse dans les talons et monte les hanches.","Serre fort les fesses 2 secondes en haut.","Redescends lentement sans poser complètement les fesses."],
   pourquoi:"La base pour les fessiers, partout, sans matériel."},
  {uid:"abductor",pat:"abd",on:["salle"],mach:1,easy:1,nom:"Abducteurs (machine, écarter les jambes)",muscle:"Côté des fessiers",g:["Fessiers"],unit:"machine",inc:5,kg0:40,pic:"abductor",
-  reco:"Tu es assis, des coussins à l'extérieur des genoux, et tu écartes les jambes.",
+  reco:"En position assise, des coussins à l'extérieur des genoux, et tu écartes les jambes.",
   how:["Assis bien au fond, dos contre le dossier.","Écarte les jambes le plus loin possible.","Tiens 1 seconde, puis reviens lentement.","Tu peux te pencher un peu en avant pour viser davantage les fessiers."],
   pourquoi:"Le côté des fessiers : il arrondit la silhouette et stabilise le bassin et les genoux."},
  {uid:"bandWalk",pat:"abd",on:["elastiques"],bw:1,easy:1,min:12,max:20,nom:"Pas chassés avec un mini-élastique",muscle:"Côté des fessiers",g:["Fessiers"],unit:"elastique",inc:0,pic:"squatBW",next:"un élastique plus dur",easier:"un élastique plus souple",
@@ -1559,7 +1559,7 @@ const LIB=[
   how:["Allongé sur le côté, jambes tendues, la tête posée sur ton bras.","Monte la jambe du dessus, pied légèrement tourné vers le bas.","Redescends lentement sans la poser.","Compte les répétitions d'un côté, puis change."],
   pourquoi:"Le côté des fessiers, sans matériel."},
  {uid:"adductor",pat:"add",on:["salle"],mach:1,easy:1,nom:"Adducteurs (machine, serrer les jambes)",muscle:"Intérieur des cuisses",g:["Adducteurs"],unit:"machine",inc:5,kg0:40,pic:"adductor",
-  reco:"Tu es assis, des coussins à l'intérieur des genoux, et tu serres les jambes.",
+  reco:"En position assise, des coussins à l'intérieur des genoux, et tu serres les jambes.",
   how:["Assis bien au fond.","Règle l'écartement pour sentir un léger étirement au départ.","Serre les jambes, tiens 1 seconde.","Reviens lentement."],
   pourquoi:"L'intérieur des cuisses, souvent oublié."},
  {uid:"cableKick",pat:"glute",on:["salle"],nom:"Extension de hanche à la poulie (kickback)",muscle:"Fessiers",g:["Fessiers"],unit:"machine",inc:2.5,kg0:10,pic:"bridge",
@@ -1603,7 +1603,7 @@ const LIB=[
   reco:"Juste le sol.",
   how:["Mains un peu plus larges que les épaules.","Le corps droit comme une planche, fesses ni en l'air ni affaissées.","Descends jusqu'à ce que la poitrine frôle le sol.","Pousse fort en soufflant."],
   pourquoi:"Le classique : pecs, épaules et triceps en même temps."},
- {uid:"dips",pat:"hpush",on:["dips"],comp:1,bw:1,lvl:1,avoid:["epaules"],min:5,max:12,nom:"Dips aux barres parallèles",muscle:"Pectoraux, triceps",g:["Pectoraux","Triceps"],unit:"corps",inc:0,pic:"dip",next:"les dips lestés (sac à dos)",easier:"les dips avec les pieds posés au sol ou un élastique",
+ {uid:"dips",pat:"hpush",on:["dips","salle"],comp:1,bw:1,lvl:1,avoid:["epaules"],min:5,max:12,nom:"Dips aux barres parallèles",muscle:"Pectoraux, triceps",g:["Pectoraux","Triceps"],unit:"corps",inc:0,pic:"dip",next:"les dips lestés (sac à dos)",easier:"les dips avec les pieds posés au sol ou un élastique",
   reco:"Deux barres parallèles (parc de street workout).",
   how:["Bras tendus, en appui sur les barres.","Penche-toi un peu en avant et descends jusqu'à ce que les épaules soient au niveau des coudes, pas plus bas.","Remonte en poussant.","Si tu sens une gêne devant l'épaule, descends moins bas."],
   pourquoi:"Très efficace pour les pecs et les triceps au poids du corps."},
@@ -1640,9 +1640,9 @@ const LIB=[
   reco:"Une poulie réglée à hauteur du visage avec une corde.",
   how:["Attrape la corde, pouces vers toi, recule d'un pas.","Tire la corde vers ton front en écartant les mains.","Les coudes restent hauts, serre les omoplates.","Reviens lentement."],
   pourquoi:"Redresse les épaules enroulées vers l'avant et protège les épaules."},
- {uid:"dbRearFly",pat:"rear",on:["salle","halteres"],nom:"Oiseau aux haltères (buste penché)",muscle:"Arrière des épaules",g:["Épaules arrière"],unit:"haltere",inc:1,kg0:3,pic:"rdl",
+ {uid:"dbRearFly",pat:"rear",on:["salle","halteres"],avoid:["dos"],nom:"Oiseau aux haltères (buste penché)",muscle:"Arrière des épaules",g:["Épaules arrière"],unit:"haltere",inc:1,kg0:3,pic:"rdl",
   reco:"Deux haltères légers.",
-  how:["Penché en avant, dos plat, haltères sous la poitrine.","Écarte les bras sur les côtés, coudes légèrement pliés.","Serre les omoplates 1 seconde.","Redescends lentement."],
+  how:["Poitrine appuyée sur un banc incliné (ou penché, dos plat, si ton dos va bien), haltères sous la poitrine.","Écarte les bras sur les côtés, coudes légèrement pliés.","Serre les omoplates 1 seconde.","Redescends lentement."],
   pourquoi:"L'arrière des épaules, pour une meilleure posture."},
  {uid:"bandPullApart",pat:"rear",on:["elastiques"],bw:1,easy:1,min:15,max:25,nom:"Écartés à l'élastique (bras tendus devant)",muscle:"Arrière des épaules, haut du dos",g:["Épaules arrière"],unit:"elastique",inc:0,pic:"latRaise",next:"un élastique plus dur",easier:"un élastique plus souple",
   reco:"Un élastique tenu à deux mains devant toi.",
@@ -1698,7 +1698,7 @@ const LIB=[
   reco:"Un élastique accroché à hauteur de poitrine (poignée de porte avec un ancrage) ou passé sous les pieds, assis.",
   how:["Assis jambes tendues, élastique sous les pieds.","Tire les mains vers ton ventre, coudes près du corps.","Serre les omoplates 1 seconde.","Reviens lentement."],
   pourquoi:"Le dos à la maison."},
- {uid:"superman",pat:"hpull",on:["rien"],bw:1,easy:1,avoid:["dos"],min:10,max:15,nom:"Superman (allongé sur le ventre)",muscle:"Bas et haut du dos",g:["Dos"],unit:"corps",inc:0,pic:"plank",next:"tenir 3 secondes en haut",easier:"seulement les bras",
+ {uid:"superman",pat:"core",on:["rien"],bw:1,easy:1,avoid:["dos"],min:10,max:15,nom:"Superman (allongé sur le ventre)",muscle:"Lombaires (bas du dos)",g:["Lombaires"],unit:"corps",inc:0,pic:"plank",next:"tenir 3 secondes en haut",easier:"seulement les bras",
   reco:"Un tapis au sol.",
   how:["Allongé sur le ventre, bras tendus devant.","Décolle en même temps les bras, la poitrine et les jambes.","Tiens 2 secondes en serrant les fesses.","Redescends doucement."],
   pourquoi:"Renforce le dos quand il n'y a rien pour tirer."},
@@ -1727,11 +1727,11 @@ const LIB=[
   reco:"Une poulie haute avec une corde ou une barre courte.",
   how:["Debout face à la poulie, coudes collés au corps.","Pousse vers le bas jusqu'à bras tendus.","Seuls les avant-bras bougent.","Remonte lentement jusqu'à ce que les mains soient au niveau de la poitrine."],
   pourquoi:"Les triceps : ce sont eux qui font l'essentiel du volume du bras."},
- {uid:"overheadTri",pat:"tri",on:["salle"],nom:"Extension triceps au-dessus de la tête, poulie basse",muscle:"Triceps",g:["Triceps"],unit:"machine",inc:2.5,kg0:10,pic:"overheadTri",
+ {uid:"overheadTri",pat:"tri",on:["salle"],avoid:["epaules"],nom:"Extension triceps au-dessus de la tête, poulie basse",muscle:"Triceps",g:["Triceps"],unit:"machine",inc:2.5,kg0:10,pic:"overheadTri",
   reco:"Une poulie basse avec une corde, dos à la machine.",
   how:["Dos à la poulie, corde derrière la tête, un pied en avant.","Coudes vers le haut, près de la tête.","Tends les bras vers le haut et l'avant.","Reviens lentement jusqu'à l'étirement derrière les bras."],
   pourquoi:"Étire le triceps : très efficace pour le faire grossir."},
- {uid:"dbOverheadTri",pat:"tri",on:["halteres"],not:["salle"],nom:"Extension triceps au-dessus de la tête, un haltère",muscle:"Triceps",g:["Triceps"],unit:"haltere",inc:1,kg0:8,pic:"ohPress",
+ {uid:"dbOverheadTri",pat:"tri",on:["halteres"],not:["salle"],avoid:["epaules"],nom:"Extension triceps au-dessus de la tête, un haltère",muscle:"Triceps",g:["Triceps"],unit:"haltere",inc:1,kg0:8,pic:"ohPress",
   reco:"Un haltère tenu à deux mains.",
   how:["Assis ou debout, l'haltère tenu à deux mains au-dessus de la tête.","Descends l'haltère derrière la tête en pliant les coudes, qui restent près de la tête.","Remonte en tendant les bras.","Lentement, sans cambrer le dos."],
   pourquoi:"Les triceps à la maison."},
@@ -1771,7 +1771,7 @@ const LIB=[
  /* ---- barre libre (confirmés, objectif force) ---- */
  {uid:"barSquat",pat:"quad",on:["salle"],comp:1,lvl:1,avoid:["genoux","dos"],nom:"Squat à la barre",muscle:"Cuisses et fessiers",g:["Quadriceps","Fessiers"],unit:"barre",inc:2.5,kg0:30,pic:"squatBW",
   reco:"Un rack (cage) avec une barre olympique posée sur des supports à hauteur d'épaules, et des barres de sécurité.",
-  how:["Règle les supports à hauteur du haut de ta poitrine et les sécurités juste sous la position basse.","Barre sur le haut du dos (pas sur la nuque), mains serrées, coudes vers le bas.","Recule de 2 pas, pieds largeur d'épaules. Descends en poussant les fesses en arrière, dos droit, genoux dans l'axe des pieds.","Remonte en poussant dans tout le pied. Note le poids total : barre (20 kg) + disques."],
+  how:["Règle les supports à hauteur du haut de ta poitrine et les sécurités juste sous la position basse.","Barre sur le haut du dos (pas sur la nuque), mains un peu plus larges que les épaules, prise ferme, coudes vers le bas.","Recule de 2 pas, pieds largeur d'épaules. Descends en poussant les fesses en arrière, dos droit, genoux dans l'axe des pieds.","Remonte en poussant dans tout le pied. Note le poids total : barre (20 kg) + disques."],
   pourquoi:"Le roi des exercices de jambes pour devenir fort."},
  {uid:"barBench",pat:"hpush",on:["salle"],comp:1,lvl:1,avoid:["epaules"],nom:"Développé couché à la barre",muscle:"Pectoraux, épaules, triceps",g:["Pectoraux","Triceps"],unit:"barre",inc:2.5,kg0:25,pic:"smithBench",
   reco:"Un banc avec des barres de sécurité (dans un rack), réglées juste sous ta poitrine. Sans sécurité et sans personne pour t'aider, fais-le à la barre guidée ou aux haltères.",
@@ -1799,14 +1799,14 @@ const LIB=[
  {uid:"jumpSquat",pat:"quadIso",on:["rien"],bw:1,lvl:1,avoid:["genoux"],min:8,max:15,nom:"Squats sautés",muscle:"Cuisses, explosivité",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"squatBW",
   reco:"Un sol plat qui n'est pas glissant.",how:["Descends en squat.","Saute le plus haut possible.","Atterris en douceur, genoux souples.","Enchaîne sans pause."],pourquoi:"Explosivité et cardio en même temps."},
  {uid:"wallSit",pat:"quadIso",on:["rien"],bw:1,easy:1,min:20,max:60,nom:"Chaise contre un mur",muscle:"Cuisses",g:["Quadriceps"],unit:"sec",inc:0,pic:"squatBW",
-  reco:"Un mur ou un arbre.",how:["Dos contre le mur, descends jusqu'aux cuisses parallèles au sol.","Genoux au-dessus des chevilles.","Tiens la position en respirant.","Note le nombre de secondes."],pourquoi:"Brûle les cuisses sans aucun mouvement, doux pour les genoux."},
+  reco:"Un mur ou un arbre.",how:["Dos contre le mur, descends jusqu'où ton genou reste confortable (cuisses parallèles au sol au plus bas). Si tes genoux sont sensibles, reste plus haut (genoux pliés à environ 45-60°).","Genoux au-dessus des chevilles.","Tiens la position en respirant.","Note le nombre de secondes."],pourquoi:"Travaille les cuisses sans mouvement. Tu règles la difficulté avec la hauteur."},
  {uid:"weightedPull",pat:"vpull",on:["barre"],comp:1,bw:1,lvl:2,avoid:["epaules"],min:4,max:8,nom:"Tractions lestées (sac à dos)",muscle:"Dos, biceps",g:["Dos","Biceps"],unit:"corps",inc:0,pic:"pullup",
   reco:"Une barre et un sac à dos lesté (bouteilles, livres) ou une ceinture de lest.",how:["Sac porté haut et serré dans le dos, bretelles ajustées, 10 kg maximum (au-delà : ceinture de lest ou haltère entre les pieds). Vérifie les coutures et le contenu (pas de verre).","Tractions strictes, menton au-dessus de la barre.","Descends lentement.","Note le lest ajouté dans la case kg."],pourquoi:"Quand tu fais plus de 10 tractions, le lest te fait continuer à progresser."},
  {uid:"weightedDip",pat:"hpush",on:["dips"],comp:1,bw:1,lvl:2,avoid:["epaules"],min:5,max:10,nom:"Dips lestés (sac à dos)",muscle:"Pectoraux, triceps",g:["Pectoraux","Triceps"],unit:"corps",inc:0,pic:"dip",
   reco:"Des barres parallèles et un sac à dos lesté.",how:["Sac porté haut et serré dans le dos, 10 kg maximum. Vérifie les coutures et le contenu (pas de verre).","Épaules en arrière, poitrine ouverte : descends jusqu'aux coudes à 90°, pas plus bas.","Remonte en poussant.","Note le lest dans la case kg."],pourquoi:"Continue à progresser quand les dips deviennent faciles."},
  {uid:"lSit",pat:"core",on:["dips","rien"],bw:1,lvl:2,min:8,max:30,nom:"L-sit (jambes tendues en équerre)",muscle:"Abdominaux, gainage",g:["Abdos"],unit:"sec",inc:0,pic:"dip",
   reco:"Des barres parallèles, ou deux chaises solides.",how:["En appui bras tendus.","Monte les jambes tendues à l'horizontale.","Tiens en poussant fort dans les mains.","Plus facile : genoux pliés. Note les secondes."],pourquoi:"Des abdos très forts, typique du street workout."},
- {uid:"bagRow",pat:"hpull",on:["maison","dehors"],comp:1,bw:1,easy:1,min:10,max:20,nom:"Rowing penché avec un sac à dos",muscle:"Dos, épaisseur",g:["Dos"],unit:"corps",inc:0,pic:"rdl",
+ {uid:"bagRow",pat:"hpull",on:["maison","dehors"],comp:1,bw:1,easy:1,avoid:["dos"],min:10,max:20,nom:"Rowing penché avec un sac à dos",muscle:"Dos, épaisseur",g:["Dos"],unit:"corps",inc:0,pic:"rdl",
   reco:"Un sac à dos solide, bretelles en bon état, rempli (bouteilles d'eau, livres ; pas de verre), tenu par les bretelles.",how:["Debout, penché en avant, dos plat, genoux légèrement pliés.","Le sac pend sous la poitrine.","Tire le sac vers le ventre en serrant les omoplates.","Redescends lentement. Ajoute des bouteilles quand ça devient facile."],pourquoi:"Le dos sans barre ni machine : un sac à dos suffit."},
  {uid:"bagCurl",pat:"bic",on:["maison","dehors"],bw:1,easy:1,min:10,max:20,nom:"Curl avec un sac à dos",muscle:"Biceps",g:["Biceps"],unit:"corps",inc:0,pic:"standCurl",
   reco:"Un sac à dos solide, rempli (bouteilles d'eau, livres ; pas de verre), tenu par la poignée du haut en bon état.",how:["Debout, le sac tenu à deux mains devant toi.","Plie les coudes pour le monter vers la poitrine.","Coudes collés au corps.","Redescends lentement."],pourquoi:"Les biceps sans haltères."},
@@ -1846,7 +1846,7 @@ function estLoads(p){const w=Math.min(130,Math.max(40,+p.weight||70)),a=+p.age||
 const GYMS=[["basicfit","Basic-Fit"],["fitnesspark","Fitness Park"],["orangebleue","L'Orange Bleue"],["onair","On Air"],["keepcool","Keep Cool"],
   ["neoness","Neoness"],["cmg","Club Med Gym"],["magicform","Magic Form"],["vita","Vita Liberté"],["autre","Une autre salle"]];
 const GYMNAME=Object.fromEntries(GYMS);
-const GOALS={gras:"Perdre du gras",muscle:"Prendre du muscle",forme:"Me remettre en forme",force:"Devenir plus fort"};
+const GOALS={gras:"Perdre du gras",muscle:"Prendre du muscle",forme:"Me remettre en forme",force:"Gagner en force"};
 const FOCUS={fessiers:"Fessiers",jambes:"Jambes",ventre:"Ventre",dos:"Dos",epaules:"Épaules",bras:"Bras",pecs:"Pectoraux"};
 const FOCUSPAT={fessiers:["glute","abd"],jambes:["quad","ham"],ventre:["core"],dos:["vpull","hpull"],epaules:["latr","rear"],bras:["tri","bic"],pecs:["hpush"]};
 const FOCUSG={fessiers:"Fessiers",jambes:"Quadriceps",ventre:"Abdos",dos:"Dos",epaules:"Épaules",bras:"Triceps",pecs:"Pectoraux"};
@@ -1855,7 +1855,7 @@ const LOWER=["quad","quadIso","ham","hinge","glute","abd","add","calf"];
 const BWU=e=>e&&(e.unit==="corps"||e.unit==="elastique"||e.unit==="sec");
 
 function envTokens(p){
-  if(p.place==="salle")return ["salle","rien","halteres","banc","barre"];
+  if(p.place==="salle")return ["salle","rien","halteres","banc","barre","dips","barrebasse"];
   if(p.place==="maison")return ["rien","maison"].concat(p.equip||[]);
   return ["rien","dehors"].concat(p.bars==="oui"?["barre","dips","barrebasse"]:[]);
 }
@@ -1887,6 +1887,8 @@ function candidates(pat,p){
     if(lvl<=1&&e.lvl===2)s-=3;
     if(e.unit==="barre"){s+=(p.goal==="force"&&lvl>=1?4:lvl>=2&&sw.mach!==true?2.5:-1);if(sw.peur===true)s-=3;}
     if(e.uid==="tableRow")s-=1;
+    if(p.goal==="force"&&lvl>=1&&e.uid==="gobletSquat")s-=4;
+    if(lvl>=2&&e.bw&&HARDER[e.uid]&&LIBX[HARDER[e.uid]]&&LIBX[HARDER[e.uid]].on.some(x=>tk.includes(x))&&!(LIBX[HARDER[e.uid]].avoid||[]).some(x=>pain.includes(x))&&!ruleOut(LIBX[HARDER[e.uid]],p))s-=4;
     if(p.place==="salle"&&pat==="core")s+=e.on.includes("salle")?4:e.lvl===2?-4:0;
     if(pat==="core"&&pain.includes("dos"))s+=e.uid==="deadBug"?3:0;
     if(sw.libre===true){if(e.unit==="barre")s+=3;if(e.unit==="haltere")s+=1;if(e.mach)s-=1.5;}
@@ -1912,19 +1914,26 @@ const SPLITS={
     {t:"Bas du corps",r:["quad","hinge","glute","ham","abd","calf","core"]},
     {t:"Corps entier",r:["quad2","hpush2","hpull2","ham","latr","rear","core"]}]},
   ul4:{nom:"Haut / Bas, 4 fois par semaine",days:["Lun","Mar","Jeu","Ven"],s:[
-    {t:"Haut du corps 1",r:["hpush","vpull","vpush","hpull","latr","tri","bic"]},
+    {t:"Haut du corps 1",r:["hpush","vpull","hpush2","vpush","hpull","latr","tri","bic"]},
     {t:"Bas du corps 1",r:["quad","ham","glute","quadIso","calf","core","abd"]},
     {t:"Haut du corps 2",r:["vpull2","hpush2","hpull2","latr","rear","bic","tri"]},
-    {t:"Bas du corps 2",r:["hinge","quad2","abd","ham","add","core","calf"]}]},
+    {t:"Bas du corps 2",r:["hinge","quad2","ham","glute","calf","core"]}]},
   ppl5:{nom:"Haut / Bas / Poussée / Tirage / Jambes",days:["Lun","Mar","Mer","Ven","Sam"],s:[
     {t:"Haut du corps",r:["hpush","vpull","vpush","hpull","latr","tri","bic"]},
     {t:"Bas du corps",r:["quad","ham","glute","quadIso","calf","core"]},
     {t:"Poussée (pecs, épaules, triceps)",r:["hpush2","vpush","fly","latr","tri","tri2","core"]},
     {t:"Tirage (dos, arrière d'épaules, biceps)",r:["vpull2","hpull","hpull2","rear","bic","bic2"]},
-    {t:"Jambes et fessiers",r:["hinge","quad2","glute","abd","add","ham","core"]}]}
+    {t:"Jambes et fessiers",r:["hinge","quad2","glute","abd","add","ham","core"]}]},
+  ppl6:{nom:"Poussée / Tirage / Jambes, 2 fois par semaine",days:["Lun","Mar","Mer","Jeu","Ven","Sam"],s:[
+    {t:"Poussée 1 (pecs, épaules, triceps)",r:["hpush","vpush","hpush2","latr","tri","tri2"]},
+    {t:"Tirage 1 (dos, arrière d'épaules, biceps)",r:["vpull","hpull","hpull2","rear","bic","bic2"]},
+    {t:"Jambes 1",r:["quad","ham","glute","quadIso","calf","core"]},
+    {t:"Poussée 2 (pecs, épaules, triceps)",r:["vpush","hpush","fly","latr","tri","tri2"]},
+    {t:"Tirage 2 (dos, arrière d'épaules, biceps)",r:["hpull","vpull","vpull2","rear","bic","bic2"]},
+    {t:"Jambes 2",r:["hinge","quad2","glute","ham","calf","core"]}]}
 };
 function pickSplit(p){const d=+p.days||3,sw=p.swipe||{};
-  if(d<=2)return "fb2";if(d===3&&sw.split!=null)return sw.split?"ulf":"fb3";if(d===3)return (p.level||0)>=2?"ulf":"fb3";if(d===4)return "ul4";return "ppl5";}
+  if(d<=2)return "fb2";if(d===3&&sw.split!=null)return sw.split?"ulf":"fb3";if(d===3)return (p.level||0)>=2?"ulf":"fb3";if(d===4)return "ul4";if(d>=6&&(p.level||0)>=2)return "ppl6";return "ppl5";}
 
 function generate(p){
   const split=SPLITS[pickSplit(p)],dur=+p.dur||45,sw=p.swipe||{},lvl=p.level||0,goal=p.goal||"forme";
@@ -1934,14 +1943,14 @@ function generate(p){
   /* charges déclarées : on s'en sert pour toute la famille d'exercices (jambes, poussée, tirage) */
   const L=Object.assign(estLoads(p),p.loads||{}),fam=e=>LOWER.includes(e.pat)?"legPress":["vpull","hpull","rear","bic"].includes(e.pat)?"latPulldown":"benchPlate";
   const factorOf=e=>{const r=fam(e),q=L[r]/LIBX[r].kg0,k=e.comp?q:e.pat==="core"?Math.pow(q,0.4):Math.pow(q,0.65);return k*(e.unit==="haltere"?0.7:1);};
-  const keys=["A","B","C","D","E"].slice(0,split.s.length),PP={},used={};
+  const keys=["A","B","C","D","E","F"].slice(0,split.s.length),PP={},used={};
   const old=+p.age>=55,young=+p.age<16,teen=+p.age<18,SS=[];
   /* durée réelle : séries + repos, échauffement (8 min à la salle, 5 ailleurs), séries d'échauffement É, cardio de fin s'il est proposé */
-  const sEst=ex=>Math.round(ex.reduce((a,e)=>a+e.series*(40+e.rest)+(e.warm?150:0),0)/60)+(p.place==="salle"?8:5)+(sw.cardio===true||goal==="gras"?(dur<=30?5:10):0);
+  const sEst=ex=>Math.round(ex.reduce((a,e)=>a+e.series*(45+e.rest)+75+(e.warm?150:0),0)/60)+(p.place==="salle"?(dur<=30?6:8):5)+(sw.cardio===true||goal==="gras"?(dur<=30?0:10):0);
   split.s.forEach((ss,si)=>{
     let roles=ss.r.slice();
     /* genoux fragiles : moins d'avant des cuisses ; épaules fragiles : rien au-dessus de la tête */
-    if(sw.genou===true)roles=roles.map(r=>r==="quad2"?"glute":r==="quadIso"?"ham":r);
+    if(sw.genou===true)roles=roles.map(r=>r==="quadIso"?"quad2":r);
     if(sw.epaulesDoux===true)roles=roles.map(r=>r.replace(/2$/,"")==="vpush"?"rear":r);
     const isUpper=roles.every(r=>!LOWER.includes(r.replace(/2$/,""))||r==="core"),isLower=roles.every(r=>LOWER.includes(r.replace(/2$/,""))||r==="core");
     /* priorités : on les remonte (ou on les ajoute) juste après les 3 gros exercices de base */
@@ -1949,11 +1958,13 @@ function generate(p){
     fpats.forEach(fp=>{const low=LOWER.includes(fp);
       if(fp==="core")return;
       if((isUpper&&low)||(isLower&&!low))return;
+      if((/^Poussée/.test(ss.t)&&["hpull","vpull","rear","bic"].includes(fp))||(/^Tirage/.test(ss.t)&&["hpush","vpush","fly","latr","tri"].includes(fp)))return;
       const i=roles.findIndex(r=>r.replace(/2$/,"")===fp);if(i>=0&&i<pos)return;if(i>=0)roles.splice(i,1);roles.splice(Math.min(pos,roles.length),0,fp);pos++;});
     const wantCore=sw.abdos===true||fpats.includes("core");
     const chosen=[],seen=new Set(),SWP=p.swaps||{};
-    const pick=(r)=>{const base=r.replace(/2$/,"");let c=candidates(base,p);if(!c.length&&FALLBACK[base])c=candidates(FALLBACK[base],p);if(!c.length)return null;
-      let idx=r.endsWith("2")?1:0;if(sw.varie===true||(p.place!=="salle"&&!(p.equip||[]).includes("halteres")))idx+=si;
+    const pick=(r)=>{const base=r.replace(/2$/,"");let c=candidates(base,p);if(!c.length&&FALLBACK[base])c=candidates(FALLBACK[base],p);
+      if(base==="bic"&&[...seen].some(u=>(LIBX[u]||{}).pat==="vpull"))c=c.filter(x=>x.uid!=="chinup");if(!c.length)return null;
+      let idx=r.endsWith("2")&&!(goal==="force"&&["quad","hpush","hinge","vpull","hpull"].includes(base))?1:0;if(sw.varie===true||(p.place!=="salle"&&!(p.equip||[]).includes("halteres")))idx+=si;
       /* variété : on alterne seulement entre les meilleures options */
       const top2=sw.varie===true?c.length:Math.min(2,c.length),ord=c.slice(0,top2).map((_,t2)=>c[(idx+t2)%top2]).concat(c.slice(top2));
       let e=null;for(const x of ord){if(!seen.has(x.uid)){e=x;break;}}
@@ -1974,15 +1985,15 @@ function generate(p){
       let series=3,min,max,rest;
       if(goal==="force"){min=comp?5:8;max=comp?8:12;rest=comp?180:90;if(comp&&!bw)series=4;}
       else if(goal==="muscle"){min=comp?(sw.lourd===true?6:8):10;max=comp?(sw.lourd===true?10:12):15;rest=comp?150:75;}
-      else if(goal==="gras"){min=comp?10:12;max=comp?12:15;rest=comp?90:60;}
+      else if(goal==="gras"){min=comp?6:10;max=comp?10:15;rest=comp?120:75;}
       else{min=comp?10:12;max=comp?15:15;rest=comp?90:60;}
       if(bw){min=e.min;max=e.max;rest=comp?90:60;if(e.unit==="sec")rest=60;}
-      if(sw.circuit===true)rest=comp?Math.min(rest,75):45;
+      if(sw.circuit===true)rest=comp?Math.min(rest,75):60;
       if(sw.superset===true&&!comp)rest=Math.min(rest,60);
-      if(!comp&&(dur<=30||lvl===0))series=2;
+      if(!comp&&(dur<=30||lvl===0)&&!fpats.includes(e0.pat))series=2;
       if(comp&&lvl===0)series=Math.min(series,3);
       if(spats.includes(e0.pat))series=Math.max(2,series-1);
-      if(old){rest+=30;if(!bw)min=Math.max(min,8),max=Math.max(max,12);}
+      if(old){rest+=30;if(!bw&&!(goal==="force"&&lvl>=2))min=Math.max(min,8),max=Math.max(max,12);}
       if(young&&!bw){min=Math.max(min,10);max=Math.max(max,15);}
       else if(teen&&!bw){min=Math.max(min,8);max=Math.max(max,15);}
       if(teen&&!bw)series=Math.min(series,3);
@@ -1996,59 +2007,100 @@ function generate(p){
     let exos=chosen.map(mk);
     /* respecter le temps choisi : trop long → on raccourcit ; trop court → on complète */
     const est=()=>sEst(exos);
-    for(let g2=0;g2<30&&est()>dur+5;g2++){
+    for(let g2=0;g2<30&&est()>dur+3;g2++){
       const iso2=[...exos].reverse().find(e=>!e.comp&&e.series>2);
       if(iso2){iso2.series--;continue;}
       const big=[...exos].reverse().find(e=>e.comp&&e.series>3);
       if(big){big.series--;continue;}
-      if(dur<=45){const r=exos.find(e=>e.rest>90);if(r){r.rest=90;continue;}}
+      if(dur<=45&&goal!=="force"){const r=exos.find(e=>e.rest>90);if(r){r.rest=90;continue;}}
       if(dur<=45){const w2=exos.filter(e=>e.warm);if(w2.length>1){w2[w2.length-1].warm=false;continue;}}
       if(dur<=30){const c=[...exos].reverse().find(e=>e.comp&&e.series>2);if(c){c.series--;continue;}}
       if(exos.length>4||(exos.length>3&&!wantCore)){
         /* on retire le dernier exercice qui n'est ni une priorité ni les abdos demandés (jamais une priorité) */
         let i=-1;for(let q=exos.length-1;q>=3;q--){const e=exos[q];if(!fpats.includes(e.pat)&&!(wantCore&&e.pat==="core")){i=q;break;}}
         if(i>=0){exos.splice(i,1);continue;}}
-      const r=exos.find(e=>e.rest>90);if(r){r.rest-=30;continue;}break;}
+      const r=goal==="force"?null:exos.find(e=>e.rest>90);if(r){r.rest-=30;continue;}break;}
     const more=roles.slice().concat(["bic","tri","latr","rear","calf","core","abd","ham","glute","quadIso","hpull","hpush"]);
     for(let g2=0;g2<10&&est()<dur-8;g2++){
       const big=exos.find(e=>e.comp&&e.series<(lvl>=1?4:3)&&!spats.includes(e.pat));
       if(big&&est()+3<=dur+3){big.series++;continue;}
       let x=null;for(const r of more){const e=pick(r);if(e){x=mk(e,exos.length);const ci=exos.length&&exos[exos.length-1].pat==="core"?exos.length-1:exos.length;exos.splice(ci,0,x);break;}}
       if(!x)break;
-      if(est()>dur+5){x.series=2;if(est()>dur+5){exos.splice(exos.indexOf(x),1);break;}}}
-    SS.push({si,ss,exos,pick,mk,est:()=>sEst(SS[si].exos),isLower});
+      if(est()>dur+3){x.series=2;if(est()>dur+3){exos.splice(exos.indexOf(x),1);break;}}}
+    SS.push({si,ss,exos,pick,mk,est:()=>sEst(SS[si].exos),isLower,kind:/^Poussée/.test(ss.t)?"push":/^Tirage/.test(ss.t)?"pull":null});
   });
-  /* minimum de séries par semaine pour les petits muscles souvent oubliés (bras, épaules) */
-  const NEED=[["bic",4],["tri",4],["latr",4],["rear",3]];
+  const ZONE={quad:"bas",quadIso:"bas",hinge:"bas",glute:"bas",ham:"bas",abd:"bas",add:"bas",calf:"bas",
+    hpush:"pousse",fly:"pousse",vpush:"pousse",latr:"pousse",tri:"pousse",vpull:"tire",hpull:"tire",rear:"tire",bic:"tire",core:"abdos",bal:"abdos"};
+  const fpatsAll=[].concat(...(p.focus||[]).map(f=>FOCUSPAT[f]||[]));
+  const PUSHP=["hpush","vpush","fly","latr","tri"],PULLP=["hpull","vpull","rear","bic"];
+  const fits=(s,pt)=>!(s.kind==="push"&&PULLP.includes(pt))&&!(s.kind==="pull"&&PUSHP.includes(pt));
+  const addTo=(s,pt,ser)=>{if(!fits(s,pt))return null;const e=s.pick(pt);if(!e)return null;const x=s.mk(e,s.exos.length);x.series=ser||Math.min(x.series,3);
+    const ci=s.exos.length&&s.exos[s.exos.length-1].pat==="core"?s.exos.length-1:s.exos.length;s.exos.splice(ci,0,x);return x;};
+  /* 1. ordre logique et nombre d'exercices par séance */
+  SS.forEach(s=>{const exos=s.exos;
+    const zones=[];exos.forEach(e=>{const z=ZONE[e.pat]||"autre";if(z!=="abdos"&&!zones.includes(z))zones.push(z);});zones.push("autre","abdos");
+    const ISO_LATE=["calf","abd","add","latr","tri","rear","bic"];
+    const rank=e=>{const z=ZONE[e.pat]||"autre";return zones.indexOf(z)*100+(e.comp?0:ISO_LATE.includes(e.pat)?20:10);};
+    const orig=exos.slice();exos.sort((x,y)=>rank(x)-rank(y)||orig.indexOf(x)-orig.indexOf(y));
+    const cap=lvl===0?6:lvl===1?7:8;
+    while(exos.length>cap){let i=-1;for(let q=exos.length-1;q>=0;q--){const e=exos[q];if(e.pat!=="core"&&!e.comp&&!fpatsAll.includes(e.pat)){i=q;break;}}
+      if(i<0)for(let q=exos.length-1;q>=0;q--){if(exos[q].pat!=="core"&&!fpatsAll.includes(exos[q].pat)){i=q;break;}}
+      if(i<0)break;exos.splice(i,1);}});
+  /* 2. toujours au moins un tirage et une poussée dans la semaine (équilibre du haut du corps) */
+  [["tire",["hpull","vpull"]],["pousse",["hpush","vpush"]]].forEach(([z,pts])=>{
+    if(SS.some(s=>s.exos.some(e=>pts.includes(e.pat))))return;
+    const s=SS.filter(x=>!x.isLower&&fits(x,pts[0])).sort((x,y)=>x.est()-y.est())[0]||SS[0];
+    for(const pt of pts){if(addTo(s,pt,3))break;}});
+  /* 3. petits muscles souvent oubliés (bras, épaules) : un minimum par semaine */
   const weekSets=pt=>SS.reduce((a,s)=>a+s.exos.filter(e=>e.pat===pt||(pt==="bic"&&e.g.includes("Biceps"))||(pt==="tri"&&e.g.includes("Triceps"))).reduce((b,e)=>b+e.series,0),0);
-  NEED.forEach(([pt,mn])=>{
+  [["bic",4],["tri",4],["latr",4],["rear",3]].forEach(([pt,mn])=>{
     for(let guard=0;guard<4&&weekSets(pt)<mn;guard++){
-      const cand=SS.filter(s=>!s.isLower&&!s.exos.some(e=>e.pat===pt)).sort((a,b)=>a.est()-b.est());
-      let done=false;
-      for(const s of cand){const e=s.pick(pt);if(!e)break;const x=s.mk(e,s.exos.length);x.series=Math.min(x.series,3);
-        const ci=s.exos.length&&s.exos[s.exos.length-1].pat==="core"?s.exos.length-1:s.exos.length;s.exos.splice(ci,0,x);
-        if(s.est()>dur+8){x.series=2;if(s.est()>dur+8){s.exos.splice(s.exos.indexOf(x),1);continue;}}
-        done=true;break;}
+      const cand=SS.filter(s=>!s.isLower&&fits(s,pt)&&!s.exos.some(e=>e.pat===pt)).sort((a,b)=>a.est()-b.est());let done=false;
+      for(const s of cand){const x=addTo(s,pt);if(!x)break;
+        if(s.est()>dur+3){x.series=2;if(s.est()>dur+3){s.exos.splice(s.exos.indexOf(x),1);continue;}}done=true;break;}
       if(!done)break;}});
+  /* 4. une priorité ajoute du volume : +3 séries par semaine au moins, et jamais 2 séries par exercice */
+  const grpOf=e=>e.g[0];
+  const prioG=new Set();SS.forEach(s=>s.exos.forEach(e=>{if(fpatsAll.includes(e.pat))prioG.add(grpOf(e));}));
+  const gSets=g=>SS.reduce((a,s)=>a+s.exos.filter(e=>grpOf(e)===g).reduce((b,e)=>b+e.series,0),0);
+  prioG.forEach(g=>{const base=gSets(g);SS.forEach(s=>s.exos.forEach(e=>{if(grpOf(e)===g&&fpatsAll.includes(e.pat))e.series=Math.max(e.series,3);}));
+    for(let k=0;k<6&&gSets(g)<base+3;k++){const s=SS.find(s=>s.exos.some(e=>grpOf(e)===g&&e.series<4)&&s.est()+3<=dur+3);if(!s)break;
+      const e=s.exos.find(e=>grpOf(e)===g&&e.series<4);e.series++;}});
+  /* 5. plafond de séries directes par muscle et par semaine, selon le niveau et l'objectif (+4 pour une priorité) ;
+        8 séries au plus pour un même muscle dans une séance (10 au niveau 3) */
+  const CAPW={muscle:[10,12,16,20],gras:[10,12,14,16],force:[9,10,12,14],forme:[8,10,10,12]}[goal]||[10,12,16,20];
+  const capW=g=>CAPW[Math.min(3,lvl)]+(prioG.has(g)?4:0),capS=lvl>=3?10:8;
+  const groups=new Set();SS.forEach(s=>s.exos.forEach(e=>groups.add(grpOf(e))));
+  const trim=(list,over)=>{/* retire d'abord une série d'isolation, puis un exercice d'isolation, puis une série de gros exercice */
+    for(let k=0;k<40&&over()>0;k++){const iso=list.filter(x=>!x.e.comp&&x.e.series>2).pop();if(iso){iso.e.series--;continue;}
+      const isoEx=list.filter(x=>!x.e.comp&&!fpatsAll.includes(x.e.pat)).pop();if(isoEx&&list.length>1){isoEx.s.exos.splice(isoEx.s.exos.indexOf(isoEx.e),1);list.splice(list.indexOf(isoEx),1);continue;}
+      const big=list.filter(x=>x.e.series>2).pop();if(big){big.e.series--;continue;}break;}};
+  groups.forEach(g=>{if(g==="Abdos"||g==="Équilibre")return;
+    const list=[];SS.forEach(s=>s.exos.forEach(e=>{if(grpOf(e)===g)list.push({s,e});}));
+    trim(list,()=>list.reduce((a,x)=>a+x.e.series,0)-capW(g));
+    SS.forEach(s=>{const l2=list.filter(x=>x.s===s);trim(l2,()=>l2.reduce((a,x)=>a+x.e.series,0)-capS);});});
+  /* 6. objectif force : le 1er gros exercice de chaque séance est le mouvement principal, en charges lourdes */
+  if(goal==="force")SS.forEach(s=>{const m=s.exos.find(e=>e.comp&&!BWU(e));if(!m)return;
+    m.series=Math.min(4,Math.max(m.series,teen?3:4));m.min=lvl<=1?5:3;m.max=6;m.rest=210;m.main=true;
+    s.exos.filter(e=>e.comp&&e!==m&&!BWU(e)).forEach(e=>{e.min=6;e.max=10;e.rest=Math.max(e.rest,150);});});
+  /* 7. durée : on retire des séries d'isolation si la séance dépasse encore le temps choisi
+        (sans jamais retirer le dernier tirage ou la dernière poussée de la semaine) */
+  const PULL=["hpull","vpull"],PUSH=["hpush","vpush"],cnt=ps=>SS.reduce((a,s)=>a+s.exos.filter(e=>ps.includes(e.pat)).length,0);
+  const keep=e=>(PULL.includes(e.pat)&&cnt(PULL)<=1)||(PUSH.includes(e.pat)&&cnt(PUSH)<=1);
+  SS.forEach(s=>{for(let k=0;k<20&&s.est()>dur+2;k++){const iso=[...s.exos].reverse().find(e=>!e.comp&&e.series>2&&!fpatsAll.includes(e.pat));if(iso){iso.series--;continue;}
+    const iso2=[...s.exos].reverse().find(e=>!e.comp&&!fpatsAll.includes(e.pat)&&e.pat!=="core"&&e.pat!=="bal");if(iso2&&s.exos.length>4&&!keep(iso2)){s.exos.splice(s.exos.indexOf(iso2),1);continue;}
+    const c2=[...s.exos].reverse().find(e=>e.comp&&!e.main&&e.series>2);if(c2){c2.series--;continue;}
+    const r2=[...s.exos].reverse().find(e=>!e.main&&e.rest>120);if(r2){r2.rest-=30;continue;}
+    const w2=s.exos.filter(e=>e.warm);if(w2.length>1){w2[w2.length-1].warm=false;continue;}
+    const x2=[...s.exos].reverse().find(e=>!e.main&&!fpatsAll.includes(e.pat)&&!keep(e));if(x2&&s.exos.length>3){s.exos.splice(s.exos.indexOf(x2),1);continue;}
+    const m=s.exos.find(e=>e.main&&e.series>3);if(m){m.series--;continue;}break;}});
   SS.forEach(({si,ss,exos,est})=>{
-    /* ordre logique : on regroupe les exercices par zone (jambes, poussée, tirage), gros exercices d'abord dans chaque zone,
-       la zone de ta priorité en premier, les abdos à la fin */
-    {const ZONE={quad:"bas",quadIso:"bas",hinge:"bas",glute:"bas",ham:"bas",abd:"bas",add:"bas",calf:"bas",
-      hpush:"pousse",fly:"pousse",vpush:"pousse",latr:"pousse",tri:"pousse",vpull:"tire",hpull:"tire",rear:"tire",bic:"tire",core:"abdos"};
-     const zones=[];exos.forEach(e=>{const z=ZONE[e.pat]||"autre";if(z!=="abdos"&&!zones.includes(z))zones.push(z);});zones.push("autre","abdos");
-     const ISO_LATE=["calf","abd","add","latr","tri","rear","bic"];
-     const rank=e=>{const z=ZONE[e.pat]||"autre";return zones.indexOf(z)*100+(e.comp?0:ISO_LATE.includes(e.pat)?20:10);};
-     const orig=exos.slice();exos.sort((x,y)=>rank(x)-rank(y)||orig.indexOf(x)-orig.indexOf(y));
-     /* pas trop d'exercices par séance : on garde l'essentiel et on donne plutôt une série de plus aux gros exercices */
-     const cap=lvl===0?6:lvl===1?7:8,fpats=[].concat(...(p.focus||[]).map(f=>FOCUSPAT[f]||[]));
-     while(exos.length>cap){let i=-1;for(let q=exos.length-1;q>=0;q--){const e=exos[q];if(e.pat!=="core"&&!e.comp&&!fpats.includes(e.pat)){i=q;break;}}
-       if(i<0)for(let q=exos.length-1;q>=0;q--){if(exos[q].pat!=="core"&&!fpats.includes(exos[q].pat)){i=q;break;}}
-       if(i<0)break;exos.splice(i,1);const big=exos.find(e=>e.comp&&e.series<4);if(big)big.series++;}}
     /* règles finales, appliquées en dernier pour qu'aucune étape ne les défasse :
        moins de 18 ans et grands débutants 3 séries max ; barre : 6-10 avant 18 ans, jamais moins que la barre seule (20 kg) */
     if(old&&!exos.some(e=>e.pat==="bal")){const b=SS[si].mk(LIBX.balance,exos.length);b.series=2;b.rest=45;exos.push(b);}
     exos.forEach(e=>{
       if(teen||lvl===0)e.series=Math.min(e.series,3);
+      if(teen&&!BWU(e)&&e.unit!=="barre"){e.min=Math.max(e.min,8);e.max=Math.max(e.max,12);}
       if(e.unit==="barre"){e.kg0=Math.max(20,e.kg0||0);e.depart=`${fmt(e.kg0)} kg (barre comprise, à ajuster)`;
         if(teen){e.min=6;e.max=10;e.reco="<b>Moins de 18 ans : seulement avec un coach ou un adulte formé à côté de toi, la première fois.</b> "+e.reco;}}});
     exos.forEach((e,j)=>{e.id=keys[si].toLowerCase()+(j+1);});
@@ -2068,7 +2120,7 @@ function generate(p){
 }
 function sessionIntro(p,t){
   const goal=p.goal,sw=p.swipe||{};
-  let s={gras:"Objectif : brûler un maximum en gardant ton muscle. Repos courts, on reste en mouvement.",
+  let s={gras:"Objectif : perdre du gras en gardant ton muscle. Garde des charges lourdes : c'est ce qui dit à ton corps de garder le muscle. Le gras, on le perd surtout avec l'assiette et les pas.",
     muscle:"Objectif : prendre du muscle. Cherche à faire une répétition de plus ou un peu plus lourd à chaque fois.",
     forme:"Objectif : te remettre en forme. Bouge bien, sans te faire mal : la régularité compte plus que tout.",
     force:"Objectif : devenir plus fort. Les premiers exercices sont les plus importants, prends ton temps entre les séries."}[goal]||"";
@@ -2430,7 +2482,7 @@ function plan(e){
     out.msg="<b>Semaine légère</b> : même charge, moitié des séries, 3 répétitions en réserve.";out.cls="info";return out;}
   if(BWU(e)){const st=e.unit==="sec"?5:1,add=(feel==="facile"?2:feel==="echec"?0:1)*st;
     if(top&&feel!=="echec"){out.reps=Array(n).fill(e.max);out.up=okVariant(HARDER[e.uid]);
-      out.msg=`Haut de la fourchette partout : bravo ! ${out.up?`Tu es prêt pour la version plus dure : <b>${esc(LIBX[out.up].nom)}</b>. Touche le bouton ci-dessous.`:e.unit==="sec"?"Tiens 10 secondes de plus, ou passe à une version plus dure.":e.next?`Version plus dure conseillée : <b>${esc(e.next)}</b>. Sinon, ralentis la descente (3 secondes).`:"Ralentis la descente (3 secondes) pour rendre l'exercice plus dur."}`;return out;}
+      out.msg=`Haut de la fourchette partout : bravo ! ${out.up?`Tu peux passer à la version plus dure : <b>${esc(LIBX[out.up].nom)}</b>. Touche le bouton ci-dessous.`:e.unit==="sec"?"Tiens 10 secondes de plus, ou passe à une version plus dure.":e.next?`Version plus dure conseillée : <b>${esc(e.next)}</b>. Sinon, ralentis la descente (3 secondes).`:"Ralentis la descente (3 secondes) pour rendre l'exercice plus dur."}`;return out;}
     if(past.length>=2&&under(last)&&under(prev)){out.reps=Array(n).fill(e.min);out.down=okVariant(EASIER[e.uid]);out.msg=`Deux séances sous ${e.min} : ${out.down?`passe à la version plus facile (<b>${esc(LIBX[out.down].nom)}</b>) avec le bouton ci-dessous, et`:e.easier?`prends la version plus facile (<b>${esc(e.easier)}</b>) et`:""} refais le plein de répétitions.`;out.cls="down";return out;}
     out.reps=Array.from({length:n},(_,j)=>Math.min(e.max,(S[j]||S[S.length-1]).reps+add));
     out.msg=add===0?`C'était à l'échec : <b>mêmes ${e.unit==="sec"?"secondes":"répétitions"}</b>, sans y aller cette fois.`:`Vise <b>${add===st?(e.unit==="sec"?"5 secondes":"une répétition"):(e.unit==="sec"?"10 secondes":"deux répétitions")} de plus</b> par série : ${out.reps.join(" · ")}.`;return out;}
@@ -2495,7 +2547,7 @@ function firstVisit(){
     <li><b>Tu ne trouves pas une machine ?</b> Touche l'image de l'exercice : elle est décrite. Le personnel de l'accueil peut aussi te la montrer, c'est leur métier.</li>
     <li><b>Une machine est prise ?</b> Demande « tu en as pour longtemps ? » ou prends l'autre option proposée. Tout le monde le fait.</li>
     <li><b>Règle la machine</b> avant de commencer (siège, dossier) et note tes réglages dans l'app.</li>`:`<li><b>Prépare ton coin :</b> un tapis ou une serviette, une bouteille d'eau, de la place pour bouger les bras.</li>`}
-    <li><b>Commence léger.</b> La première séance sert à apprendre les mouvements. Personne ne te regarde, et tout le monde a commencé un jour.</li>
+    <li><b>Commence léger.</b> La première séance sert à apprendre les mouvements.${PROG.place==="salle"?" Les autres sont concentrés sur leur séance, et tout le monde a commencé un jour.":""}</li>
     <li><b>Valide chaque série</b> avec le ✓ : le chrono de repos se lance tout seul.</li>
     <li><b>Douleur vive, pas une simple brûlure musculaire ?</b> Arrête l'exercice.</li></ul></details>`;
 }
@@ -3099,6 +3151,7 @@ function vGuide(){
   </ul></div>
   <h3>Douleur : quand s'arrêter</h3>
   <div class="panel"><ul class="clean">
+    <li><b>Genou, épaule ou dos sensibles :</b> une gêne jusqu'à 3 sur 10 pendant l'exercice est acceptable si elle est revenue à la normale le lendemain. Au-delà, réduis la charge ou l'amplitude.</li>
     <li><b>Brûlure dans le muscle pendant l'effort :</b> normal, c'est le muscle qui travaille.</li>
     <li><b>Courbatures 1 à 3 jours après :</b> normal, surtout au début. Bouge doucement, ça passe.</li>
     <li><b>Douleur vive, qui pique, dans une articulation (genou, épaule, dos) :</b> arrête l'exercice tout de suite. Prends l'autre option proposée, ou passe à l'exercice suivant.</li>
@@ -3503,19 +3556,19 @@ function deckOf(st,a){
    douleurs, cartes glissées). Chaque réponse change vraiment le programme (generate, candidates) ou la première séance. */
 const SWIPES=[
   {id:"peur",when:a=>(a.level||0)<=1,i:"😬",t:"J'ai peur de mal faire les mouvements",s:"Pas de honte : c'est le cas de presque tout le monde au début."},
-  {id:"first",when:(a,s)=>s.peur===true,i:"🧭",t:"Je veux être guidé pas à pas à ma première séance",s:"Où aller, quoi régler, comment commencer léger."},
+  {id:"first",when:(a,s)=>s.peur===true,i:"🧭",t:"Des conseils pour ma toute première séance",s:"Où aller, quoi régler, comment commencer léger."},
   {id:"mach",when:a=>a.place==="salle"&&(a.level||0)<=1,i:"🏋️",t:"Les machines me rassurent plus que les haltères",s:"Les machines guident le mouvement : parfait pour débuter."},
   {id:"technique",when:(a,s)=>a.place==="salle"&&a.level===1&&(a.goal==="force"||a.goal==="muscle")&&s.peur!==true&&s.mach!==true,i:"🏗️",t:"Je veux apprendre les exercices à la barre",s:"Squat et développé couché à la barre, en commençant léger."},
   {id:"libre",when:a=>a.place==="salle"&&(a.level||0)>=2,i:"🏗️",t:"Les barres et les poids libres, c'est mon truc",s:"Squat, développé couché, rowing à la barre plutôt que les machines."},
   {id:"dosDoux",when:a=>(a.pain||[]).includes("dos"),i:"🪑",t:"Je préfère avoir le dos soutenu",s:"Machines avec dossier et exercices allongés plutôt que penché en avant."},
-  {id:"genou",when:a=>(a.pain||[]).includes("genoux"),i:"🦵",t:"Moins de flexions de genoux, plus de fessiers",s:"Une partie des exercices de cuisses est remplacée par l'arrière des cuisses et les fessiers."},
+  {id:"genou",when:a=>(a.pain||[]).includes("genoux"),i:"🦵",t:"Des cuisses travaillées en douceur",s:"Exercices de cuisses gardés, en amplitude confortable (presse, squat sur un banc). Renforcer les cuisses aide le genou."},
   {id:"epaulesDoux",when:a=>(a.pain||[]).includes("epaules"),i:"🙅",t:"Éviter de pousser au-dessus de la tête",s:"Pas de développé épaules : on travaille l'arrière des épaules à la place."},
   {id:"meuble",when:a=>a.place==="dehors"||(a.place==="maison"&&!(a.equip||[]).includes("banc")),i:"🪑",t:a=>a.place==="dehors"?"Il y a un banc ou un muret solide à côté":"J'ai une chaise solide ou une marche",s:"Pour les montées sur une marche, le squat bulgare et les dips."},
   {id:"table",when:a=>a.place==="maison"&&!(a.equip||[]).includes("barre"),i:"🪵",t:"J'ai une table solide où me glisser dessous",s:"Pour tirer avec le dos (rowing sous la table), sans matériel."},
   {id:"sac",when:a=>a.place!=="salle"&&!(a.equip||[]).includes("halteres"),i:"🎒",t:"J'ai un sac à dos à remplir (livres, bouteilles)",s:"Il sert d'haltère pour le dos et les biceps."},
   {id:"walk",when:a=>a.goal==="gras"||a.goal==="forme",i:"🚶",t:"Marcher 30 minutes les jours sans séance, ça me va",s:"Environ 8 000 pas : ça aide beaucoup, sans fatiguer."},
   {id:"cardio",i:"🚴",t:"Un peu de cardio à la fin, ça me va",s:"10 minutes de vélo, de rameur ou de marche rapide."},
-  {id:"circuit",when:(a,s)=>a.goal==="gras"&&s.cardio!==false,i:"⏱️",t:"Enchaîner vite, avec peu de repos",s:"Des repos plus courts : la séance va plus vite et tu brûles plus."},
+  {id:"circuit",when:(a,s)=>a.goal==="gras"&&s.cardio!==false,i:"⏱️",t:"Enchaîner vite, avec peu de repos",s:"Des repos plus courts : la séance va plus vite."},
   {id:"lourd",when:a=>a.goal==="muscle",i:"📈",t:"Voir mes charges monter, ça me motive à fond",s:"Un peu moins de répétitions, un peu plus lourd."},
   {id:"split",when:a=>+a.days===3&&(a.level||0)>=1,i:"✂️",t:"Je préfère séparer le haut et le bas du corps",s:"Sinon : tout le corps à chaque séance."},
   {id:"superset",when:a=>(a.level||0)>=2,i:"⚡",t:"Les supersets pour gagner du temps",s:"Deux petits exercices enchaînés sans pause (bras, épaules)."},
@@ -3536,7 +3589,7 @@ const OSTEPS=[
   {id:"gym",when:a=>a.place==="salle",t:"Dans quelle salle ?",s:"Pour les noms et les photos des machines quand on les a.",list:GYMS},
   {id:"equip",when:a=>a.place==="maison",t:"Tu as quoi comme matériel ?",s:"Coche tout ce que tu as. Rien, c'est très bien aussi.",multi:[["halteres","Des haltères"],["elastiques","Des élastiques"],["barre","Une barre de traction"],["banc","Un banc"]],none:"Rien du tout, juste moi"},
   {id:"bars",when:a=>a.place==="dehors",t:"Il y a des barres près de chez toi ?",s:"Barres de traction, barres parallèles, comme dans les parcs de street workout.",pick:[["oui","🤸","Oui","Des barres de traction ou de dips"],["non","🏃","Non","Juste de l'espace"]]},
-  {id:"goal",t:"Ton objectif principal ?",s:"Choisis le plus important pour toi maintenant.",pick:[["gras","🔥","Perdre du gras","Affiner la silhouette"],["muscle","💪","Prendre du muscle","Plus de volume, plus dessiné"],["forme","⚡","Me remettre en forme","Bouger, avoir de l'énergie"],["force","🏆","Devenir plus fort","Soulever plus lourd"]]},
+  {id:"goal",t:"Ton objectif principal ?",s:"Choisis le plus important pour toi maintenant.",pick:[["gras","🔥","Perdre du gras","Affiner la silhouette"],["muscle","💪","Prendre du muscle","Plus de volume, plus dessiné"],["forme","⚡","Me remettre en forme","Bouger, avoir de l'énergie"],["force","🏆","Gagner en force","Soulever plus lourd"]]},
   {id:"body",t:"Parle-moi de toi",s:"Pour adapter les charges de départ et tes besoins en calories. Ça reste sur ton téléphone."},
   {id:"level",t:"Ton niveau en musculation ?",s:"Sois honnête : l'app s'adapte.",pick:[[0,"🌱","Je n'en ai jamais fait","Ou presque jamais"],[1,"🌿","Moins d'un an","Je connais un peu les exercices"],[2,"🌳","1 à 3 ans","Je m'entraîne régulièrement"],[3,"🏔️","Plus de 3 ans","Je connais bien mes charges"]]},
   {id:"loads",when:a=>(a.place==="salle"||(a.place==="maison"&&(a.equip||[]).includes("halteres"))),t:"Tes charges",s:""},
@@ -3608,7 +3661,8 @@ function obRender(dir){
     foot=`<button class="btn hot wide" data-next>Continuer</button>`;
   }else if(st.id==="days"){
     const rec=(a.level||0)===0?3:null;
-    body=`<div class="onb-days">${[2,3,4,5].map(n=>`<button class="${+a.days===n?"on":""}" data-days="${n}"><b>${n}</b><small>${{2:"Tranquille",3:"Idéal",4:"Motivé",5:"À fond"}[n]}</small>${rec===n?`<em>Conseillé</em>`:""}</button>`).join("")}</div>
+    const dl=(a.level||0)>=2?[2,3,4,5,6]:[2,3,4,5];
+    body=`<div class="onb-days" style="grid-template-columns:repeat(${dl.length},1fr)">${dl.map(n=>`<button class="${+a.days===n?"on":""}" data-days="${n}"><b>${n}</b><small>${{2:"Tranquille",3:"Idéal",4:"Régulier",5:"À fond",6:"Expert"}[n]}</small>${rec===n?`<em>Conseillé</em>`:""}</button>`).join("")}</div>
       <h4 class="onb-h4">Combien de temps par séance ?</h4>
       <div class="onb-grid four">${[30,45,60,75].map(n=>`<button class="onb-chip ${+a.dur===n?"on":""}" data-dur="${n}">${n} min</button>`).join("")}</div>`;
     foot=`<button class="btn hot wide" data-next ${a.days&&a.dur?"":"disabled"}>Continuer</button>`;
