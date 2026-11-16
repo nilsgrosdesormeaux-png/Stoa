@@ -1526,7 +1526,7 @@ const LIB=[
   reco:"Assis ou allongé, un boudin derrière les chevilles, tu plies les genoux.",
   how:["Règle la machine pour que tes genoux soient alignés avec l'axe de rotation (souvent un point rouge).","Le boudin se place juste au-dessus des talons.","Plie les jambes au maximum, serre 1 seconde.","Reviens lentement en 2 à 3 secondes."],
   pourquoi:"Les ischios (l'arrière des cuisses) protègent les genoux et équilibrent les jambes."},
- {uid:"slideCurl",pat:"ham",on:["rien"],bw:1,lvl:1,min:8,max:15,nom:"Leg curl au sol avec une serviette",muscle:"Arrière des cuisses (ischios)",g:["Ischios"],unit:"corps",inc:0,pic:"bridge",next:"le même sur une seule jambe",easier:"le pont fessier tenu 3 secondes en haut",
+ {uid:"slideCurl",pat:"ham",on:["rien"],not:["dehors"],bw:1,lvl:1,min:8,max:15,nom:"Leg curl au sol avec une serviette",muscle:"Arrière des cuisses (ischios)",g:["Ischios"],unit:"corps",inc:0,pic:"bridge",next:"le même sur une seule jambe",easier:"le pont fessier tenu 3 secondes en haut",
   reco:"Un sol lisse (parquet, carrelage) et une serviette ou des chaussettes sous les talons.",
   how:["Allongé sur le dos, talons sur la serviette, genoux pliés.","Monte les fesses comme pour un pont.","Glisse les talons loin devant toi en gardant les fesses en l'air, puis ramène-les.","Si c'est trop dur, fais seulement la partie où tu ramènes les talons."],
   pourquoi:"Remplace la machine de leg curl à la maison."},
@@ -1875,7 +1875,7 @@ function okVariant(u,p){p=p||PROG.p;if(!u||!LIBX[u]||!p)return null;return candi
 function candidates(pat,p){
   const tk=envTokens(p),pain=p.pain||[],lvl=p.level||0,sw=p.swipe||{};
   /* matériel absent (cartes du questionnaire) : chaise ou marche, table, sac à dos */
-  const EXCL=[].concat(sw.meuble===false?["stepUp","bulgarian","chairDips"]:[],sw.table===false?["tableRow"]:[],sw.sac===false?["bagRow","bagCurl"]:[]);
+  const EXCL=p.place==="salle"?[]:[].concat(sw.meuble!==true&&!(p.equip||[]).includes("banc")?["stepUp","bulgarian","chairDips","chairStand"]:[],sw.table!==true?["tableRow"]:[],sw.sac!==true?["bagRow","bagCurl"]:[]);
   const ok=LIB.filter(e=>e.pat===pat&&!EXCL.includes(e.uid)&&e.on.some(t=>tk.includes(t))&&!(e.not||[]).some(x=>tk.includes(x))&&!(e.avoid||[]).some(x=>pain.includes(x))&&(e.lvl||0)<=Math.max(lvl,0)&&!ruleOut(e,p));
   const score=e=>{let s=0;
     if(p.place==="salle"){if(e.bw&&e.pat!=="core")s-=6;if(e.on.includes("salle"))s+=2;
@@ -1987,7 +1987,9 @@ function generate(p){
       else if(goal==="muscle"){min=comp?(sw.lourd===true?6:8):10;max=comp?(sw.lourd===true?10:12):15;rest=comp?150:75;}
       else if(goal==="gras"){min=comp?6:10;max=comp?10:15;rest=comp?120:75;}
       else{min=comp?10:12;max=comp?15:15;rest=comp?90:60;}
-      if(bw){min=e.min;max=e.max;rest=comp?90:60;if(e.unit==="sec")rest=60;}
+      if(bw){min=e.min;max=e.max;rest=comp?90:60;if(e.unit==="sec")rest=60;
+        if(goal==="force"&&comp&&e.unit!=="sec"){max=Math.min(max,8);min=Math.min(min,Math.max(1,max-4));rest=150;}
+        if(e.uid==="pullup"&&lvl<=1)min=1;}
       if(sw.circuit===true)rest=comp?Math.min(rest,75):60;
       if(sw.superset===true&&!comp)rest=Math.min(rest,60);
       if(!comp&&(dur<=30||lvl===0)&&!fpats.includes(e0.pat))series=2;
@@ -1997,7 +1999,7 @@ function generate(p){
       if(young&&!bw){min=Math.max(min,10);max=Math.max(max,15);}
       else if(teen&&!bw){min=Math.max(min,8);max=Math.max(max,15);}
       if(teen&&!bw)series=Math.min(series,3);
-      let kg0=bw?0:Math.max(e.unit==="haltere"?2:(e.inc||1),roundTo((e.kg0||10)*factorOf(e0),e.inc||1));
+      let kg0=bw?(e.unit==="elastique"?1:0):Math.max(e.unit==="haltere"?2:(e.inc||1),roundTo((e.kg0||10)*factorOf(e0),e.inc||1));
       if(e.unit==="haltere"&&p.place!=="salle"&&p.dbMax)kg0=Math.min(kg0,p.dbMax);
       if(e.unit==="barre"){const bs=barStart(e,p);kg0=bs.kg;e.ramp=bs.ramp;}
       const alts=candidates(e0.pat,p).filter(x=>x.uid!==e.uid).slice(0,3).map(x=>({nom:x.nom}));
@@ -2100,7 +2102,7 @@ function generate(p){
     if(old&&!exos.some(e=>e.pat==="bal")){const b=SS[si].mk(LIBX.balance,exos.length);b.series=2;b.rest=45;exos.push(b);}
     exos.forEach(e=>{
       if(teen||lvl===0)e.series=Math.min(e.series,3);
-      if(teen&&!BWU(e)&&e.unit!=="barre"){e.min=Math.max(e.min,8);e.max=Math.max(e.max,12);}
+      if(teen&&!BWU(e)&&e.unit!=="barre"){e.min=Math.max(e.min,young?10:8);e.max=Math.max(e.max,young?15:12);}
       if(e.unit==="barre"){e.kg0=Math.max(20,e.kg0||0);e.depart=`${fmt(e.kg0)} kg (barre comprise, à ajuster)`;
         if(teen){e.min=6;e.max=10;e.reco="<b>Moins de 18 ans : seulement avec un coach ou un adulte formé à côté de toi, la première fois.</b> "+e.reco;}}});
     exos.forEach((e,j)=>{e.id=keys[si].toLowerCase()+(j+1);});
@@ -2109,6 +2111,8 @@ function generate(p){
     PP[keys[si]]={nom:ss.t,muscles:gs.slice(0,5).join(" · "),duree:`${Math.max(20,Math.round(min/5)*5)} min environ`,
       intro:sessionIntro(p,ss.t),exos};
   });
+  /* sans rien pour tirer, le dos travaille peu : on le dit simplement */
+  if(!SS.some(s=>s.exos.some(e=>["hpull","vpull"].includes(e.pat))))keys.forEach(k=>{PP[k].intro+=" Ton dos travaille peu sans matériel : un élastique (environ 10 €) ou une barre de traction change tout. Tu peux aussi dire oui à la table ou au sac à dos dans le questionnaire.";});
   const PLANG=[];const DN=["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
   DN.forEach(d=>{const i=split.days.indexOf(d);
     PLANG.push(i>=0?{d,k:keys[i]}:{d,k:null,t:"Repos",s:sw.walk===true?"Marche 30 à 45 min (environ 8 000 pas)":sw.walk===false?"Récupération":goal==="gras"||sw.cardio===true?"Marche 30 min ou cardio léger":"Repos ou 20 min de marche"});});
@@ -2328,7 +2332,7 @@ const PLAN_NILS=[
 ];
 let KEYS=["A","B","C","D"],PLAN=PLAN_NILS;
 let LABEL={A:"Séance A",B:"Séance B",C:"Séance C",D:"Bonus"};
-const UNIT={barre:"poids total (barre de 20 kg + disques)",disques:"total des disques",pile:"chiffre de la pile",poulie:"chiffre de la poulie",machine:"chiffre de la machine (ou total des disques)",haltere:"poids d'un seul haltère",corps:"lest ajouté (0 si aucun)",elastique:"0 (note juste tes répétitions)",sec:"lest ajouté (0 si aucun)"};
+const UNIT={barre:"poids total (barre de 20 kg + disques)",disques:"total des disques",pile:"chiffre de la pile",poulie:"chiffre de la poulie",machine:"chiffre de la machine (ou total des disques)",haltere:"poids d'un seul haltère",corps:"lest ajouté (0 si aucun)",elastique:"niveau de l'élastique (1 = le plus souple, 5 = le plus dur)",sec:"lest ajouté (0 si aucun)"};
 const I_OK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const I_CAM='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
 
@@ -2461,12 +2465,15 @@ function plan(e){
   if(!last&&e.unit==="barre"&&e.ramp){out.msg=`Première fois : commence à <b>${fmt(e.kg0)} kg</b> (barre comprise), puis <b>monte par paliers de 10 à 20 kg</b> jusqu'à une série où il te reste 2 ou 3 répétitions en réserve. Note cette charge-là.`;out.cls="info";return out;}
   if(!last){out.msg=`Première fois : commence à <b>${fmt(e.kg0)} kg${sideTxt(e,e.kg0)}</b> et cherche une charge où tu fais au moins ${e.min} répétitions propres. Trop facile ? Monte à la série suivante.`;out.cls="info";return out;}
   const S=W(last),wk=workKg(S.slice(0,n)),need=Math.min(n,last.n||n),SS=S.slice(0,need),feel=last.feel||"dur";
-  const tot=x=>W(x).slice(0,n).reduce((a,s)=>a+s.reps,0),under=x=>W(x).slice(0,n).some(s=>s.reps<e.min);
+  /* « sous la fourchette » = la 1re série (la plus fraîche) sous le minimum : une baisse en fin de séance est de la fatigue normale */
+  const tot=x=>W(x).slice(0,n).reduce((a,s)=>a+s.reps,0),under=x=>{const s=W(x).slice(0,n);return s.length>0&&s[0].reps<e.min;};
+  const mixed=!BWU(e)&&new Set(S.slice(0,n).map(s=>s.kg)).size>1;
   /* marche de charge trop grosse (ex. 2,5 → 5 kg) : on fait d'abord quelques répétitions de plus */
   const capKg=e.unit==="haltere"&&PROG.p&&PROG.p.place!=="salle"&&PROG.p.dbMax?PROG.p.dbMax:null,atCap=capKg!=null&&wk+e.inc>capKg;
   const big=!BWU(e)&&wk>0&&e.inc/wk>0.25,MX=e.max;
   /* une baisse ne descend jamais sous la moitié de la charge de départ (ni sous une marche), jamais à 0 */
-  const down=()=>Math.min(wk,Math.max(roundTo(Math.max(0,wk-e.inc),e.inc/2),roundTo(Math.max(e.inc||1,(e.kg0||0)/2),e.inc||1)));
+  const down=()=>{const rm=Math.max(...S.slice(0,n).map(s=>s.kg*(1+s.reps/30))),t2=roundTo(rm/(1+(e.min+2)/30),e.inc||1);
+    return Math.min(wk-(e.inc||1),Math.max(t2,roundTo(Math.max(e.inc||1,(e.kg0||0)/2),e.inc||1),e.unit==="barre"?20:0));};
   const top=SS.length>=need&&SS.every(s=>s.reps>=MX&&s.kg>=wk);
   out.kg=wk;
   const lastAny=pastEntries(e.uid).slice(-1)[0]||last;
@@ -2481,13 +2488,20 @@ function plan(e){
   if(dl){out.reps=Array.from({length:n},(_,j)=>Math.max(e.min,((S[j]||S[S.length-1]).reps)-3));
     out.msg="<b>Semaine légère</b> : même charge, moitié des séries, 3 répétitions en réserve.";out.cls="info";return out;}
   if(BWU(e)){const st=e.unit==="sec"?5:1,add=(feel==="facile"?2:feel==="echec"?0:1)*st;
-    if(top&&feel!=="echec"){out.reps=Array(n).fill(e.max);out.up=okVariant(HARDER[e.uid]);
-      out.msg=`Haut de la fourchette partout : bravo ! ${out.up?`Tu peux passer à la version plus dure : <b>${esc(LIBX[out.up].nom)}</b>. Touche le bouton ci-dessous.`:e.unit==="sec"?"Tiens 10 secondes de plus, ou passe à une version plus dure.":e.next?`Version plus dure conseillée : <b>${esc(e.next)}</b>. Sinon, ralentis la descente (3 secondes).`:"Ralentis la descente (3 secondes) pour rendre l'exercice plus dur."}`;return out;}
-    if(past.length>=2&&under(last)&&under(prev)){out.reps=Array(n).fill(e.min);out.down=okVariant(EASIER[e.uid]);out.msg=`Deux séances sous ${e.min} : ${out.down?`passe à la version plus facile (<b>${esc(LIBX[out.down].nom)}</b>) avec le bouton ci-dessous, et`:e.easier?`prends la version plus facile (<b>${esc(e.easier)}</b>) et`:""} refais le plein de répétitions.`;out.cls="down";return out;}
+    const weighted=e.unit==="corps"&&(wk>0||["weightedPull","weightedDip"].includes(e.uid));
+    if(top&&feel!=="echec"&&weighted){out.kg=wk+2.5;out.reps=Array(n).fill(e.min);
+      out.msg=`Haut de la fourchette avec ${fmt(wk)} kg de lest : <b>ajoute 2,5 kg</b> (${fmt(out.kg)} kg) et repars à ${e.min} répétitions.`;return out;}
+    if(top&&feel!=="echec"&&e.unit==="elastique"){out.kg=Math.min(5,(wk||1)+1);out.reps=Array(n).fill(e.min);
+      out.msg=`Haut de la fourchette : <b>passe à l'élastique suivant</b> (niveau ${out.kg}) et repars à ${e.min} répétitions. C'est normal d'en faire moins au début.`;return out;}
+    /* version plus dure seulement après 2 séances de suite au maximum (pas d'aller-retour) */
+    const top2=top&&prev&&W(prev).slice(0,need).length>=need&&W(prev).slice(0,need).every(s=>s.reps>=MX);
+    if(top&&feel!=="echec"){out.reps=Array(n).fill(e.max);out.up=top2?okVariant(HARDER[e.uid]):null;
+      out.msg=`Haut de la fourchette partout : bravo ! ${!top2&&okVariant(HARDER[e.uid])?"Encore une séance comme ça et tu passeras à la version plus dure.":out.up?`Tu peux passer à la version plus dure : <b>${esc(LIBX[out.up].nom)}</b>. Touche le bouton ci-dessous.`:e.unit==="sec"?"Tiens 10 secondes de plus, ou passe à une version plus dure.":e.next?`Version plus dure conseillée : <b>${esc(e.next)}</b>. Sinon, ralentis la descente (3 secondes).`:"Ralentis la descente (3 secondes) pour rendre l'exercice plus dur."}`;return out;}
+    if(past.length>=2&&under(last)&&under(prev)&&W(last)[0].kg===W(prev)[0].kg){out.reps=Array(n).fill(e.min);out.down=okVariant(EASIER[e.uid]);out.msg=`Deux séances sous ${e.min} : ${out.down?`passe à la version plus facile (<b>${esc(LIBX[out.down].nom)}</b>) avec le bouton ci-dessous, et`:e.easier?`prends la version plus facile (<b>${esc(e.easier)}</b>) et`:""} refais le plein de répétitions.`;out.cls="down";return out;}
     out.reps=Array.from({length:n},(_,j)=>Math.min(e.max,(S[j]||S[S.length-1]).reps+add));
     out.msg=add===0?`C'était à l'échec : <b>mêmes ${e.unit==="sec"?"secondes":"répétitions"}</b>, sans y aller cette fois.`:`Vise <b>${add===st?(e.unit==="sec"?"5 secondes":"une répétition"):(e.unit==="sec"?"10 secondes":"deux répétitions")} de plus</b> par série : ${out.reps.join(" · ")}.`;return out;}
   if(feel==="echec"&&prev&&prev.feel==="echec"&&tot(last)<=tot(prev)){
-    out.kg=down();out.reps=Array(n).fill(Math.max(e.min,e.max-2));
+    out.kg=Math.max(0,down());out.reps=Array(n).fill(e.min);
     out.msg=`Deux fois à l'échec sans progrès : <b>redescends à ${fmt(out.kg)} kg</b> et reconstruis proprement.`;out.cls="down";return out;}
   if(top){
     if(feel==="echec"){out.reps=Array.from({length:n},(_,j)=>Math.min(e.max,(S[j]||S[S.length-1]).reps));
@@ -2497,13 +2511,14 @@ function plan(e){
     out.reps=Array(n).fill(feel==="facile"?Math.min(e.max,e.min+2):e.min);
     out.msg=`${feel==="facile"?"C'était facile":"Haut de la fourchette partout"} : <b>monte à ${fmt(out.kg)} kg</b>${sideTxt(e,out.kg)} et vise ${out.reps[0]} répétitions.`;return out;}
   if(past.length>=2&&under(last)&&under(prev)){
-    out.kg=down();out.reps=Array(n).fill(e.max);
+    out.kg=Math.max(0,down());out.reps=Array(n).fill(e.min);
     out.msg=`Deux séances sous ${e.min} répétitions : <b>redescends à ${fmt(out.kg)} kg</b> et refais le plein de répétitions.`;out.cls="down";return out;}
   if(!atCap&&feel==="facile"&&prev&&prev.feel==="facile"&&workKg(W(prev).slice(0,n))===wk){
     out.kg=wk+e.inc;out.reps=Array(n).fill(e.min);
     out.msg=`Deux fois « facile » à cette charge : elle est trop légère, <b>monte à ${fmt(out.kg)} kg</b>.`;return out;}
   const add=feel==="facile"?2:feel==="echec"?0:1;
   out.reps=Array.from({length:n},(_,j)=>Math.min(MX,(S[j]||S[S.length-1]).reps+add));
+  if(mixed)out.kgs=Array.from({length:n},(_,j)=>(S[j]||S[S.length-1]).kg);
   const l3=past.slice(-3);
   if(l3.length===3&&l3.every(x=>workKg(W(x).slice(0,n))===wk)&&tot(l3[2])<=tot(l3[0])){
     out.msg="Pas de progrès depuis 3 séances : dors bien, mange assez. Si ça dure, fais cette séance 10 % plus léger, puis remonte.";out.cls="down";return out;}
@@ -2565,7 +2580,7 @@ function vSession(k){
   ${!PROG.nils&&PROG.p&&+PROG.p.age<18?`<div class="banner info small"><b>Moins de 18 ans :</b> technique d'abord, charges modérées, pas d'échec ni de « max ». Garde 2 ou 3 répétitions en réserve. Plus de détails dans le Guide.</div>`:""}
   ${PROG.p&&!PROG.nils&&healthMsg(PROG.p)?`<details class="banner"><summary style="cursor:pointer;font-weight:700">⚠︎ Ta santé : à lire avant de commencer</summary><p style="margin-top:8px">${healthMsg(PROG.p)}</p></details>`:""}
   ${!store.hist.length&&!PROG.nils&&(((PROG.p||{}).swipe||{}).first===true||(((PROG.p&&PROG.p.level)||0)===0&&((PROG.p||{}).swipe||{}).first!==false))?firstVisit():""}
-  ${k!==BONUS?`<div class="banner info small">${PROG.place==="salle"?"Échauffement : 5 min de vélo ou de rameur, puis les séries <b>É</b> proposées sur les premiers exercices (elles ne comptent pas dans tes progrès).":"Échauffement : 5 min pour monter en température (marche rapide, montées de genoux, cercles de bras), puis une première série facile de chaque exercice."}</div>`:""}
+  ${k!==BONUS?`<div class="banner info small">${PROG.place==="salle"?"Échauffement : 5 min de vélo ou de rameur, puis les séries <b>É</b> proposées sur les premiers exercices (elles ne comptent pas dans tes progrès).":"<b>Échauffement (5 min) :</b> rotations d'épaules, 20 jumping jacks ou marche sur place, 10 squats, 10 pompes inclinées faciles, et 20 s de suspension à la barre si tu en utilises une. Puis une première série facile de chaque exercice."}</div>`:""}
   <div class="sprog">${fini?`<div class="row"><span style="color:var(--go)"><b style="color:var(--go)">✓ Séance terminée</b> · ${st.done}/${st.tot} séries</span></div>`:`<div class="row"><span>Exo <b>${Math.min(ai<0?s.exos.length:ai+1,s.exos.length)}/${s.exos.length}</b> · <b id="pdone">${st.done}</b>/${st.tot} séries</span>
     <span class="dots">${s.exos.map((e,i)=>`<button data-jump="${e.id}" class="${isFull(e)?"ok":i===ai?"on":""}" aria-label="${esc(e.nom)}">${i+1}</button>`).join("")}</span></div>
     <div class="bar"><i id="pbar" style="width:${st.tot?st.done/st.tot*100:0}%"></i></div>`}</div>
@@ -2600,7 +2615,7 @@ function card(k,e,i){
     <input type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" aria-label="Répétitions échauffement ${j+1}" value="${d?d.reps:w.reps}">
     <button class="ok" aria-label="Valider l'échauffement ${j+1}">${I_OK}</button></div>`);});
   for(let j=0;j<n;j++){const d=sets[j];
-    const kgV=d?d.kg:pl.kg,rpV=d?d.reps:pl.reps[j];
+    const kgV=d?d.kg:(pl.kgs&&pl.kgs[j]!=null?pl.kgs[j]:pl.kg),rpV=d?d.reps:pl.reps[j];
     rows.push(`<div class="set ${d?"done":""}" data-j="${j}"><span class="n">${j+1}</span>
       <input class="${d?"":"sug"}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" aria-label="Charge série ${j+1}" placeholder="kg" value="${kgV==null?"":fmt(kgV)}">
       <input class="${d?"":"sug"}" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" aria-label="Répétitions série ${j+1}" placeholder="reps" value="${rpV==null?"":rpV}">
@@ -2615,7 +2630,7 @@ function card(k,e,i){
     ${BWU(e)||(PROG.place!=="salle"&&!PROG.nils)?"":`<div class="reg" data-reg="1">${note?`<button data-edit="1">⚙︎ Réglages : <b>${esc(note)}</b></button>`:`<button data-edit="1">⚙︎ Noter mes réglages (siège, dossier, cran…)</button>`}</div>`}
     ${pl.msg&&doneN<n?`<div class="tip ${pl.cls}">${pl.msg}${pl.up?`<button class="btn line" data-swap="${pl.up}" style="margin-top:10px;min-height:42px;width:100%">↑ Passer à : ${esc(LIBX[pl.up].nom)}</button>`:""}${pl.down&&!PROG.nils?`<button class="btn line" data-swap="${pl.down}" style="margin-top:10px;min-height:42px;width:100%">↓ Plus facile : ${esc(LIBX[pl.down].nom)}</button>`:""}</div>`:""}
     <div class="sets">
-      <div class="sets-hd"><span>Série</span><span>${BWU(e)?"Lest":"kg"}</span><span>${e.unit==="sec"?"Sec.":"Reps"}</span><span></span></div>
+      <div class="sets-hd"><span>Série</span><span>${e.unit==="elastique"?"Niveau":BWU(e)?"Lest":"kg"}</span><span>${e.unit==="sec"?"Sec.":"Reps"}</span><span></span></div>
       <div class="side">Gris = proposé · touche ✓ quand c'est fait</div>
       ${rows.join("")}
       ${doneN>=n?`<div class="feel-q">C'était comment ? <span class="muted" style="font-weight:500">(touche encore pour décocher)</span></div><div class="feel">${[["facile","Facile, 3+ en réserve"],["dur","Dur, 1-2 en réserve"],["echec","À l'échec"]].map(([v,l])=>`<button data-feel="${v}" class="${te.feel===v?"on":""}">${l}</button>`).join("")}</div>`:""}
@@ -3314,7 +3329,7 @@ function buildExo(e0,p,key,j){
   else if(+p.age<18){min=Math.max(min,+p.age<16?10:8);max=Math.max(max,15);}
   const L=Object.assign(estLoads(p),p.loads||{}),fam=LOWER.includes(e0.pat)?"legPress":["vpull","hpull","rear","bic"].includes(e0.pat)?"latPulldown":"benchPlate";
   const q=L[fam]/LIBX[fam].kg0,k=(e0.comp?q:e0.pat==="core"?Math.pow(q,0.4):Math.pow(q,0.65))*(e.unit==="haltere"?0.7:1);
-  let kg0=bw?0:Math.max(e.unit==="haltere"?2:(e.inc||1),roundTo((e.kg0||10)*k,e.inc||1));
+  let kg0=bw?(e.unit==="elastique"?1:0):Math.max(e.unit==="haltere"?2:(e.inc||1),roundTo((e.kg0||10)*k,e.inc||1));
   if(e.unit==="haltere"&&p.place!=="salle"&&p.dbMax)kg0=Math.min(kg0,p.dbMax);
   if(e.unit==="barre"){const bs=barStart(e,p);kg0=bs.kg;e.ramp=bs.ramp;}
   const alts=LIB.filter(x=>x.pat===e0.pat&&x.uid!==e.uid&&x.on.some(t=>envTokens(p).includes(t))).slice(0,3).map(x=>({nom:x.nom}));
