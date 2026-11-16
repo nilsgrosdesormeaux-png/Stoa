@@ -213,6 +213,16 @@ Les valeurs exactes (2 min 30, semaine légère toutes les 6 semaines, échauffe
   - pas de records en répétitions, seulement en charge ;
   - choisir l'alternative quand la machine est prise, avec son propre historique.
 
+### Tests de 9/10 (16 novembre 2026, 2e tour)
+Quatre panels ont testé la version `fbf9d5c` au clic : 3 pros (préparateur, kiné, diététicien), 3 pros (coach force, coach femmes et maison, directeur artistique), 6 débutants et 6 confirmés. Notes de départ : pros 6,5 à 7,5 ; débutants 6,2 en moyenne ; confirmés 5 à 8. Corrigé et publié dans la foulée :
+- **Sécurité** : alertes de poids selon les vraies calories (jamais « enlève des calories » enceinte, 2 objectifs et recomposition bien lus), cases cœur/tension, malaise, ostéoporose et opération qui changent le programme, échauffement sans sauts si besoin, consigne leg curl enceinte, périnée après l'accouchement.
+- **Programmes** : séances corps entier toujours avec tirage, poussée et jambes ; cuisses minimum ; ischios et tirages sans matériel (soulevé sur une jambe, pont une jambe, rowing serviette poteau/porte) ; rowing 2 haltères et pull-over ; bras directs pour les intermédiaires ; débutants sans force lourde ; mal au dos = charges de jambes plus basses ; pas de pistol/archer/lest par défaut après 40 ans ; confirmés force : mouvement principal à la barre, soulevé de terre gardé, charge recalculée selon la fourchette.
+- **Progression** : version plus dure enfin proposée aux débutants ; plus d'aller-retour sur les petites charges (5 → 7,5 → 5 kg) ; haltères à poids fixe (case « une seule paire »).
+- **Séance** : le ressenti est demandé juste après la dernière série (« Facile / Dur / À fond » avec une phrase) ; colonne Lest cachée au poids du corps ; bilan de fin en répétitions, records et prochaine séance ; échauffement en 4 paliers sur le lourd ; chrono qui ne cache plus les séries.
+- **Constructeur** : fourchettes 1-3/3-5/3-6 et repos 3:30/5:00 pour les confirmés, « Copier dans une autre séance », perte de gras en 6-10.
+- **Divers** : vacances avec le bon profil (bug : celui de Nils était utilisé), boutons Vacances / Je suis de retour visibles dans Programme, records sur la force estimée, plus de « −100 % » le lundi, contrastes et petits textes plus lisibles.
+- **Pas encore fait** (demandé par les testeurs) : questionnaire en thème clair, journal des séances dans Progrès, corriger une série passée, ressenti par série (RPE), calcul des disques, incréments réglables, import Hevy/Strong, badges et défis, mode « un exercice à la fois », poids du sac à dos, nutrition concrète (journées types).
+
 ---
 
 ## 4. Reste à faire tout de suite
@@ -225,7 +235,7 @@ Les valeurs exactes (2 min 30, semaine légère toutes les 6 semaines, échauffe
 - [ ] Ajouter la photo de la machine Life Fitness « Hip Abduction / Adduction » (la même pour les deux exercices), dans `photos/` et dans la table `PHOTO` de `index.html` (uid `abductor` et `adductor`), plus dans la liste `CORE` de `sw.js`.
 - [ ] Redessiner le logo en vectoriel (même dessin : S ivoire qui monte vers un sommet rouge).
 - [ ] Améliorer les illustrations des exercices sans photo (les dessins actuels sont jugés trop basiques).
-- [ ] Après chaque modification : changer `CACHE` dans `sw.js` (dernière valeur : `stoa-v35`) pour que les iPhone récupèrent la nouvelle version.
+- [ ] Après chaque modification : changer `CACHE` dans `sw.js` (dernière valeur : `stoa-v42`) pour que les iPhone récupèrent la nouvelle version.
 
 ---
 
