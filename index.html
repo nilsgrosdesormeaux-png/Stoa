@@ -662,6 +662,8 @@
   .hold.done .hold-ring .fg{stroke:var(--go)}
   .hold-ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:72px;font-weight:800;letter-spacing:-.03em}
   .hold-box p{margin:0 0 16px;color:var(--ink-2);font-size:15px}
+  .linkb{appearance:none;border:0;background:none;color:var(--hot);font:inherit;font-size:14px;font-weight:600;padding:4px 0;margin:0 0 6px;text-align:left}
+  .banner .linkb{display:block;margin:6px 0 0}
   .chipb{border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:99px;min-height:40px;padding:0 14px;font:inherit;font-size:14.5px;font-weight:600}
   .chipb.on{background:var(--hot-soft);border-color:var(--hot);color:var(--ink)}
   .mphoto{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:18px;margin:6px 0 10px;background:#0A0A0C}
@@ -2709,6 +2711,8 @@ function vSession(k){
   <div class="seg" role="tablist" style="grid-template-columns:repeat(${KEYS.length},1fr)">${KEYS.map(x=>`<button role="tab" data-s="${x}" aria-selected="${x===k}">${x===BONUS?"Bonus":x}${doneW.has(x)?'<span class="ck">✓</span>':""}</button>`).join("")}</div>
   <div class="big-title">${s.nom}</div>
   <p class="musc">${s.muscles}</p>
+  ${PROG.away?`<div class="banner info small">📍 <b>${AWAYW[PROG.away.place]}</b> ${PROG.away.until===t?"aujourd'hui":"jusqu'au "+fr(PROG.away.until)} : séance adaptée à ce que tu as sur place.${s.exos.some(e=>["hpull","vpull"].includes(e.pat))||!(P0away[k]||[]).length?"":" Rien pour tirer ici : ton dos se repose aujourd'hui."} <button class="linkb" id="awayoff">Revenir au programme normal</button></div>`
+    :PROG.temp?"":`<button class="linkb" id="awayon">📍 Pas au même endroit aujourd'hui ?</button>`}
   <details class="about"><summary>${s.duree} · ${s.exos.length} exercices · à propos ›</summary><p>${s.intro}</p></details>
   ${ci.deload?`<div class="banner"><b>Semaine légère (semaine 6 du cycle).</b> Mêmes charges, moitié des séries, 3 répétitions en réserve. Ton corps encaisse les progrès des 5 dernières semaines.</div>`:""}
   ${!PROG.nils&&PROG.p&&+PROG.p.age<18?`<div class="banner info small"><b>Moins de 18 ans :</b> technique d'abord, charges modérées, pas d'échec ni de « max ». Garde 2 ou 3 répétitions en réserve. Plus de détails dans le Guide.</div>`:""}
@@ -2726,6 +2730,8 @@ function vSession(k){
   view.querySelectorAll("[data-jump]").forEach(b=>b.onclick=()=>{const e=s.exos.find(x=>x.id===b.dataset.jump);expanded[e.uid]=true;refreshCard(k,e);$("c-"+e.id).scrollIntoView({behavior:"smooth",block:"start"});});
   s.exos.forEach(e=>wire(k,e));
   const f=$("fin");if(f)f.onclick=()=>finish(k);
+  if($("awayon"))$("awayon").onclick=awayToday;
+  if($("awayoff"))$("awayoff").onclick=()=>{delete store.away;persist();applyProgram();if(!KEYS.includes(sess))sess=defaultSession();render();toast("Ton programme habituel est de retour");};
 }
 
 function card(k,e,i){
@@ -2762,7 +2768,7 @@ function card(k,e,i){
       <button class="thumb" data-info="1" aria-label="Voir la machine et les consignes">${picHTML(e)}<span class="n">${doneN>=n?"✓":i+1}</span>${photoOf(e)?(animKey(e)&&ANIM[animKey(e)]?`<span class="cam" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>`:""):`<span class="cam">${I_CAM}</span>`}</button>
       <button class="exo-ti" data-toggle="1" style="appearance:none;border:0;background:none;text-align:left;padding:0;color:inherit"><h4>${esc(e.nom)}</h4>
         <div class="meta"><b>${n} × ${repsTxt(e)}${e.unit==="sec"?" s":""}${isUni(e)?" par côté":""}</b> · repos <b>${mmss(restFor(e))}</b></div>
-        <span class="tag ${e.opt?"opt":""}">${e.opt?"Facultatif · ":""}${e.muscle}</span></button></div>
+        <span class="tag ${e.opt?"opt":""}">${e.opt?"Facultatif · ":""}${e.muscle}</span>${e.awayFrom?`<span class="muted small" style="display:block;margin-top:4px">À la place de : ${esc(e.awayFrom)}</span>`:""}</button></div>
     ${BWU(e)||(PROG.place!=="salle"&&!PROG.nils)?"":`<div class="reg" data-reg="1">${note?`<button data-edit="1">⚙︎ Réglages : <b>${esc(note)}</b></button>`:`<button data-edit="1">⚙︎ Noter mes réglages (siège, dossier, cran…)</button>`}</div>`}
     ${pl.msg&&doneN<n?`<div class="tip ${pl.cls}">${pl.msg}${pl.up?`<button class="btn line" data-swap="${pl.up}" style="margin-top:10px;min-height:42px;width:100%">↑ Passer à : ${esc(LIBX[pl.up].nom)}</button>`:""}${pl.down&&!PROG.nils?`<button class="btn line" data-swap="${pl.down}" style="margin-top:10px;min-height:42px;width:100%">↓ Plus facile : ${esc(LIBX[pl.down].nom)}</button>`:""}</div>`:""}
     <div class="sets">
@@ -2945,6 +2951,48 @@ function awaySheet(){
         toast(`Programme vacances prêt jusqu'au ${fr(until)}`);};});};
   draw();
 }
+/* ---------- ailleurs aujourd'hui (ou quelques jours) : la même séance, adaptée au lieu et au matériel ----------
+   Le programme ne change pas : chaque exercice est remplacé, pour ces jours-là seulement, par un exercice du même rôle
+   possible sur place. La séance garde sa lettre (A, B…) et le programme : la semaine et l'historique restent cohérents. */
+function awayProfile(a){const b=PROG.p||{};return Object.assign({},b,{place:a.place,equip:a.equip||[],bars:a.bars||"non",gym:a.place==="salle"?"autre":b.gym});}
+function awayP(P0,a){const ap=awayProfile(a),out={};
+  Object.keys(P0).forEach(k=>{const s0=P0[k],seen=new Set();
+    const ex=s0.exos.map(e=>{const pat=e.pat||(LIBX[e.uid]||{}).pat;let c=pat?candidates(pat,ap):[];if(!c.length&&FALLBACK[pat])c=candidates(FALLBACK[pat],ap);
+      if(c.some(x=>x.uid===e.uid)&&!seen.has(e.uid)){seen.add(e.uid);return e;}
+      const b=c.find(x=>!seen.has(x.uid));if(!b)return null;seen.add(b.uid);
+      const bw=BWU(b),comp=!!b.comp;let rest=bw?(comp?90:60):e.rest;if(a.place!=="salle")rest=comp?Math.min(120,Math.max(90,rest)):Math.min(75,Math.max(45,rest));if(b.unit==="sec")rest=60;
+      let kg0=bw?(b.unit==="elastique"?1:0):(b.kg0||10);if(b.unit==="haltere"&&ap.dbMax)kg0=Math.min(kg0,ap.dbMax);
+      return Object.assign({},b,{id:e.id,series:e.series,min:bw?b.min:e.min,max:bw?b.max:e.max,rest,opt:e.opt,kg0,inc:b.unit==="haltere"&&a.place!=="salle"?2:b.inc,warm:false,awayFrom:e.nom,pat:b.pat,
+        depart:bw?(b.unit==="sec"?`${b.min} secondes`:b.unit==="elastique"?"l'élastique le plus souple":"poids du corps"):`${fmt(kg0)} kg (à ajuster)`,
+        alt:c.filter(x=>x.uid!==b.uid).slice(0,3).map(x=>({nom:x.nom}))});}).filter(Boolean);
+    const gs=[];ex.forEach(e=>(e.g||[]).forEach(g=>{if(!gs.includes(g))gs.push(g);}));
+    out[k]=Object.assign({},s0,{exos:ex,muscles:gs.slice(0,5).join(" · ")});
+    P0away[k]=s0.exos.filter(e=>["hpull","vpull"].includes(e.pat||(LIBX[e.uid]||{}).pat));});
+  return out;}
+const P0away={};
+const AWAYW={maison:"À la maison",dehors:"Dehors",salle:"Dans une autre salle"};
+function awayToday(){
+  const st=Object.assign({place:PROG.place==="maison"?"dehors":"maison",equip:[],bars:"non",n:1},store.lastAway||{});st.n=1;
+  const draw=()=>{const ch=(k,v,l,on)=>`<button class="chipb ${on?"on":""}" data-${k}="${v}">${l}</button>`;
+    openSheet(`<div class="shd"><h3>Ailleurs aujourd'hui ?</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
+      <p class="small muted">Ta séance est adaptée au lieu et au matériel, juste pour ces jours-là. Ensuite, ton programme habituel revient tout seul. Tes charges et ton historique sont gardés.</p>
+      <h5>Où ?</h5><div class="chips">${Object.keys(AWAYW).filter(v=>v!==PROG.place||v==="salle").map(v=>ch("place",v,AWAYW[v],st.place===v)).join("")}</div>
+      ${st.place==="maison"?`<h5>Matériel sur place</h5><div class="chips">${[["halteres","Haltères"],["elastiques","Élastiques"],["barre","Barre de traction"],["banc","Banc"]].map(([v,l])=>ch("eq",v,l,st.equip.includes(v))).join("")}</div><p class="small muted" style="margin-top:6px">Rien coché = sans matériel.</p>`:""}
+      ${st.place==="dehors"?`<h5>Des barres sur place ?</h5><div class="chips">${ch("bars","oui","Oui",st.bars==="oui")}${ch("bars","non","Non",st.bars==="non")}</div>`:""}
+      <h5>Pour combien de temps ?</h5><div class="chips">${[[1,"Juste aujourd'hui"],[2,"Aujourd'hui et demain"],[3,"3 jours"],[5,"5 jours"]].map(([n,l])=>ch("n",n,l,st.n===n)).join("")}</div>
+      <button class="btn hot wide" id="awok" style="margin-top:16px">Adapter ma séance</button>
+      <button class="btn line wide" id="awlong" style="margin-top:8px">Plus longtemps (vacances, pause) ›</button>`,
+    ()=>{$("sx").onclick=closeSheet;const S=$("sheet");
+      S.querySelectorAll("[data-place]").forEach(b=>b.onclick=()=>{st.place=b.dataset.place;draw();});
+      S.querySelectorAll("[data-eq]").forEach(b=>b.onclick=()=>{const v=b.dataset.eq;st.equip=st.equip.includes(v)?st.equip.filter(x=>x!==v):st.equip.concat(v);draw();});
+      S.querySelectorAll("[data-bars]").forEach(b=>b.onclick=()=>{st.bars=b.dataset.bars;draw();});
+      S.querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{st.n=+b.dataset.n;draw();});
+      $("awlong").onclick=()=>{closeSheet();setTimeout(awaySheet,260);};
+      $("awok").onclick=()=>{const end=new Date();end.setDate(end.getDate()+st.n-1);
+        store.away={from:today(),until:iso(end),place:st.place,equip:st.place==="maison"?st.equip:[],bars:st.place==="dehors"?st.bars:"non"};
+        store.lastAway={place:st.place,equip:st.equip,bars:st.bars};persist();const k=sess;applyProgram();sess=k&&KEYS.includes(k)?k:defaultSession();closeSheet();go("today",sess);
+        toast(st.n===1?"Séance adaptée pour aujourd'hui":`Séances adaptées jusqu'au ${fr(store.away.until)}`);};});};
+  draw();}
 /* organiser sa semaine : mettre n'importe quelle séance (ou un repos) sur n'importe quel jour */
 const JOURS=["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
 function daySheet(i){const r=PLAN[i];
@@ -3421,13 +3469,17 @@ function applyProgram(){
     const g=Object.assign({},pr.frozen,{P:liveP(pr.frozen.P,pr.gym==="onair")});P=g.P;KEYS=g.KEYS;PLAN=g.PLAN;BONUS=KEYS.find(k=>P[k].bonus)||null;
     PROG={nils:false,reps:g.reps,lifts:g.lifts,split:g.split,place:pr.place,gym:pr.gym,p:pr,nut:nutrition(pr)};}
   PID=store.temp?"t:"+store.temp.until:(!pr||pr.mode==="nils")?"nils":"g:"+(pr.ts||0);
+  /* ailleurs aujourd'hui : séances adaptées, même programme (même PID) ; fini tout seul après la date */
+  if(store.away&&store.away.until<today()){delete store.away;saveNow();}
+  if(store.away&&store.temp){delete store.away;saveNow();}
+  if(store.away){P=awayP(P,store.away);PROG=Object.assign({},PROG,{away:store.away,place:store.away.place,p:awayProfile(store.away)});}
   MAIN=KEYS.filter(k=>k!==BONUS);PER_WEEK=MAIN.length;
   LABEL={};KEYS.forEach(k=>{LABEL[k]=P[k].nom;});
   /* durée affichée : recalculée avec le temps réel des séries (les exercices, eux, ne changent pas) */
-  if(!PROG.nils)KEYS.forEach(k=>{const m=sessMin(P[k].exos,PROG.p||{})+(P[k].fin||0);P[k].duree=`${Math.max(15,Math.round(m/5)*5)} min environ`;P[k].min=m;});
+  if(!PROG.nils||PROG.away)KEYS.forEach(k=>{const m=sessMin(P[k].exos,PROG.p||{})+(P[k].fin||0);P[k].duree=`${Math.max(15,Math.round(m/5)*5)} min environ`;P[k].min=m;});
   Object.keys(EXO).forEach(u=>delete EXO[u]);
   KEYS.forEach(k=>P[k].exos.forEach(e=>{e.k=k;if(!EXO[e.uid])EXO[e.uid]=e;}));
-  USE_GYM_PHOTOS=!!PROG.nils;
+  USE_GYM_PHOTOS=!!PROG.nils&&!PROG.away;
   if(sess&&!KEYS.includes(sess))sess=null;
 }
 const anyExo=u=>EXO[u]||LIBX[u]||(typeof POOL!=="undefined"&&POOL[u])||null;
