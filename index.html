@@ -2688,8 +2688,8 @@ function compress(file){return new Promise((res,rej)=>{const img=new Image(),u=U
     c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(),"image/jpeg",.82);};
   img.onerror=()=>{URL.revokeObjectURL(u);rej();};img.src=u;});}
 /* images des machines (générées, même style pour toutes) : clé = fichier dans photos/machines */
-/* retirées le 16 nov. (image fausse, à refaire) : benchPlate, seatedRow, preacherCurl, machineCurl */
-const MREADY=["legPress","legExt","legCurl","hipThrust","abductor","latPulldown","chestIncline","pecDeck","shoulderPress","cableRow","cableTower","smithBench","dumbbells","bench","pullupBar","bands","dipBars","mat"];
+/* retirées le 16 nov. (image fausse, à refaire) : seatedRow, preacherCurl, machineCurl */
+const MREADY=["benchPlate","legPress","legExt","legCurl","hipThrust","abductor","latPulldown","chestIncline","pecDeck","shoulderPress","cableRow","cableTower","smithBench","dumbbells","bench","pullupBar","bands","dipBars","mat"];
 const MIMG={legPress:"legPress",calfPress:"legPress",legExt:"legExt",legCurl:"legCurl",hipThrust:"hipThrust",abductor:"abductor",adductor:"abductor",
   benchPlate:"benchPlate",pressLow:"benchPlate",chestIncline:"chestIncline",pecDeck:"pecDeck",shoulderPress:"shoulderPress",latPulldown:"latPulldown",latPulldownV:"latPulldown",
   seatedRow:"seatedRow",rowWide:"seatedRow",cableRow:"cableRow",cableLatRaise:"cableTower",triPushdown:"cableTower",overheadTri:"cableTower",facePull:"cableTower",rearDeltRow:"cableTower",
