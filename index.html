@@ -2669,13 +2669,14 @@ function compress(file){return new Promise((res,rej)=>{const img=new Image(),u=U
     c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(),"image/jpeg",.82);};
   img.onerror=()=>{URL.revokeObjectURL(u);rej();};img.src=u;});}
 /* images des machines (générées, même style pour toutes) : clé = fichier dans photos/machines */
-const MREADY=["legPress","legExt","legCurl","hipThrust","abductor","benchPlate","latPulldown","chestIncline","pecDeck","shoulderPress","seatedRow","cableRow","cableTower","smithBench","preacherCurl","machineCurl","dumbbells","bench","pullupBar","bands","dipBars","mat"];
+/* retirées le 16 nov. (image fausse, à refaire) : benchPlate, seatedRow, preacherCurl, machineCurl */
+const MREADY=["legPress","legExt","legCurl","hipThrust","abductor","latPulldown","chestIncline","pecDeck","shoulderPress","cableRow","cableTower","smithBench","dumbbells","bench","pullupBar","bands","dipBars","mat"];
 const MIMG={legPress:"legPress",calfPress:"legPress",legExt:"legExt",legCurl:"legCurl",hipThrust:"hipThrust",abductor:"abductor",adductor:"abductor",
   benchPlate:"benchPlate",pressLow:"benchPlate",chestIncline:"chestIncline",pecDeck:"pecDeck",shoulderPress:"shoulderPress",latPulldown:"latPulldown",latPulldownV:"latPulldown",
   seatedRow:"seatedRow",rowWide:"seatedRow",cableRow:"cableRow",cableLatRaise:"cableTower",triPushdown:"cableTower",overheadTri:"cableTower",facePull:"cableTower",rearDeltRow:"cableTower",
   cableCrunch:"cableTower",cableKick:"cableTower",smithBench:"smithBench",preacherCurl:"preacherCurl",machineCurl:"machineCurl",dbBench:"bench",
   gobletSquat:"dumbbells",rdlDB:"dumbbells",dbShoulderPress:"dumbbells",dbLatRaise:"dumbbells",dbRearFly:"dumbbells",dbRow:"dumbbells",dbCurl:"dumbbells",hammerCurl:"dumbbells",
-  dbOverheadTri:"dumbbells",floorPress:"dumbbells",negPull:"pullupBar",pullup:"pullupBar",chinup:"pullupBar",kneeRaise:"pullupBar",dips:"dipBars",invRow:"dipBars",
+  dbOverheadTri:"dumbbells",floorPress:"dumbbells",negPull:"pullupBar",pullup:"pullupBar",chinup:"pullupBar",kneeRaise:"pullupBar",dips:"dipBars",
   bandRdl:"bands",bandWalk:"bands",bandPress:"bands",bandLatRaise:"bands",bandPullApart:"bands",bandPulldown:"bands",bandRow:"bands",bandCurl:"bands",bandPushdown:"bands"};
 const machPhoto=e=>{const k=MIMG[e.uid];return k&&MREADY.includes(k)?`photos/machines/${k}.jpg`:null;};
 const photoOf=e=>PH[e.uid]||(USE_GYM_PHOTOS&&PHOTO[e.uid])||machPhoto(e)||null;
