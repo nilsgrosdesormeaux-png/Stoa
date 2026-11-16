@@ -647,6 +647,21 @@
   .wdays{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
   .wdays button{aspect-ratio:1;border-radius:50%;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font:inherit;font-weight:800;font-size:16px;padding:0}
   .wdays button.on{background:var(--grad);color:#fff;border-color:transparent}
+  .uni{font-size:13px;line-height:1.4;color:var(--ink);background:var(--hot-soft);border-radius:10px;padding:8px 10px;margin:0 0 8px}
+  .sets-hd.sec,.set.sec{grid-template-columns:34px 1fr 1fr 44px 56px}
+  .set .play{appearance:none;border:0;height:44px;border-radius:12px;background:var(--hot-soft);color:var(--hot);display:grid;place-items:center}
+  .set .play svg{width:20px;height:20px}.set .play:disabled{opacity:.35}
+  .hold{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:grid;place-items:center;padding:24px}
+  .hold-box{width:100%;max-width:340px;background:var(--panel);border:1px solid var(--line);border-radius:28px;padding:22px 20px;text-align:center;box-shadow:var(--shadow)}
+  .hold-box small{display:block;font-size:15px;font-weight:800;letter-spacing:.04em;color:var(--ink-2)}
+  .hold.go .hold-box small{color:var(--hot)}
+  .hold-ring{position:relative;width:200px;height:200px;margin:14px auto}
+  .hold-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .hold-ring circle{fill:none;stroke-width:10}.hold-ring .bg{stroke:var(--track)}
+  .hold-ring .fg{stroke:var(--hot);stroke-linecap:round;stroke-dasharray:326.7;stroke-dashoffset:326.7}
+  .hold.done .hold-ring .fg{stroke:var(--go)}
+  .hold-ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:72px;font-weight:800;letter-spacing:-.03em}
+  .hold-box p{margin:0 0 16px;color:var(--ink-2);font-size:15px}
   .chipb{border:1px solid var(--line);background:var(--panel-2);color:var(--ink);border-radius:99px;min-height:40px;padding:0 14px;font:inherit;font-size:14.5px;font-weight:600}
   .chipb.on{background:var(--hot-soft);border-color:var(--hot);color:var(--ink)}
   .mphoto{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:18px;margin:6px 0 10px;background:#0A0A0C}
@@ -1057,7 +1072,7 @@ A:{nom:"Séance A",muscles:"Haut des pecs · Dos (largeur et épaisseur) · Épa
         "Redescends jusqu'à ce que les mains reviennent au niveau du menton. Si ton bas du dos se creuse, baisse la charge."],
    alt:[{nom:"Développé épaules assis avec haltères"},{nom:"Développé épaules à la barre guidée, assis"}],
    pourquoi:"Tu ne le fais pas encore : c'est le gros exercice qui construit le volume des épaules. Les élévations seules ne suffisent pas. Commence léger et vise 12 répétitions propres."},
-  {id:"a5",uid:"cableLatRaise",pic:"cableLatRaise",nom:"Élévations latérales à la poulie",muscle:"Épaules, côté",g:["Épaules"],
+  {id:"a5",uid:"cableLatRaise",uni:1,pic:"cableLatRaise",nom:"Élévations latérales à la poulie",muscle:"Épaules, côté",g:["Épaules"],
    series:3,min:12,max:20,rest:60,kg0:null,depart:"2,5 à 5 kg (le plus léger)",unit:"poulie",inc:1.25,
    reco:"Poulie réglée tout en bas, poignée simple. Tu te places de côté et tu tires avec la main opposée, le câble passe devant ou derrière tes jambes.",
    how:["Bras le long du corps, coude à peine fléchi.",
@@ -1175,7 +1190,7 @@ C:{nom:"Séance C",muscles:"Dos (épaisseur et largeur) · Arrière d'épaules �
         "Reviens lentement, sans laisser les bras partir loin derrière toi si l'épaule tire."],
    alt:[{nom:"Développé couché à la machine Hammer à disques",photo:"photos/benchPlate.jpg"},{nom:"Écarté avec haltères sur banc plat"}],
    pourquoi:"Juste assez de pectoraux pour ne pas les laisser de côté, sans voler du temps au dos."},
-  {id:"c4",uid:"cableLatRaise",pic:"cableLatRaise",nom:"Élévations latérales à la poulie",muscle:"Épaules, côté",g:["Épaules"],
+  {id:"c4",uid:"cableLatRaise",uni:1,pic:"cableLatRaise",nom:"Élévations latérales à la poulie",muscle:"Épaules, côté",g:["Épaules"],
    series:4,min:12,max:20,rest:60,kg0:null,depart:"même charge qu'en séance A",unit:"poulie",inc:1.25,
    reco:"Poulie basse, de côté, poignée dans la main opposée.",
    how:["Monte le bras sur le côté jusqu'à hauteur d'épaule, en menant avec le coude.",
@@ -1184,7 +1199,7 @@ C:{nom:"Séance C",muscles:"Dos (épaisseur et largeur) · Arrière d'épaules �
         "Change de côté sans traîner : l'autre bras s'est reposé."],
    alt:[{nom:"Élévations latérales avec haltères"},{nom:"Machine à élévations latérales"}],
    pourquoi:"Les épaules récupèrent vite et c'est le muscle qui change le plus ta carrure. 2 fois par semaine, c'est idéal."},
-  {id:"c5",uid:"rearDeltRow",pic:"rearDeltRow",nom:"Tirage arrière d'épaule à la poulie, un bras",muscle:"Épaules, arrière",g:["Épaules arrière"],
+  {id:"c5",uid:"rearDeltRow",uni:1,pic:"rearDeltRow",nom:"Tirage arrière d'épaule à la poulie, un bras",muscle:"Épaules, arrière",g:["Épaules arrière"],
    series:3,min:12,max:20,rest:75,kg0:3,depart:"3 kg",unit:"poulie",inc:1.25,
    reco:"Poulie réglée au niveau du torse, poignée simple. Tu tires avec un bras en donnant un « coup de coude » vers l'arrière.",
    how:["Face à la poulie, bras tendu devant toi à hauteur de poitrine.",
@@ -1225,7 +1240,7 @@ D:{nom:"Bonus",muscles:"Biceps · Triceps · Épaules (côté et arrière) · Ab
    how:["Coudes collés au corps, buste légèrement penché.","Pousse vers le bas jusqu'à bras tendus ; avec la corde, écarte les mains en bas.","Remonte lentement, les coudes ne remontent pas devant toi.","Si tu dois te pencher sur la barre pour finir, c'est trop lourd."],
    alt:[{nom:"Barre droite à la place de la corde"},{nom:"Machine à dips assis"}],
    pourquoi:"Complète le triceps de la séance A avec une version plus facile à charger."},
-  {id:"d4",uid:"cableLatRaise",pic:"cableLatRaise",nom:"Élévations latérales à la poulie",muscle:"Épaules, côté",g:["Épaules"],
+  {id:"d4",uid:"cableLatRaise",uni:1,pic:"cableLatRaise",nom:"Élévations latérales à la poulie",muscle:"Épaules, côté",g:["Épaules"],
    series:3,min:12,max:20,rest:60,kg0:null,depart:"même charge qu'en A et C",unit:"poulie",inc:1.25,
    reco:"Poulie basse, de côté, main opposée.",
    how:["Charge légère, mouvement propre.","Monte jusqu'à hauteur d'épaule, en menant avec le coude.","Descends lentement."],
@@ -1543,11 +1558,11 @@ const LIB=[
   reco:"Juste toi, debout. Une chaise derrière toi si tu veux te rassurer.",
   how:["Pieds écartés comme les épaules, bras tendus devant toi pour l'équilibre.","Descends comme pour t'asseoir, en poussant les fesses en arrière.","Va aussi bas que possible en gardant les talons au sol et le dos droit.","Remonte en soufflant."],
   pourquoi:"La base de tout : il muscle les cuisses et les fessiers, partout, sans matériel."},
- {uid:"bulgarian",pat:"quad",on:["rien"],comp:1,bw:1,lvl:1,avoid:["genoux"],min:8,max:15,nom:"Squat bulgare (pied arrière sur une chaise ou un banc)",muscle:"Cuisses et fessiers",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"lunge",next:"le même avec un sac à dos lesté ou des haltères",easier:"les fentes arrière",
+ {uid:"bulgarian",uni:1,pat:"quad",on:["rien"],comp:1,bw:1,lvl:1,avoid:["genoux"],min:8,max:15,nom:"Squat bulgare (pied arrière sur une chaise ou un banc)",muscle:"Cuisses et fessiers",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"lunge",next:"le même avec un sac à dos lesté ou des haltères",easier:"les fentes arrière",
   reco:"Une chaise, un canapé ou un banc derrière toi.",
   how:["Chaise ou banc stable, sans roulettes, calé contre un mur. Pose le dessus d'un pied dessus, l'autre pied loin devant.","Descends droit vers le sol jusqu'à ce que la cuisse avant soit presque à l'horizontale.","Le genou avant reste dans l'axe du pied.","Remonte en poussant dans le talon avant. Fais toutes les répétitions d'un côté puis de l'autre (le nombre noté = un côté)."],
   pourquoi:"Très efficace pour les cuisses et les fessiers sans aucune charge : une jambe travaille avec tout ton poids."},
- {uid:"lunge",pat:"quad",on:["salle","rien"],comp:1,bw:1,avoid:["genoux"],min:8,max:15,nom:"Fentes arrière alternées",muscle:"Cuisses et fessiers",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"lunge",next:"les fentes avec des haltères ou le squat bulgare",easier:"des fentes plus petites en te tenant à un mur",
+ {uid:"lunge",uni:1,pat:"quad",on:["salle","rien"],comp:1,bw:1,avoid:["genoux"],min:8,max:15,nom:"Fentes arrière alternées",muscle:"Cuisses et fessiers",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"lunge",next:"les fentes avec des haltères ou le squat bulgare",easier:"des fentes plus petites en te tenant à un mur",
   reco:"Juste de la place pour faire un grand pas en arrière.",
   how:["Debout, fais un grand pas en arrière.","Descends jusqu'à ce que le genou arrière frôle le sol.","Le buste reste droit, le genou avant au-dessus du pied.","Reviens et change de jambe. Compte les répétitions par jambe."],
   pourquoi:"Travaille les cuisses et les fessiers, et l'équilibre. Le pas en arrière est plus doux pour les genoux que le pas en avant."},
@@ -1555,7 +1570,7 @@ const LIB=[
   reco:"En position assise, un boudin rembourré devant le bas de tes tibias, et tu tends les jambes.",
   how:["Règle le dossier pour que tes genoux soient au bord du siège.","Le boudin se place juste au-dessus des chevilles.","Tends les jambes en 1 seconde, serre 1 seconde en haut.","Redescends lentement en 2 à 3 secondes."],
   pourquoi:"Isole l'avant des cuisses, en complément de la presse."},
- {uid:"stepUp",pat:"quadIso",on:["rien"],bw:1,easy:1,min:10,max:15,nom:"Montées sur une marche ou un banc",muscle:"Cuisses et fessiers",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"lunge",next:"une marche plus haute ou un sac à dos lesté",easier:"une marche plus basse",
+ {uid:"stepUp",uni:1,pat:"quadIso",on:["rien"],bw:1,easy:1,min:10,max:15,nom:"Montées sur une marche ou un banc",muscle:"Cuisses et fessiers",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"lunge",next:"une marche plus haute ou un sac à dos lesté",easier:"une marche plus basse",
   reco:"Une marche d'escalier solide, un banc ou une chaise stable.",
   how:["Marche solide, ou chaise stable sans roulettes calée contre un mur. Pose tout le pied dessus.","Monte en poussant dans ce pied, sans t'aider avec la jambe du bas.","Redescends lentement.","Fais toutes les répétitions d'un côté puis de l'autre (le nombre noté = un côté)."],
   pourquoi:"Simple, sans danger, et ça travaille chaque jambe séparément."},
@@ -1592,7 +1607,7 @@ const LIB=[
   reco:"Un petit élastique en boucle autour des genoux ou des chevilles.",
   how:["Élastique autour des genoux, jambes un peu fléchies.","Fais un pas sur le côté en gardant l'élastique tendu.","Ramène l'autre pied sans relâcher complètement.","Compte les pas d'un côté, puis reviens."],
   pourquoi:"Travaille le côté des fessiers, idéal à la maison."},
- {uid:"sideLegRaise",pat:"abd",on:["rien"],bw:1,easy:1,min:12,max:20,nom:"Élévations de jambe sur le côté, allongé",muscle:"Côté des fessiers",g:["Fessiers"],unit:"corps",inc:0,pic:"sidePlank",next:"le même avec un élastique autour des chevilles",easier:"une amplitude plus petite",
+ {uid:"sideLegRaise",uni:1,pat:"abd",on:["rien"],bw:1,easy:1,min:12,max:20,nom:"Élévations de jambe sur le côté, allongé",muscle:"Côté des fessiers",g:["Fessiers"],unit:"corps",inc:0,pic:"sidePlank",next:"le même avec un élastique autour des chevilles",easier:"une amplitude plus petite",
   reco:"Un tapis au sol.",
   how:["Allongé sur le côté, jambes tendues, la tête posée sur ton bras.","Monte la jambe du dessus, pied légèrement tourné vers le bas.","Redescends lentement sans la poser.","Compte les répétitions d'un côté, puis change."],
   pourquoi:"Le côté des fessiers, sans matériel."},
@@ -1600,7 +1615,7 @@ const LIB=[
   reco:"En position assise, des coussins à l'intérieur des genoux, et tu serres les jambes.",
   how:["Assis bien au fond.","Règle l'écartement pour sentir un léger étirement au départ.","Serre les jambes, tiens 1 seconde.","Reviens lentement."],
   pourquoi:"L'intérieur des cuisses, souvent oublié."},
- {uid:"cableKick",pat:"glute",on:["salle"],nom:"Extension de hanche à la poulie (kickback)",muscle:"Fessiers",g:["Fessiers"],unit:"machine",inc:2.5,kg0:10,pic:"bridge",
+ {uid:"cableKick",uni:1,pat:"glute",on:["salle"],nom:"Extension de hanche à la poulie (kickback)",muscle:"Fessiers",g:["Fessiers"],unit:"machine",inc:2.5,kg0:10,pic:"bridge",
   reco:"Une poulie basse avec une sangle autour de la cheville.",
   how:["Sangle à la cheville, face à la poulie, mains sur la machine.","Pousse la jambe en arrière, jambe presque tendue.","Serre la fesse 1 seconde.","Reviens lentement. Toutes les répétitions d'un côté, puis l'autre."],
   pourquoi:"Un complément pour les fessiers."},
@@ -1662,7 +1677,7 @@ const LIB=[
   reco:"Juste le sol.",
   how:["En position de pompe, monte les fesses pour faire un V à l'envers.","Plie les bras pour amener le haut de la tête vers le sol, entre tes mains.","Pousse pour revenir.","Garde les jambes tendues."],
   pourquoi:"Les épaules au poids du corps."},
- {uid:"cableLatRaise",pat:"latr",on:["salle"],easy:1,nom:"Élévations latérales à la poulie",muscle:"Épaules, côté",g:["Épaules"],unit:"machine",inc:2.5,kg0:2.5,pic:"cableLatRaise",
+ {uid:"cableLatRaise",uni:1,pat:"latr",on:["salle"],easy:1,nom:"Élévations latérales à la poulie",muscle:"Épaules, côté",g:["Épaules"],unit:"machine",inc:2.5,kg0:2.5,pic:"cableLatRaise",
   reco:"Une poulie basse avec une poignée. Tu te tiens de profil.",
   how:["Debout de profil, poignée dans la main la plus loin de la poulie.","Monte le bras sur le côté jusqu'à l'horizontale, coude légèrement plié.","Pense à pousser la main loin de toi plutôt que vers le haut.","Redescends lentement. Toutes les répétitions d'un côté, puis l'autre."],
   pourquoi:"Le côté des épaules : c'est ce qui donne des épaules larges et dessinées."},
@@ -1720,7 +1735,7 @@ const LIB=[
   reco:"Assis face à une poulie basse, pieds sur une plateforme, une poignée en V.",
   how:["Dos droit, genoux légèrement pliés.","Tire la poignée vers ton nombril en serrant les omoplates.","Le buste ne part pas en arrière.","Reviens lentement en laissant les bras s'étirer."],
   pourquoi:"Le milieu du dos."},
- {uid:"dbRow",pat:"hpull",on:["salle","halteres"],comp:1,easy:1,nom:"Rowing un bras à l'haltère",muscle:"Dos, épaisseur",g:["Dos"],unit:"haltere",inc:2,kg0:12,pic:"dbRow",
+ {uid:"dbRow",uni:1,pat:"hpull",on:["salle","halteres"],comp:1,easy:1,nom:"Rowing un bras à l'haltère",muscle:"Dos, épaisseur",g:["Dos"],unit:"haltere",inc:2,kg0:12,pic:"dbRow",
   reco:"Un haltère et un banc (ou une chaise, une table basse).",
   how:["Un genou et une main sur le banc, dos plat.","L'haltère pend sous l'épaule.","Tire l'haltère vers ta hanche, le coude frôle le corps.","Redescends lentement. Toutes les répétitions d'un côté, puis l'autre (le nombre noté = un côté)."],
   pourquoi:"Le dos, un côté à la fois."},
@@ -1830,9 +1845,9 @@ const LIB=[
  /* ---- poids du corps avancé (street workout) ---- */
  {uid:"elevPush",pat:"hpush",on:["rien"],comp:1,bw:1,lvl:1,min:6,max:15,nom:"Pompes pieds surélevés",muscle:"Pectoraux (haut), épaules, triceps",g:["Pectoraux","Triceps"],unit:"corps",inc:0,pic:"pushup",
   reco:"Un banc, une chaise ou un muret pour poser les pieds.",how:["Pieds posés sur le support, mains au sol.","Corps droit, ventre serré.","Descends la poitrine vers le sol.","Pousse fort."],pourquoi:"Plus dur que les pompes classiques, vise le haut des pecs."},
- {uid:"archerPush",pat:"hpush",on:["rien"],comp:1,bw:1,lvl:2,min:4,max:10,nom:"Pompes archer",muscle:"Pectoraux, triceps",g:["Pectoraux","Triceps"],unit:"corps",inc:0,pic:"pushup",
+ {uid:"archerPush",uni:1,pat:"hpush",on:["rien"],comp:1,bw:1,lvl:2,min:4,max:10,nom:"Pompes archer",muscle:"Pectoraux, triceps",g:["Pectoraux","Triceps"],unit:"corps",inc:0,pic:"pushup",
   reco:"Juste le sol.",how:["Mains très écartées.","Descends vers une main en gardant l'autre bras presque tendu.","Remonte, puis fais l'autre côté.","Compte les répétitions par côté."],pourquoi:"Une étape vers la pompe sur un bras : beaucoup plus de charge sur chaque bras."},
- {uid:"pistol",pat:"quad",on:["rien"],comp:1,bw:1,lvl:2,avoid:["genoux"],min:3,max:10,nom:"Pistol squat (squat sur une jambe), aidé",muscle:"Cuisses, fessiers, équilibre",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"squatBW",
+ {uid:"pistol",uni:1,pat:"quad",on:["rien"],comp:1,bw:1,lvl:2,avoid:["genoux"],min:3,max:10,nom:"Pistol squat (squat sur une jambe), aidé",muscle:"Cuisses, fessiers, équilibre",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"squatBW",
   reco:"Un poteau, une barre ou un cadre de porte pour t'aider d'une main.",how:["Debout sur une jambe, l'autre tendue devant.","Tiens-toi d'une main au support.","Descends le plus bas possible sur une jambe, en contrôle.","Remonte. Utilise de moins en moins la main. Compte par jambe."],pourquoi:"Des cuisses très fortes sans aucune charge."},
  {uid:"jumpSquat",pat:"quadIso",on:["rien"],bw:1,lvl:1,avoid:["genoux"],min:8,max:15,nom:"Squats sautés",muscle:"Cuisses, explosivité",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"squatBW",
   reco:"Un sol plat qui n'est pas glissant.",how:["Descends en squat.","Saute le plus haut possible.","Atterris en douceur, genoux souples.","Enchaîne sans pause."],pourquoi:"Explosivité et cardio en même temps."},
@@ -1851,7 +1866,7 @@ const LIB=[
  {uid:"chairStand",pat:"quadIso",on:["rien"],bw:1,easy:1,min:8,max:15,nom:"Se lever d'une chaise vite, se rasseoir lentement",muscle:"Cuisses, fessiers, puissance",g:["Quadriceps","Fessiers"],unit:"corps",inc:0,pic:"squatBW",
   reco:"Une chaise stable, sans roulettes, calée contre un mur.",how:["Assis au bord de la chaise, pieds à plat, écartés comme les hanches.","Lève-toi le plus vite possible, sans t'aider des mains si tu peux.","Rassieds-toi lentement, en 3 secondes, en contrôlant.","Plus facile : aide-toi des mains sur les cuisses. Plus dur : un bras croisé sur la poitrine."],
   pourquoi:"La force et la vitesse des jambes, sans saut ni choc : c'est ce qui aide le plus à se relever et à éviter les chutes."},
- {uid:"balance",pat:"bal",on:["rien"],bw:1,easy:1,min:15,max:40,nom:"Équilibre sur un pied (près d'un appui)",muscle:"Équilibre, chevilles, hanches",g:["Équilibre"],unit:"sec",inc:0,pic:"standCurl",
+ {uid:"balance",uni:1,pat:"bal",on:["rien"],bw:1,easy:1,min:15,max:40,nom:"Équilibre sur un pied (près d'un appui)",muscle:"Équilibre, chevilles, hanches",g:["Équilibre"],unit:"sec",inc:0,pic:"standCurl",
   reco:"Un mur, un dossier de chaise ou une barre à portée de main.",how:["Debout à côté de l'appui, une main posée dessus si besoin.","Lève un pied de quelques centimètres et tiens, le regard droit devant.","Quand c'est facile : sans la main, puis les yeux fermés quelques secondes (toujours près de l'appui).","Note les secondes tenues sur chaque pied."],
   pourquoi:"Après 55 ans, l'équilibre baisse vite si on ne le travaille pas. Quelques minutes par séance réduisent nettement le risque de chute."},
  {uid:"negDip",pat:"hpush",on:["dips"],comp:1,bw:1,lvl:1,avoid:["epaules"],min:3,max:8,nom:"Dips négatifs (descente lente)",muscle:"Pectoraux, triceps",g:["Pectoraux","Triceps"],unit:"corps",inc:0,pic:"dip",
@@ -1983,6 +1998,17 @@ const SPLITS={
 function pickSplit(p){const d=+p.days||3,sw=p.swipe||{};
   if(d<=2)return "fb2";if(d===3&&sw.split!=null)return sw.split?"ulf":"fb3";if(d===3)return (p.level||0)>=2?"ulf":"fb3";if(d===4)return "ul4";if(d>=6&&(p.level||0)>=2)return "ppl6";return "ppl5";}
 
+/* ===== durée réelle d'une séance =====
+   Une série = répétitions (milieu de la fourchette) × environ 3 s (3,5 s sur machine), + 10 s pour se mettre en place ;
+   exercice à un bras ou une jambe : les deux côtés comptent. Puis le repos après chaque série,
+   l'installation (45 s à la salle, 20 s ailleurs), les séries d'échauffement É, l'échauffement général et le cardio de fin. */
+const isUni=e=>!!(e&&(e.uni||(LIBX[e.uid]||{}).uni||(typeof POOL!=="undefined"&&(POOL[e.uid]||{}).uni)));
+function setSec(e){const u=isUni(e)?2:1,mid=((+e.min||10)+(+e.max||+e.min||10))/2;
+  if(e.unit==="sec")return u*Math.min(mid,60)+10+(u-1)*5;
+  return u*mid*(["machine","pile","poulie","disques","barre"].includes(e.unit)?3.5:3)+10+(u-1)*5;}
+const exoSec=(e,place)=>e.series*(setSec(e)+e.rest)+(place==="salle"?45:20)+(e.warm?140:0);
+function sessMin(exos,p){const dur=+p.dur||45,sw=p.swipe||{},g2=p.goal2||null,cardioOn=sw.cardio===true||(sw.cardio!==false&&(p.goal==="gras"||g2==="gras"||g2==="forme"));
+  return Math.round(exos.filter(e=>!e.opt).reduce((a,e)=>a+exoSec(e,p.place),0)/60)+(p.place==="salle"?(dur<=30?6:8):5)+(cardioOn?(dur<=30?0:10):0);}
 /* ===== jours d'entraînement choisis : placer les séances sur ces jours =====
    On essaie tous les ordres possibles et on garde celui qui évite deux séances qui travaillent
    les mêmes muscles deux jours de suite (dimanche → lundi compris). À égalité, l'ordre A, B, C… */
@@ -2016,7 +2042,7 @@ function generate(p){
   const old=+p.age>=55,young=+p.age<16,teen=+p.age<18,SS=[];
   /* durée réelle : séries + repos, échauffement (8 min à la salle, 5 ailleurs), séries d'échauffement É, cardio de fin s'il est proposé */
   const g2=p.goal2||null,cardioOn=sw.cardio===true||(sw.cardio!==false&&(goal==="gras"||g2==="gras"||g2==="forme"));
-  const sEst=ex=>Math.round(ex.reduce((a,e)=>a+e.series*(45+e.rest)+75+(e.warm?150:0),0)/60)+(p.place==="salle"?(dur<=30?6:8):5)+(cardioOn?(dur<=30?0:10):0);
+  const sEst=ex=>sessMin(ex,p);
   split.s.forEach((ss,si)=>{
     let roles=ss.r.slice();
     /* genoux fragiles : moins d'avant des cuisses ; épaules fragiles : rien au-dessus de la tête */
@@ -2066,6 +2092,8 @@ function generate(p){
       if(comp&&lvl===0)series=Math.min(series,3);
       if(spats.includes(e0.pat))series=Math.max(2,series-1);
       if(old){rest+=30;if(!bw&&!(goal==="force"&&lvl>=2))min=Math.max(min,8),max=Math.max(max,12);}
+      /* à la maison et dehors : repos plus courts sur l'isolation (45-75 s), 90-120 s sur les gros exercices */
+      if(p.place!=="salle"&&goal!=="force")rest=comp?Math.min(120,Math.max(90,rest)):Math.min(75,Math.max(45,rest));
       if(young&&!bw){min=Math.max(min,10);max=Math.max(max,15);}
       else if(teen&&!bw){min=Math.max(min,8);max=Math.max(max,15);}
       if(teen&&!bw)series=Math.min(series,3);
@@ -2099,7 +2127,7 @@ function generate(p){
       let x=null;for(const r of more){const e=pick(r);if(e){x=mk(e,exos.length);const ci=exos.length&&exos[exos.length-1].pat==="core"?exos.length-1:exos.length;exos.splice(ci,0,x);break;}}
       if(!x)break;
       if(est()>dur+3){x.series=2;if(est()>dur+3){exos.splice(exos.indexOf(x),1);break;}}}
-    SS.push({si,ss,exos,pick,mk,est:()=>sEst(SS[si].exos),isLower,kind:/^Poussée/.test(ss.t)?"push":/^Tirage/.test(ss.t)?"pull":null});
+    SS.push({si,ss,exos,pick,mk,est:()=>sEst(SS[si].exos),isLower,isUpper,kind:/^Poussée/.test(ss.t)?"push":/^Tirage/.test(ss.t)?"pull":null});
   });
   const ZONE={quad:"bas",quadIso:"bas",hinge:"bas",glute:"bas",ham:"bas",abd:"bas",add:"bas",calf:"bas",
     hpush:"pousse",fly:"pousse",vpush:"pousse",latr:"pousse",tri:"pousse",vpull:"tire",hpull:"tire",rear:"tire",bic:"tire",core:"abdos",bal:"abdos"};
@@ -2180,11 +2208,34 @@ function generate(p){
       if(teen&&!BWU(e)&&e.unit!=="barre"){e.min=Math.max(e.min,young?10:8);e.max=Math.max(e.max,young?15:12);}
       if(e.unit==="barre"){e.kg0=Math.max(20,e.kg0||0);e.depart=`${fmt(e.kg0)} kg (barre comprise, à ajuster)`;
         if(teen){e.min=6;e.max=10;e.reco="<b>Moins de 18 ans : seulement avec un coach ou un adulte formé à côté de toi, la première fois.</b> "+e.reco;}}});
+    /* 8. séance trop courte : on complète (une série de plus, puis un exercice de plus) jusqu'à la durée choisie, à 5 min près,
+          sans dépasser les plafonds de séries par muscle (semaine et séance) ni le nombre d'exercices */
+    {const S=SS[si],maxSer=e=>(teen||lvl===0)?3:e.comp?(lvl>=1?4:3):4,capEx=lvl===0?6:lvl===1?7:8,free=["Abdos","Équilibre"];
+      const wkS=g=>SS.reduce((a,x)=>a+x.exos.filter(y=>grpOf(y)===g).reduce((b,y)=>b+y.series,0),0),inS=g=>exos.filter(y=>grpOf(y)===g).reduce((b,y)=>b+y.series,0);
+      const room=(e,add)=>{const g=grpOf(e);return free.includes(g)||(wkS(g)+add<=capW(g)&&inS(g)+add<=capS);};
+      const MORE=["glute","ham","hpull","hpush","vpull","vpush","quad","latr","rear","bic","tri","calf","abd","core"].filter(pt=>(!S.isLower||LOWER.includes(pt)||pt==="core")&&(!S.isUpper||!LOWER.includes(pt)||pt==="core")&&fits(S,pt));
+      for(let k=0;k<30&&est()<dur-4;k++){
+        const c=exos.filter(e=>e.series<maxSer(e)&&!e.main&&room(e,1)).sort((a,b)=>a.series-b.series||(b.comp?1:0)-(a.comp?1:0))[0];
+        if(c){c.series++;if(est()<=dur+5)continue;c.series--;}
+        let x=null;if(exos.length<capEx)for(const pt of MORE){if(exos.filter(e=>e.pat===pt).length)continue;const e0=S.pick(pt);if(!e0)continue;
+          const y=S.mk(e0,exos.length);y.series=2;if(teen||lvl===0)y.series=Math.min(y.series,3);if(!room(y,y.series))continue;
+          const ci=exos.length&&exos[exos.length-1].pat==="core"?exos.length-1:exos.length;exos.splice(ci,0,y);
+          if(est()>dur+5){exos.splice(exos.indexOf(y),1);continue;}x=y;break;}
+        if(!x)break;}
+      /* encore trop long (repos plus longs après 55 ans, exercice d'équilibre ajouté…) : on raccourcit doucement */
+      for(let k=0;k<30&&est()>dur+5;k++){
+        const i1=[...exos].reverse().find(e=>!e.comp&&e.series>2&&!fpatsAll.includes(e.pat));if(i1){i1.series--;continue;}
+        const c1=[...exos].reverse().find(e=>e.comp&&!e.main&&e.series>2&&!fpatsAll.includes(e.pat));if(c1){c1.series--;continue;}
+        const r1=[...exos].reverse().find(e=>!e.main&&e.rest>(e.comp?90:60));if(r1){r1.rest-=15;continue;}
+        const w1=exos.filter(e=>e.warm);if(w1.length>1){w1[w1.length-1].warm=false;continue;}
+        const x1=[...exos].reverse().find(e=>!e.comp&&!fpatsAll.includes(e.pat)&&e.pat!=="bal"&&!keep(e));if(x1&&exos.length>4){exos.splice(exos.indexOf(x1),1);continue;}
+        break;}}
     exos.forEach((e,j)=>{e.id=keys[si].toLowerCase()+(j+1);});
     const gs=[];exos.forEach(e=>e.g.forEach(g=>{if(!gs.includes(g))gs.push(g);}));
-    const min=est();
+    /* toujours trop court (débutant, plafonds atteints) : quelques minutes de cardio doux pour finir, plutôt que trop de séries */
+    let min=est(),fin=0;if(dur-min>5){fin=Math.min(dur>=75?25:dur>=60?20:15,Math.max(5,Math.round((dur-min)/5)*5));min+=fin;}
     PP[keys[si]]={nom:ss.t,muscles:gs.slice(0,5).join(" · "),duree:`${Math.max(20,Math.round(min/5)*5)} min environ`,
-      intro:sessionIntro(p,ss.t),exos};
+      intro:sessionIntro(p,ss.t),exos};if(fin)PP[keys[si]].fin=fin;
   });
   /* sans rien pour tirer, le dos travaille peu : on le dit simplement */
   if(!SS.some(s=>s.exos.some(e=>["hpull","vpull"].includes(e.pat))))keys.forEach(k=>{PP[k].intro+=" Ton dos travaille peu sans matériel : un élastique (environ 10 €) ou une barre de traction change tout. Tu peux aussi dire oui à la table ou au sac à dos dans le questionnaire.";});
@@ -2283,7 +2334,7 @@ function homeData(){
   Object.entries(store.log).forEach(([u,a])=>a.forEach(x=>{if(x.d<ws)return;const e=EXO[u];if(!e)return;e.g.forEach(g=>{doneG[g]=(doneG[g]||0)+W(x).length;});}));
   const muscles=Object.keys(plannedG).map(g=>({n:g,s:doneG[g]||0,t:plannedG[g]}));
   return {ci,done:wk.size,days,streak,nk,next:{k:nk,nom:LABEL[nk],muscles:P[nk].muscles,duree:P[nk].duree,exos:P[nk].exos.length,series:ne.reduce((a,e)=>a+seriesFor(e),0),
-      tip:f&&pl.kg!=null?{ex:f.nom,txt:BWU(f)?`vise ${pl.reps[0]} ${f.unit==="sec"?"secondes":"répétitions"} par série`:`vise ${hkg(pl.kg)} kg × ${pl.reps[0]}`}:null,doneToday:store.hist.some(h=>h.k===nk&&h.d===t)},
+      tip:f&&pl.kg!=null?{ex:f.nom,txt:(BWU(f)?`vise ${pl.reps[0]} ${f.unit==="sec"?"secondes":"répétitions"} par ${isUni(f)?"côté":"série"}`:`vise ${hkg(pl.kg)} kg × ${pl.reps[0]}${isUni(f)?" par côté":""}`)}:null,doneToday:store.hist.some(h=>h.k===nk&&h.d===t)},
     vol,vs:lastWkSame?Math.round((vol[4]-lastWkSame)/lastWkSame*100):null,totalT,sessions:store.hist.length,prs,hours,lifts,muscles,bw:store.bw.slice(-14).map(b=>b.kg)};
 }
 function motivation(d){
@@ -2539,7 +2590,7 @@ const FEEL={facile:"Facile",dur:"Dur",echec:"À l'échec"};
 function plan(e){
   const n=seriesFor(e),past=pastEntries(e.uid).filter(x=>!x.dl),last=past[past.length-1],prev=past[past.length-2],dl=cycleInfo().deload;
   const out={kg:e.kg0,reps:Array(n).fill(e.min),msg:null,cls:""};
-  if(!last&&BWU(e)){out.msg=`Première fois : vise <b>${e.min} à ${e.max} ${e.unit==="sec"?"secondes":"répétitions"}</b> propres par série.${e.easier?` Trop dur ? Prends la version facile : ${e.easier}.`:""}`;out.cls="info";return out;}
+  if(!last&&BWU(e)){out.msg=`Première fois : vise <b>${e.min} à ${e.max} ${e.unit==="sec"?"secondes":"répétitions"}</b> propres par ${isUni(e)?"côté":"série"}.${e.easier?` Trop dur ? Prends la version facile : ${e.easier}.`:""}`;out.cls="info";return out;}
   if(!last&&e.unit==="barre"&&e.ramp){out.msg=`Première fois : commence à <b>${fmt(e.kg0)} kg</b> (barre comprise), puis <b>monte par paliers de 10 à 20 kg</b> jusqu'à une série où il te reste 2 ou 3 répétitions en réserve. Note cette charge-là.`;out.cls="info";return out;}
   if(!last){out.msg=`Première fois : commence à <b>${fmt(e.kg0)} kg${sideTxt(e,e.kg0)}</b> et cherche une charge où tu fais au moins ${e.min} répétitions propres. Trop facile ? Monte à la série suivante.`;out.cls="info";return out;}
   const S=W(last),wk=workKg(S.slice(0,n)),need=Math.min(n,last.n||n),SS=S.slice(0,need),feel=last.feel||"dur";
@@ -2668,6 +2719,7 @@ function vSession(k){
     <span class="dots">${s.exos.map((e,i)=>`<button data-jump="${e.id}" class="${isFull(e)?"ok":i===ai?"on":""}" aria-label="${esc(e.nom)}">${i+1}</button>`).join("")}</span></div>
     <div class="bar"><i id="pbar" style="width:${st.tot?st.done/st.tot*100:0}%"></i></div>`}</div>
   ${s.exos.map((e,i)=>`<div class="exo ${isFull(e)?"full":""} ${i===ai?"active":""}" id="c-${e.id}">${card(k,e,i)}</div>`).join("")}
+  ${s.fin?`<div class="banner info small"><b>Pour finir : ${s.fin} min de cardio doux</b>, en pouvant encore parler. ${PROG.place==="salle"?"Vélo, rameur ou tapis en légère pente.":"Marche rapide, montées de genoux sur place, danse ou vélo : ce que tu préfères."}</div>`:""}
   <div id="finish">${fini?`<div class="panel" style="text-align:center"><b style="color:var(--go)">✓ Séance enregistrée aujourd'hui</b><p class="small muted" style="margin-top:6px">Tu peux encore corriger une série si besoin.</p></div>`
     :`<button class="btn hot wide" id="fin">Terminer la séance</button>`}</div>`;
   view.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{sess=b.dataset.s;render();});
@@ -2679,11 +2731,11 @@ function vSession(k){
 function card(k,e,i){
   const te=todayEntry(e.uid),n=seriesFor(e),sets=(te&&te.sets)||[],doneN=W(te).length;
   if(doneN>=n&&te.feel&&!expanded[e.uid]){
-    const S=W(te);return `<button class="collapsed" data-open="1"><span class="c">✓</span><span class="t">${esc(e.nom)}</span><span class="s num">${BWU(e)?`${S.map(s=>s.reps).join(" · ")} ${e.unit==="sec"?"s":"reps"}`:`${S.length} × ${fmt(workKg(S))} kg`}${te.feel?" · "+FEEL[te.feel]:""}</span></button>`;}
+    const S=W(te);return `<button class="collapsed" data-open="1"><span class="c">✓</span><span class="t">${esc(e.nom)}</span><span class="s num">${BWU(e)?`${S.map(s=>s.reps).join(" · ")} ${e.unit==="sec"?"s":"reps"}${isUni(e)?" par côté":""}`:`${S.length} × ${fmt(workKg(S))} kg`}${te.feel?" · "+FEEL[te.feel]:""}</span></button>`;}
   const pl=plan(e),past=pastEntries(e.uid),last=past[past.length-1];
   /* carte repliée : seul l'exercice en cours est ouvert ; un tap sur le titre ouvre ou referme */
   const open=expanded[e.uid]!=null?expanded[e.uid]:i===activeIdx(k);
-  if(!open){const aim=BWU(e)?`${pl.reps.join(" · ")} ${e.unit==="sec"?"s":"reps"}`:pl.kg!=null?`${fmt(pl.kg)} kg × ${pl.reps.join(" · ")}`:`${n} × ${repsTxt(e)}`;
+  if(!open){const aim=(BWU(e)?`${pl.reps.join(" · ")} ${e.unit==="sec"?"s":"reps"}`:pl.kg!=null?`${fmt(pl.kg)} kg × ${pl.reps.join(" · ")}`:`${n} × ${repsTxt(e)}`)+(isUni(e)?" par côté":"");
     return `<div class="exo-hd">
       <button class="thumb" data-info="1" aria-label="Voir la machine et les consignes">${picHTML(e)}<span class="n">${doneN>=n?"✓":i+1}</span></button>
       <button class="exo-ti" data-toggle="1" style="appearance:none;border:0;background:none;text-align:left;padding:0;color:inherit"><h4>${esc(e.nom)}</h4>
@@ -2699,21 +2751,23 @@ function card(k,e,i){
     <button class="ok" aria-label="Valider l'échauffement ${j+1}">${I_OK}</button></div>`);});
   for(let j=0;j<n;j++){const d=sets[j];
     const kgV=d?d.kg:(pl.kgs&&pl.kgs[j]!=null?pl.kgs[j]:pl.kg),rpV=d?d.reps:pl.reps[j];
-    rows.push(`<div class="set ${d?"done":""}" data-j="${j}"><span class="n">${j+1}</span>
+    rows.push(`<div class="set ${d?"done":""} ${e.unit==="sec"?"sec":""}" data-j="${j}"><span class="n">${j+1}</span>
       <input class="${d?"":"sug"}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" aria-label="Charge série ${j+1}" placeholder="kg" value="${kgV==null?"":fmt(kgV)}">
-      <input class="${d?"":"sug"}" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" aria-label="Répétitions série ${j+1}" placeholder="reps" value="${rpV==null?"":rpV}">
+      <input class="${d?"":"sug"}" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" aria-label="${e.unit==="sec"?"Secondes":"Répétitions"} série ${j+1}" placeholder="${e.unit==="sec"?"sec":"reps"}" value="${rpV==null?"":rpV}">
+      ${e.unit==="sec"?`<button class="play" aria-label="Lancer le compte à rebours de la série ${j+1}" ${d?"disabled":""}><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></button>`:""}
       <button class="ok" aria-label="Valider la série ${j+1}">${I_OK}</button>
       ${d&&pb!=null&&d.kg>pb?`<span class="pr">🏆 Record : ${fmt(d.kg)} kg</span>`:""}</div>`);}
   const note=store.notes[e.uid];
   return `<div class="exo-hd">
       <button class="thumb" data-info="1" aria-label="Voir la machine et les consignes">${picHTML(e)}<span class="n">${doneN>=n?"✓":i+1}</span>${photoOf(e)?(animKey(e)&&ANIM[animKey(e)]?`<span class="cam" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>`:""):`<span class="cam">${I_CAM}</span>`}</button>
       <button class="exo-ti" data-toggle="1" style="appearance:none;border:0;background:none;text-align:left;padding:0;color:inherit"><h4>${esc(e.nom)}</h4>
-        <div class="meta"><b>${n} × ${repsTxt(e)}</b> · repos <b>${mmss(restFor(e))}</b></div>
+        <div class="meta"><b>${n} × ${repsTxt(e)}${e.unit==="sec"?" s":""}${isUni(e)?" par côté":""}</b> · repos <b>${mmss(restFor(e))}</b></div>
         <span class="tag ${e.opt?"opt":""}">${e.opt?"Facultatif · ":""}${e.muscle}</span></button></div>
     ${BWU(e)||(PROG.place!=="salle"&&!PROG.nils)?"":`<div class="reg" data-reg="1">${note?`<button data-edit="1">⚙︎ Réglages : <b>${esc(note)}</b></button>`:`<button data-edit="1">⚙︎ Noter mes réglages (siège, dossier, cran…)</button>`}</div>`}
     ${pl.msg&&doneN<n?`<div class="tip ${pl.cls}">${pl.msg}${pl.up?`<button class="btn line" data-swap="${pl.up}" style="margin-top:10px;min-height:42px;width:100%">↑ Passer à : ${esc(LIBX[pl.up].nom)}</button>`:""}${pl.down&&!PROG.nils?`<button class="btn line" data-swap="${pl.down}" style="margin-top:10px;min-height:42px;width:100%">↓ Plus facile : ${esc(LIBX[pl.down].nom)}</button>`:""}</div>`:""}
     <div class="sets">
-      <div class="sets-hd"><span>Série</span><span>${e.unit==="elastique"?"Niveau":BWU(e)?"Lest":"kg"}</span><span>${e.unit==="sec"?"Sec.":"Reps"}</span><span></span></div>
+      <div class="sets-hd ${e.unit==="sec"?"sec":""}"><span>Série</span><span>${e.unit==="elastique"?"Niveau":BWU(e)?"Lest":"kg"}</span><span>${e.unit==="sec"?"Sec.":"Reps"}${isUni(e)?" / côté":""}</span>${e.unit==="sec"?"<span></span>":""}<span></span></div>
+      ${isUni(e)?`<div class="uni">↔︎ <b>${/altern/i.test(e.nom)?"Alterne les côtés.":"Un côté, puis l'autre :"}</b> ${/altern/i.test(e.nom)?"":`fais toutes les ${e.unit==="sec"?"secondes":"répétitions"} d'un côté, puis de l'autre. `}Note le nombre d'un seul côté.</div>`:""}
       <div class="side">Gris = proposé · touche ✓ quand c'est fait</div>
       ${rows.join("")}
       ${doneN>=n?`<div class="feel-q">C'était comment ? <span class="muted" style="font-weight:500">(touche encore pour décocher)</span></div><div class="feel">${[["facile","Facile, 3+ en réserve"],["dur","Dur, 1-2 en réserve"],["echec","À l'échec"]].map(([v,l])=>`<button data-feel="${v}" class="${te.feel===v?"on":""}">${l}</button>`).join("")}</div>`:""}
@@ -2763,6 +2817,7 @@ function wire(k,e){
     [ik,ir].forEach(inp=>{inp.addEventListener("focus",()=>setTimeout(()=>inp.select(),0));inp.addEventListener("input",()=>inp.classList.remove("sug"));});
     if(row.dataset.j!=null)ik.addEventListener("input",()=>{let nx=row.nextElementSibling;
       while(nx&&nx.classList.contains("set")){if(!nx.classList.contains("done")&&nx.dataset.j!=null)nx.querySelector("input").value=ik.value;nx=nx.nextElementSibling;}});
+    const pb=row.querySelector(".play");if(pb)pb.onclick=()=>holdStart(e,ir);
     row.querySelector(".ok").onclick=()=>{
       const warm=row.dataset.w!=null,j=+(warm?row.dataset.w:row.dataset.j);
       const te=entryFor(e.uid);const arr=warm?(te.warm=te.warm||[]):te.sets;
@@ -2836,7 +2891,7 @@ function infoSheet(e,k){
     <h5>Comment faire</h5><ol>${e.how.map(x=>`<li>${x}</li>`).join("")}</ol>
     <h5>Pourquoi cet exercice</h5><p>${e.pourquoi}</p>
     <h5>Pourquoi ${mmss(restFor(e))} de repos</h5><p>${e.rest>=90&&e.comp||e.rest>=120?"Gros exercice : plusieurs muscles, le souffle et le système nerveux fatiguent. Repartir trop tôt te fait perdre 2 à 3 répétitions à la série suivante.":"Petit muscle qui récupère vite : 1 min à 1 min 30 suffit."} Repars quand ton souffle est calme. Touche le chrono pour changer la durée, elle sera retenue pour cet exercice.</p>
-    <h5>${BWU(e)?"Quoi noter":"Charge à noter"}</h5><p>${e.unit==="haltere"?"Le poids d'un seul haltère (pas des deux). Exemple : deux haltères de 8 kg = note 8.":e.unit==="machine"?"Le chiffre affiché sur la machine. Si tu charges des disques toi-même : le total gauche + droite.":e.unit==="corps"?"Ton nombre de répétitions. Laisse la charge à 0, sauf si tu ajoutes un poids (sac à dos lesté…).":e.unit==="elastique"?"Ton nombre de répétitions. Quand c'est facile, prends un élastique plus dur.":e.unit==="sec"?"Le nombre de secondes tenues, dans la case des répétitions.":e.unit==="disques"?"Le total des disques que tu ajoutes, à gauche et à droite, sans le poids de la machine. Exemple : 20 kg de chaque côté = note 40 kg.":e.unit==="pile"?"Le chiffre de la pile de poids. Il ne se compare pas avec une autre machine.":"Le chiffre de la pile de la poulie."} Départ conseillé : <b>${e.depart}</b>.</p>
+    <h5>${BWU(e)?"Quoi noter":"Charge à noter"}</h5><p>${isUni(e)?"<b>Un côté à la fois :</b> toutes les répétitions d'un côté, puis l'autre. Note le nombre d'un seul côté. ":""}${e.unit==="haltere"?"Le poids d'un seul haltère (pas des deux). Exemple : deux haltères de 8 kg = note 8.":e.unit==="machine"?"Le chiffre affiché sur la machine. Si tu charges des disques toi-même : le total gauche + droite.":e.unit==="corps"?"Ton nombre de répétitions. Laisse la charge à 0, sauf si tu ajoutes un poids (sac à dos lesté…).":e.unit==="elastique"?"Ton nombre de répétitions. Quand c'est facile, prends un élastique plus dur.":e.unit==="sec"?"Le nombre de secondes tenues, dans la case des répétitions.":e.unit==="disques"?"Le total des disques que tu ajoutes, à gauche et à droite, sans le poids de la machine. Exemple : 20 kg de chaque côté = note 40 kg.":e.unit==="pile"?"Le chiffre de la pile de poids. Il ne se compare pas avec une autre machine.":"Le chiffre de la pile de la poulie."} Départ conseillé : <b>${e.depart}</b>.</p>
     <h5>${sal?"Si la machine est prise":"Autres options"}</h5><div class="alts">${(e.alt||[]).map(a=>`<div class="alt">${a.photo&&USE_GYM_PHOTOS?`<img src="${a.photo}" alt="">`:""}<span>${a.nom}</span></div>`).join("")}</div>`,
   ()=>{$("sx").onclick=closeSheet;
     $("phin").onchange=async ev=>{const f=ev.target.files[0];if(!f)return;try{const b=await compress(f);await idbPut(e.uid,b);if(PH[e.uid])URL.revokeObjectURL(PH[e.uid]);
@@ -2968,6 +3023,7 @@ function vPlan(){
       <p class="note">Tu veux un programme fait pour toi ? Réponds au questionnaire : 2 minutes. Ton historique est gardé.</p>`
     :`<p><b>${esc(PROG.split||"Mes séances")}</b>${pr.dur&&pr.mode!=="manual"?` · ${pr.dur} min`:""} · ${{salle:"à la salle",maison:"chez toi",dehors:"dehors"}[pr.place]}${pr.place==="salle"&&pr.gym&&pr.gym!=="autre"?" ("+GYMNAME[pr.gym]+")":""}</p>
       <p class="small" style="color:var(--ink-2);margin-top:6px">Objectif : <b style="color:var(--ink)">${goalTxt(pr)}</b>${(pr.focus||[]).length?` · Priorités : ${pr.focus.map(x=>FOCUS[x]).join(", ")}`:""}${(pr.strong||[]).length?` · Points forts : ${pr.strong.map(x=>FOCUS[x]).join(", ")}`:""}${(pr.pain||[]).length?` · Exercices adaptés pour : ${pr.pain.map(x=>({genoux:"genoux",dos:"bas du dos",epaules:"épaules"})[x]).join(", ")}`:""}</p>`}
+    ${!PROG.nils&&!PROG.temp&&pr.mode==="gen"&&pr.dur&&MAIN.some(k=>P[k].min<pr.dur-8)?`<div class="tip info" style="margin-top:12px">Tes séances durent environ <b>${Math.round(MAIN.reduce((a,k)=>a+P[k].min,0)/MAIN.length/5)*5} min</b>, moins que les ${pr.dur} min choisies. Refais le questionnaire pour un programme qui tient ta durée : ton historique est gardé.</div>`:""}
     ${PROG.temp?`<div class="banner" style="margin-top:12px"><b>Programme temporaire jusqu'au ${fr(PROG.temp.until)}</b> (${PROG.temp.kind==="pause"?"entretien":"vacances, sans ta salle"}). Ton vrai programme, tes charges et ton niveau sont gardés : tu le retrouves automatiquement après.</div>`:""}
     <div style="display:grid;gap:8px;margin-top:14px">${store.pauseUntil&&store.pauseUntil>=today()?`<div class="banner" style="margin-top:12px"><b>En pause jusqu'au ${fr(store.pauseUntil)}.</b> Ta flamme est protégée.</div><button class="btn hot wide" id="pauseend">Je reprends maintenant</button>`:""}
     ${PROG.temp?`<button class="btn hot wide" id="tempend">Je suis de retour : reprendre mon programme</button>`:`<button class="btn line wide" id="away">✈︎ Vacances, pause, plus accès à ma salle…</button>`}
@@ -3367,6 +3423,8 @@ function applyProgram(){
   PID=store.temp?"t:"+store.temp.until:(!pr||pr.mode==="nils")?"nils":"g:"+(pr.ts||0);
   MAIN=KEYS.filter(k=>k!==BONUS);PER_WEEK=MAIN.length;
   LABEL={};KEYS.forEach(k=>{LABEL[k]=P[k].nom;});
+  /* durée affichée : recalculée avec le temps réel des séries (les exercices, eux, ne changent pas) */
+  if(!PROG.nils)KEYS.forEach(k=>{const m=sessMin(P[k].exos,PROG.p||{})+(P[k].fin||0);P[k].duree=`${Math.max(15,Math.round(m/5)*5)} min environ`;P[k].min=m;});
   Object.keys(EXO).forEach(u=>delete EXO[u]);
   KEYS.forEach(k=>P[k].exos.forEach(e=>{e.k=k;if(!EXO[e.uid])EXO[e.uid]=e;}));
   USE_GYM_PHOTOS=!!PROG.nils;
@@ -3384,7 +3442,7 @@ const LIBB=[
   reco:"Une machine où tu es debout, le dos contre un dossier incliné, les épaules sous deux coussins.",
   how:["Dos et épaules bien calés, pieds au milieu de la plaque.","Descends lentement, genoux dans l'axe des pieds.","Remonte en poussant dans tout le pied, sans bloquer les genoux."],
   pourquoi:"Un squat guidé : les cuisses travaillent fort sans avoir à tenir l'équilibre."},
- {uid:"dbLunge",pat:"quad",on:["salle","halteres"],comp:1,avoid:["genoux"],nom:"Fentes avec haltères",muscle:"Cuisses et fessiers",g:["Quadriceps","Fessiers"],unit:"haltere",inc:2,kg0:8,pic:"lunge",
+ {uid:"dbLunge",uni:1,pat:"quad",on:["salle","halteres"],comp:1,avoid:["genoux"],nom:"Fentes avec haltères",muscle:"Cuisses et fessiers",g:["Quadriceps","Fessiers"],unit:"haltere",inc:2,kg0:8,pic:"lunge",
   reco:"Un haltère dans chaque main, debout.",
   how:["Fais un grand pas en arrière.","Descends jusqu'à ce que le genou arrière frôle le sol, buste droit.","Remonte en poussant sur le pied avant, puis change de jambe."],
   pourquoi:"Travaille chaque jambe séparément : cuisses, fessiers et équilibre."},
@@ -3487,7 +3545,7 @@ function buildExo(e0,p,key,j){
 function bOrder(exos){const zones=[];exos.forEach(e=>{const z=BZONE[bPat(e)]||"autre";if(z!=="abdos"&&!zones.includes(z))zones.push(z);});zones.push("autre","abdos");
   const ISO=["calf","abd","add","latr","tri","rear","bic"],rank=e=>{const pt=bPat(e);return zones.indexOf(BZONE[pt]||"autre")*100+(e.comp?0:ISO.includes(pt)?20:10)+(e.opt?50:0);};
   const o=exos.slice();return o.sort((x,y)=>rank(x)-rank(y)||o.indexOf(x)-o.indexOf(y));}
-const bEst=(exos,p)=>Math.round(exos.filter(e=>!e.opt).reduce((a,e)=>a+e.series*(40+e.rest)+(e.warm?150:0),0)/60)+(p.place==="salle"?8:5);
+const bEst=(exos,p)=>Math.round(exos.filter(e=>!e.opt).reduce((a,e)=>a+exoSec(e,p.place),0)/60)+(p.place==="salle"?8:5);
 const bSig=exos=>JSON.stringify(exos.map(e=>[e.uid,e.series,e.min,e.max,e.rest,!!e.opt]));
 const bRestTxt=s=>s%60?`${Math.floor(s/60)?Math.floor(s/60)+" min ":""}${s%60}${Math.floor(s/60)?"":" s"}`:`${s/60} min`;
 
@@ -3577,7 +3635,7 @@ function bRender(dir){
       <p class="onb-sub">${ex.length} exercice${ex.length>1?"s":""} · environ ${Math.max(15,Math.round(est/5)*5)} min${gs.length?" · "+gs.slice(0,4).join(", "):""}</p>${(BD.p.level||0)===0&&!s.bonus&&(est>60||ex.length>7)?`<p class="onb-warn" style="margin:-8px 0 12px">C'est long pour débuter : 5 ou 6 exercices suffisent les premiers mois.</p>`:est>90?`<p class="onb-warn" style="margin:-8px 0 12px">Séance très longue (plus de 90 min) : la qualité baisse en fin de séance. Pense à la répartir sur deux jours.</p>`:""}${ex.length&&BD.open<0?`<p class="onb-note" style="margin:-12px 0 12px">Touche un exercice pour régler séries, répétitions et repos. Flèches pour changer l'ordre.</p>`:""}`;
     const RP=e=>e.unit==="sec"?[[20,30],[30,45],[45,60]]:BWU(e)?[[5,10],[8,12],[10,15],[12,20],[15,25]]:[[5,8],[6,10],[8,12],[10,15],[12,20]];
     body=`<div class="bd-list">${ex.map((e,j)=>`<div class="bd-ex ${BD.open===j?"open":""}">
-        <div class="bd-exh"><button class="bd-ext" data-x="${j}"><span class="bd-th">${picHTML(e)}</span><span class="w"><b>${esc(e.nom)}</b><small>${e.series} × ${repsTxt(e)}${e.unit==="sec"?" s":""} · repos ${bRestTxt(e.rest)}${e.opt?" · facultatif":""}</small></span></button>
+        <div class="bd-exh"><button class="bd-ext" data-x="${j}"><span class="bd-th">${picHTML(e)}</span><span class="w"><b>${esc(e.nom)}</b><small>${e.series} × ${repsTxt(e)}${e.unit==="sec"?" s":""}${isUni(e)?" par côté":""} · repos ${bRestTxt(e.rest)}${e.opt?" · facultatif":""}</small></span></button>
           <span class="bd-ord"><button data-up="${j}" ${j?"":"disabled"} aria-label="Monter">↑</button><button data-dn="${j}" ${j<ex.length-1?"":"disabled"} aria-label="Descendre">↓</button></span></div>
         ${BD.open===j?`<div class="bd-set"><small>Séries</small><div class="bd-ch">${[1,2,3,4,5,6].map(n=>`<button class="${e.series===n?"on":""}" data-ser="${n}">${n}</button>`).join("")}</div>
           <small>Répétitions${e.unit==="sec"?" (secondes)":""}</small><div class="bd-ch">${RP(e).map(([a,b])=>`<button class="${e.min===a&&e.max===b?"on":""}" data-rep="${a}-${b}">${a}-${b}</button>`).join("")}</div>
@@ -3974,6 +4032,38 @@ $("tbox").onclick=()=>{const e=tEx,cur=e?restFor(e):tTot;
       const done=tTot-Math.max(0,Math.ceil((tEnd-Date.now())/1000));tTot=s;tEnd=Date.now()+Math.max(1,s-done)*1000;$("timer").classList.remove("end");$("timer").dataset.rang="";clearInterval(ti);ti=setInterval(tick,250);tick();closeSheet();if(tab==="today")render(true);});
     const rr=$("rreset");if(rr)rr.onclick=()=>{delete store.rest[e.uid];persist();closeSheet();if(tab==="today")render(true);};});};
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){if(!$("timer").classList.contains("hidden")){lockWake();tick();}}});
+
+/* ===================== EXERCICES EN SECONDES : COMPTE À REBOURS =====================
+   ▶ dans la ligne de série : 3 s pour se placer, puis la durée visée (un côté puis l'autre si besoin).
+   À la fin : bip et vibration, les secondes tenues s'inscrivent dans la case (modifiable). « Arrêter » garde le temps tenu. */
+let HOLD=null;
+function holdStart(e,inp){
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();}catch(err){}
+  if(HOLD)holdEnd(false);stopRest();lockWake();
+  const T=Math.max(5,Math.min(600,Math.round(num(inp.value)||e.min||20))),sides=isUni(e)?2:1;
+  const el=document.createElement("div");el.className="hold";el.id="hold";el.setAttribute("role","dialog");el.setAttribute("aria-label","Compte à rebours");
+  el.innerHTML=`<div class="hold-box"><small id="hlab">Mets-toi en place</small><div class="hold-ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="bg"/><circle cx="60" cy="60" r="52" class="fg" id="hfg"/></svg><b id="hnum" class="num">3</b></div>
+    <p id="hsub">${esc(e.nom)}</p><button class="btn line wide" id="hstop">Arrêter</button></div>`;
+  document.body.appendChild(el);
+  HOLD={e,inp,T,sides,side:1,phase:"lead",t0:Date.now(),got:[]};
+  $("hstop").onclick=()=>holdEnd(true);HOLD.iv=setInterval(holdTick,100);holdTick();}
+function holdTick(){const h=HOLD;if(!h)return;const el=(Date.now()-h.t0)/1000,fg=$("hfg");
+  const lead=h.phase==="lead"?3:h.phase==="switch"?5:0,L=h.phase==="hold"?h.T:lead,left=Math.max(0,Math.ceil(L-el));
+  $("hnum").textContent=left;fg.style.strokeDashoffset=326.7*(1-Math.min(1,el/L));
+  $("hlab").textContent=h.phase==="lead"?"Mets-toi en place":h.phase==="switch"?"Change de côté":h.sides>1?`Tiens ! Côté ${h.side}`:"Tiens !";
+  $("hold").classList.toggle("go",h.phase==="hold");
+  if(el<L)return;
+  if(h.phase!=="hold"){h.phase="hold";h.t0=Date.now();try{navigator.vibrate&&navigator.vibrate(80);}catch(e){}return;}
+  h.got.push(h.T);beep();try{navigator.vibrate&&navigator.vibrate([400,150,400]);}catch(e){}
+  if(h.side<h.sides){h.side++;h.phase="switch";h.t0=Date.now();return;}
+  holdEnd(true);}
+function holdEnd(save){const h=HOLD;if(!h)return;clearInterval(h.iv);HOLD=null;
+  if(save&&h.phase==="hold"&&h.got.length<h.side)h.got.push(Math.floor((Date.now()-h.t0)/1000));
+  const v=h.got.length?Math.min(...h.got):null,el=$("hold");
+  if(save&&v!=null){h.inp.value=v;h.inp.classList.remove("sug");
+    if(el){el.classList.add("done");$("hlab").textContent=v>=h.T?"Bravo !":"Temps noté";$("hnum").textContent=v;$("hsub").textContent=`${v} s ${h.sides>1?"par côté ":""}notées : touche ✓ pour valider la série`;$("hstop").textContent="OK";$("hstop").onclick=()=>el.remove();
+      setTimeout(()=>{if(el.isConnected)el.remove();},2500);return;}}
+  if(el)el.remove();}
 
 /* ===================== THÈME ===================== */
 const TH=["auto","light","dark"],THI={auto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>',
