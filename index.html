@@ -2971,7 +2971,7 @@ function vProg(){
   <h3>Sauvegarde</h3>
   <div class="panel">
     <p class="small" style="color:var(--ink-2)">Exporte un fichier avec tes charges, ton poids et tes réglages. Tu peux le réimporter sur un autre appareil (par exemple de Claude vers l'app installée sur ton iPhone). Les photos restent sur le téléphone.</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn line" id="exp">Exporter</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="btn line" id="exp">Exporter</button><button class="btn line" id="expcsv">Tableur (CSV)</button>
       <label class="btn line" style="display:inline-flex;align-items:center">Importer<input type="file" accept="application/json,.json" id="imp" style="display:none"></label></div>
   </div>
   <button class="btn line wide" id="resetall" style="margin-top:4px;color:var(--hot)">Réinitialiser mon compte et repartir de zéro</button>`;
@@ -2986,6 +2986,13 @@ function vProg(){
     store.bw=store.bw.filter(b=>b.d!==t);store.bw.push({d:t,kg:v});store.bw.sort((a,b)=>a.d<b.d?-1:1);persist();render(true);toast("Poids enregistré");};
   $("msave").onclick=()=>{const m={d:t};let any=false;["bras","epaules","poitrine","taille"].forEach(k=>{const v=num($("m-"+k).value);if(v&&v>10&&v<250){m[k]=v;any=true;}});
     if(!any)return toast("Entre au moins une mesure");store.meas=store.meas.filter(x=>x.d!==t);store.meas.push(m);persist();render(true);toast("Mensurations enregistrées");};
+  $("expcsv").onclick=async()=>{const rows=[];
+    Object.entries(store.log).forEach(([u,a])=>{const nm=(anyExo(u)||{nom:u}).nom;a.forEach(x=>W(x).forEach((s,i)=>rows.push([x.d,nm,i+1,String(s.kg).replace(".",","),s.reps,x.feel?FEEL[x.feel]:""])));});
+    rows.sort((x,y)=>x[0]<y[0]?-1:x[0]>y[0]?1:0);rows.unshift(["date","exercice","serie","kg","repetitions","ressenti"]);
+    const data="\ufeff"+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(";")).join("\n"),filename=`stoa-seances-${t}.csv`;
+    let dl=null;try{if(typeof claude!=="undefined"&&claude.use)dl=await claude.use("downloads");}catch(e){}
+    if(dl){try{await dl.save({filename,data});}catch(e){}return;}
+    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:"text/csv"}));a.download=filename;document.body.appendChild(a);a.click();a.remove();};
   $("exp").onclick=async()=>{const data=JSON.stringify(store,null,1),filename=`muscu-sauvegarde-${t}.json`;
     let dl=null;try{if(typeof claude!=="undefined"&&claude.use)dl=await claude.use("downloads");}catch(e){}
     if(dl){try{await dl.save({filename,data});}catch(e){}return;}
@@ -3025,11 +3032,13 @@ function resetSheet(){
       if(db&&uid){try{await db.collection("data/users/"+uid).doc("training").delete();}catch(e){}}
       location.hash="";location.reload();};});
 }
+/* force maximale estimée (formule d'Epley), sur les séries de 12 répétitions au plus */
+function rm1(h){const v=Math.max(0,...h.map(x=>Math.max(0,...W(x).filter(s=>s.reps<=12).map(s=>s.kg*(1+s.reps/30)))));return Math.round(v*2)/2;}
 function histSheet(u){
   const e=anyExo(u)||{nom:u,unit:"pile"},h=H(u).filter(x=>W(x).length);
   openSheet(`<div class="shd"><h3>${esc(e.nom)}</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
     ${sparkline(h.map(x=>({v:best(x)})))}
-    <p class="small muted" style="margin:8px 0">Record : <b style="color:var(--ink)">${fmt(Math.max(...h.map(best)))} kg</b>${store.notes[u]?` · Réglages : ${esc(store.notes[u])}`:""}</p>
+    <p class="small muted" style="margin:8px 0">${BWU(e)?`Record : <b style="color:var(--ink)">${Math.max(...h.map(x=>Math.max(...W(x).map(s=>s.reps))))} ${e.unit==="sec"?"s":"répétitions"}</b>`:`Record : <b style="color:var(--ink)">${fmt(Math.max(...h.map(best)))} kg</b> · Force max estimée (1 répétition) : <b style="color:var(--ink)">≈ ${fmt(rm1(h))} kg</b>`}${store.notes[u]?` · Réglages : ${esc(store.notes[u])}`:""}</p>
     <div class="list">${h.slice().reverse().map(x=>`<div class="li" style="min-height:48px;padding:8px 0"><span class="day">${fr(x.d)}</span><span class="w"><b class="num" style="white-space:normal">${W(x).map(s=>`${fmt(s.kg)}×${s.reps}`).join(" · ")}</b>${x.feel?`<small>${{facile:"Facile",dur:"Dur",echec:"À l'échec"}[x.feel]}</small>`:""}</span></div>`).join("")}</div>`,
     ()=>{$("sx").onclick=closeSheet;});
 }
