@@ -1829,6 +1829,13 @@ const EASIER={};Object.entries(HARDER).forEach(([a,b])=>{if(!EASIER[b])EASIER[b]
 /* ===================== LE GÉNÉRATEUR DE PROGRAMME =====================
    À partir des réponses au questionnaire, il choisit le découpage, les exercices,
    les séries, les répétitions et les repos. Mêmes règles qu'un coach.                */
+/* charges à la barre : jamais déduites de la presse. Charge déclarée, sinon estimation prudente
+   d'après le poids de corps (environ 70 % d'une charge pour 8-10 répétitions) et montée par paliers */
+const LOADBAR=[["barSquat","Squat à la barre"],["barBench","Développé couché à la barre"],["deadlift","Soulevé de terre"],["ohp","Développé militaire debout"]];
+const BARREF={barSquat:[0.5,0.75,1.0,1.25],barBench:[0.4,0.6,0.8,1.0],deadlift:[0.6,0.9,1.2,1.5],ohp:[0.25,0.4,0.5,0.6],barRow:[0.35,0.5,0.7,0.85]};
+function barStart(e,p){const d=(p.loads||{})[e.uid]||(e.uid==="barBench"?(p.loads||{}).benchPlate:null);if(d)return {kg:Math.max(20,roundTo(d,2.5)),ramp:false};
+  const lv=Math.min(3,p.level||0),w=Math.min(130,Math.max(40,+p.weight||70)),f=p.sex==="F"?(["barBench","ohp"].includes(e.uid)?0.55:0.7):1,r=(BARREF[e.uid]||[0.3,0.45,0.6,0.75])[lv];
+  return {kg:Math.max(20,roundTo(w*r*f*0.7,2.5)),ramp:true};}
 const LOADREF=[["legPress","Presse à cuisses","Pour les exercices de jambes"],["benchPlate","Développé couché (machine ou barre)","Pour les exercices de poussée"],["latPulldown","Tirage vertical (poulie haute)","Pour les exercices de dos"]];
 /* charges de départ estimées pour environ 10 répétitions, d'après le poids de corps, le sexe, le niveau et l'âge
    (repères de coachs pour des débutants à confirmés, sur machine guidée) */
@@ -1981,6 +1988,7 @@ function generate(p){
       if(teen&&!bw)series=Math.min(series,3);
       let kg0=bw?0:Math.max(e.unit==="haltere"?2:(e.inc||1),roundTo((e.kg0||10)*factorOf(e0),e.inc||1));
       if(e.unit==="haltere"&&p.place!=="salle"&&p.dbMax)kg0=Math.min(kg0,p.dbMax);
+      if(e.unit==="barre"){const bs=barStart(e,p);kg0=bs.kg;e.ramp=bs.ramp;}
       const alts=candidates(e0.pat,p).filter(x=>x.uid!==e.uid).slice(0,3).map(x=>({nom:x.nom}));
       return Object.assign(e,{id:keys[si].toLowerCase()+(j+1),series,min,max,rest,kg0,
         depart:bw?(e.unit==="sec"?`${e.min} secondes`:e.unit==="elastique"?"l'élastique le plus souple":"poids du corps"):`${fmt(kg0)} kg (à ajuster)`,
@@ -2398,6 +2406,7 @@ function plan(e){
   const n=seriesFor(e),past=pastEntries(e.uid).filter(x=>!x.dl),last=past[past.length-1],prev=past[past.length-2],dl=cycleInfo().deload;
   const out={kg:e.kg0,reps:Array(n).fill(e.min),msg:null,cls:""};
   if(!last&&BWU(e)){out.msg=`Première fois : vise <b>${e.min} à ${e.max} ${e.unit==="sec"?"secondes":"répétitions"}</b> propres par série.${e.easier?` Trop dur ? Prends la version facile : ${e.easier}.`:""}`;out.cls="info";return out;}
+  if(!last&&e.unit==="barre"&&e.ramp){out.msg=`Première fois : commence à <b>${fmt(e.kg0)} kg</b> (barre comprise), puis <b>monte par paliers de 10 à 20 kg</b> jusqu'à une série où il te reste 2 ou 3 répétitions en réserve. Note cette charge-là.`;out.cls="info";return out;}
   if(!last){out.msg=`Première fois : commence à <b>${fmt(e.kg0)} kg${sideTxt(e,e.kg0)}</b> et cherche une charge où tu fais au moins ${e.min} répétitions propres. Trop facile ? Monte à la série suivante.`;out.cls="info";return out;}
   const S=W(last),wk=workKg(S.slice(0,n)),need=Math.min(n,last.n||n),SS=S.slice(0,need),feel=last.feel||"dur";
   const tot=x=>W(x).slice(0,n).reduce((a,s)=>a+s.reps,0),under=x=>W(x).slice(0,n).some(s=>s.reps<e.min);
@@ -2409,6 +2418,12 @@ function plan(e){
   const top=SS.length>=need&&SS.every(s=>s.reps>=MX&&s.kg>=wk);
   out.kg=wk;
   const lastAny=pastEntries(e.uid).slice(-1)[0]||last;
+  /* même exercice fait avec une autre fourchette (jour lourd / jour léger) : charge recalculée
+     depuis la force estimée (RM) et non reprise telle quelle */
+  if(!BWU(e)&&last.r&&(last.r[0]!==e.min||last.r[1]!==e.max)&&S.length){
+    const rm=Math.max(...S.map(s=>s.kg*(1+s.reps/30)));
+    out.kg=Math.max(e.unit==="barre"?20:e.inc,roundTo(rm/(1+(e.min+2)/30),e.inc));out.reps=Array(n).fill(e.min);
+    out.msg=`Aujourd'hui la fourchette est <b>${e.min}-${e.max} répétitions</b> : charge recalculée d'après ta dernière séance (${last.r[0]}-${last.r[1]}) → <b>${fmt(out.kg)} kg</b>.`;out.cls="info";return out;}
   if(!BWU(e)&&daysBetween(lastAny.d,today())>=14){out.kg=roundTo(Math.max(e.inc,wk*0.9),e.inc);out.reps=Array(n).fill(e.min);
     out.msg=`Retour après ${Math.round(daysBetween(lastAny.d,today())/7)} semaines : <b>${fmt(out.kg)} kg</b>, environ 10 % plus léger, pour reprendre en douceur. Tes charges reviendront vite.`;out.cls="info";return out;}
   if(dl){out.reps=Array.from({length:n},(_,j)=>Math.max(e.min,((S[j]||S[S.length-1]).reps)-3));
@@ -2607,7 +2622,7 @@ function wire(k,e){
       if(kg===null||kg<0||kg>600){ik.focus();return toast("Indique une charge valide (ex. 27,5)");}
       if(rp===null||rp<(BWU(e)?0:1)||rp>(e.unit==="sec"?600:100)||rp!==Math.round(rp)){ir.focus();return toast(e.unit==="sec"?"Indique le nombre de secondes":"Indique le nombre de répétitions");}
       const past=pastEntries(e.uid),pb=past.length?Math.max(...past.map(best)):null;
-      arr[j]={kg,reps:rp,t:Date.now()};if(!warm){te.n=seriesFor(e);if(cycleInfo().deload)te.dl=true;}cleanEntry(e.uid,te);persist();lockWake();
+      arr[j]={kg,reps:rp,t:Date.now()};if(!warm){te.n=seriesFor(e);te.r=[e.min,e.max];if(cycleInfo().deload)te.dl=true;}cleanEntry(e.uid,te);persist();lockWake();
       const n=seriesFor(e),doneAll=W(te).length>=n;
       refreshCard(k,e);
       if(!warm&&pb!=null&&kg>pb)toast(`🏆 Nouveau record : ${fmt(kg)} kg`);
@@ -3248,6 +3263,7 @@ function buildExo(e0,p,key,j){
   const q=L[fam]/LIBX[fam].kg0,k=(e0.comp?q:e0.pat==="core"?Math.pow(q,0.4):Math.pow(q,0.65))*(e.unit==="haltere"?0.7:1);
   let kg0=bw?0:Math.max(e.unit==="haltere"?2:(e.inc||1),roundTo((e.kg0||10)*k,e.inc||1));
   if(e.unit==="haltere"&&p.place!=="salle"&&p.dbMax)kg0=Math.min(kg0,p.dbMax);
+  if(e.unit==="barre"){const bs=barStart(e,p);kg0=bs.kg;e.ramp=bs.ramp;}
   const alts=LIB.filter(x=>x.pat===e0.pat&&x.uid!==e.uid&&x.on.some(t=>envTokens(p).includes(t))).slice(0,3).map(x=>({nom:x.nom}));
   return Object.assign(e,{id:key.toLowerCase()+(j+1),series,min,max,rest,kg0,_b:1,
     depart:bw?(e.unit==="sec"?`${e.min} secondes`:e.unit==="elastique"?"l'élastique le plus souple":"poids du corps"):`${fmt(kg0)} kg (à ajuster)`,
@@ -3523,7 +3539,7 @@ const OSTEPS=[
   {id:"goal",t:"Ton objectif principal ?",s:"Choisis le plus important pour toi maintenant.",pick:[["gras","🔥","Perdre du gras","Affiner la silhouette"],["muscle","💪","Prendre du muscle","Plus de volume, plus dessiné"],["forme","⚡","Me remettre en forme","Bouger, avoir de l'énergie"],["force","🏆","Devenir plus fort","Soulever plus lourd"]]},
   {id:"body",t:"Parle-moi de toi",s:"Pour adapter les charges de départ et tes besoins en calories. Ça reste sur ton téléphone."},
   {id:"level",t:"Ton niveau en musculation ?",s:"Sois honnête : l'app s'adapte.",pick:[[0,"🌱","Je n'en ai jamais fait","Ou presque jamais"],[1,"🌿","Moins d'un an","Je connais un peu les exercices"],[2,"🌳","1 à 3 ans","Je m'entraîne régulièrement"],[3,"🏔️","Plus de 3 ans","Je connais bien mes charges"]]},
-  {id:"loads",when:a=>a.how!=="manual"&&(a.place==="salle"||(a.place==="maison"&&(a.equip||[]).includes("halteres"))),t:"Tes charges",s:""},
+  {id:"loads",when:a=>(a.place==="salle"||(a.place==="maison"&&(a.equip||[]).includes("halteres"))),t:"Tes charges",s:""},
   {id:"days",when:a=>a.how!=="manual",t:"Combien de séances par semaine ?",s:"Mieux vaut 2 séances tenues que 5 abandonnées."},
   {id:"zones",when:a=>a.how!=="manual",t:"Tes points forts, tes points faibles",s:"Glisse à droite ce que tu veux travailler en priorité, à gauche ce qui est déjà ton point fort."},
   {id:"pain",t:"Tu as mal quelque part ?",s:"On évitera les exercices qui pourraient gêner.",multi:[["genoux","Aux genoux"],["dos","Au bas du dos"],["epaules","Aux épaules"]],none:"Non, tout va bien"},
@@ -3578,6 +3594,8 @@ function obRender(dir){
     }else{
       body=`<p class="onb-sub">${beg?"Pas besoin de les connaître : voici des charges de départ <b>calculées pour toi</b> (ton poids, ton âge, ton niveau). L'app les ajustera dès ta première séance.":"Ce que tu mets pour environ 10 répétitions. Si tu ne sais pas, garde les charges <b>calculées pour toi</b>."}</p>
         <div class="onb-fields one">${LOADREF.map(([k,n,ex])=>`<label>${n}<small>${ex} · proposé pour toi : <b style="color:#F5F5F7">${E[k]} kg</b></small><span><input data-load="${k}" type="text" inputmode="decimal" value="${L[k]?fmt(L[k]):""}" placeholder="${E[k]}"><i>kg</i></span></label>`).join("")}</div>
+        ${(a.level||0)>=2?`<h4 class="onb-h4">À la barre (facultatif)</h4><p class="onb-note" style="margin-top:0">Ta charge actuelle pour environ 8 répétitions, barre comprise. Laisse vide si tu ne fais pas l'exercice : Stoa partira prudemment.</p>
+        <div class="onb-fields one">${LOADBAR.map(([k,n])=>`<label>${n}<span><input data-load="${k}" type="text" inputmode="decimal" value="${L[k]?fmt(L[k]):""}" placeholder="—"><i>kg</i></span></label>`).join("")}</div>`:""}
         <p class="onb-note">Sur une machine, c'est le chiffre affiché (ou le total des disques). Toutes les autres charges du programme sont calculées à partir de ces trois-là.</p>`;}
     foot=`<button class="btn hot wide" data-next>Continuer</button>`;
   }else if(st.id==="body"){

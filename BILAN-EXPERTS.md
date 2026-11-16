@@ -35,8 +35,8 @@ Les rapports complets, avec chaque correction exacte (valeurs, textes à écrire
 - [x] Dips sur chaise : ne plus les donner aux débutants ni aux plus de 60 ans, ni comme « version plus facile » des dips. → maison
 
 ### Charges des confirmés (force)
-- [ ] **Charges de départ squat et soulevé de terre** : ne plus les déduire de la presse (300 kg de presse → 150 kg au squat). Demander la charge actuelle, sinon partir prudemment. → force
-- [ ] **Un historique par façon de faire** : un même exercice fait en lourd (3-5 reps) et en léger (8-12) doit avoir deux historiques, sinon le jour léger repropose la charge lourde. → force
+- [x] **Charges de départ squat et soulevé de terre** : ne plus les déduire de la presse (300 kg de presse → 150 kg au squat). Demander la charge actuelle, sinon partir prudemment. → force
+- [x] **Un historique par façon de faire** : un même exercice fait en lourd (3-5 reps) et en léger (8-12) doit avoir deux historiques, sinon le jour léger repropose la charge lourde. → force
 
 ---
 
