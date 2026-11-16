@@ -72,10 +72,10 @@ Le propriétaire veut pouvoir choisir 2 objectifs, certains combinables, d'autre
 ---
 
 ## 4. AMÉLIORABLE (après le reste)
-- Partie douleur du Guide plus complète (courbature ou blessure, signes d'alerte, respiration), partie seniors avec équilibre. → kine
-- Plafond de protéines à revoir, créatine en option pour les adultes (jamais avant 18 ans), éviter le mot « brûler », pouvoir cacher son poids. → nutri, femmes
-- Règles, variations de poids, idées reçues (« je vais devenir massive », « les abdos font fondre le ventre »). → femmes
-- Alerte si une débutante se construit une séance trop longue (85 min). → femmes
+- Partie douleur du Guide plus complète (courbature ou blessure, signes d'alerte, respiration), partie seniors avec équilibre. → kine **✓ fait (douleur, signes d'alerte, respiration, partie seniors, douleurs de croissance)**
+- Plafond de protéines à revoir, créatine en option pour les adultes (jamais avant 18 ans), éviter le mot « brûler », pouvoir cacher son poids. → nutri, femmes **✓ fait (plafond 200 g, créatine adultes, « brûler » retiré, « Je ne veux pas suivre mon poids »)**
+- Règles, variations de poids, idées reçues (« je vais devenir massive », « les abdos font fondre le ventre »). → femmes **✓ fait**
+- Alerte si une débutante se construit une séance trop longue (85 min). → femmes **✓ fait (+ règles de niveau et d'âge dans le constructeur)**
 - Ordre des exercices, échauffement plus complet (plus de 2 séries pour les charges lourdes), montée de charge après « À l'échec », semaine légère comptée au calendrier, stagnation. → prep, force
 - Ischios pour les débutants sans matériel, équilibre poussée/tirage à la maison, volume trop haut chez les confirmés et trop bas chez les seniors, test du nombre de pompes et de tractions. → maison
 - Confirmés : RPE par série, RM estimé, records complets, incréments réglables, bouton « dupliquer la séance » dans le constructeur (73 gestes pour 4 séances), tirage vertical oublié par le constructeur, séries sous 5 reps, plus d'exercices à la barre (roumain, squat avant…), export CSV, calcul des disques. → force

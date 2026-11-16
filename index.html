@@ -1549,7 +1549,7 @@ const LIB=[
  {uid:"abductor",pat:"abd",on:["salle"],mach:1,easy:1,nom:"Abducteurs (machine, écarter les jambes)",muscle:"Côté des fessiers",g:["Fessiers"],unit:"machine",inc:5,kg0:40,pic:"abductor",
   reco:"En position assise, des coussins à l'extérieur des genoux, et tu écartes les jambes.",
   how:["Assis bien au fond, dos contre le dossier.","Écarte les jambes le plus loin possible.","Tiens 1 seconde, puis reviens lentement.","Tu peux te pencher un peu en avant pour viser davantage les fessiers."],
-  pourquoi:"Le côté des fessiers : il arrondit la silhouette et stabilise le bassin et les genoux."},
+  pourquoi:"Le côté des fessiers : il stabilise le bassin et les genoux, et donne du galbe aux hanches."},
  {uid:"bandWalk",pat:"abd",on:["elastiques"],bw:1,easy:1,min:12,max:20,nom:"Pas chassés avec un mini-élastique",muscle:"Côté des fessiers",g:["Fessiers"],unit:"elastique",inc:0,pic:"squatBW",next:"un élastique plus dur",easier:"un élastique plus souple",
   reco:"Un petit élastique en boucle autour des genoux ou des chevilles.",
   how:["Élastique autour des genoux, jambes un peu fléchies.","Fais un pas sur le côté en gardant l'élastique tendu.","Ramène l'autre pied sans relâcher complètement.","Compte les pas d'un côté, puis reviens."],
@@ -2169,7 +2169,7 @@ function nutrition(p){
   const pw=bmi>27?25*(h/100)**2:w;
   if(teen)return {kcal:null,floor:null,prot:[Math.round(w*1.2/5)*5,Math.round(w*1.6/5)*5],bmi,teen:true,preg};
   const PROT2={gras_muscle:[2.0,2.4],force_gras:[1.8,2.2],forme_gras:[1.6,2.0],force_muscle:[1.6,2.0]},key=[...G].sort().join("_");
-  const pr=PROT2[key]||(p.goal==="forme"?[1.4,1.8]:p.goal==="gras"&&bmi<25?[1.8,2.2]:[1.6,2.0]),hi=Math.min(160,Math.round(pw*pr[1]/5)*5);
+  const pr=PROT2[key]||(p.goal==="forme"?[1.4,1.8]:p.goal==="gras"&&bmi<25?[1.8,2.2]:[1.6,2.0]),hi=Math.min(200,Math.round(pw*pr[1]/5)*5);
   return {kcal,floor,prot:[Math.min(hi-15,Math.round(pw*pr[0]/5)*5),hi],bmi,teen:false,preg,thin:bmi<18.5,recompo:(p.goal==="muscle"||p.goal==="force")&&bmi>=27};
 }
 
@@ -2324,12 +2324,12 @@ function vHome(){
   <div class="h-sec"><h2>Exercices clés</h2><a href="#" id="hall">Tout voir</a></div><div class="h-lifts">${lifts}</div>
   <div class="h-sec"><h2>Muscles cette semaine</h2></div>
   <div class="h-card h-rise"><div class="h-mus">${mus}</div><div class="h-legend"><span><i style="background:var(--red)"></i>Séries faites / prévues (${MAIN.join(", ")})</span></div></div>
-  <div class="h-sec"><h2>Poids de corps</h2><a href="#" id="hbw2">Noter</a></div>${bw}</div>`;
+  ${noWeight()?"":`<div class="h-sec"><h2>Poids de corps</h2><a href="#" id="hbw2">Noter</a></div>${bw}`}</div>`;
   $("hgo").onclick=()=>go("today",d.nk);
   $("hth").onclick=()=>{$("themeBtn").click();render(true);};
   $("hname").onclick=()=>{const v=prompt("Ton prénom (pour l'accueil) :",store.name||"");if(v===null)return;store.name=v.trim().slice(0,20);persist();render(true);};
   const toBw=ev=>{if(ev)ev.preventDefault();go("prog");setTimeout(()=>{const i=$("bwin");if(i)i.focus();},60);};
-  $("hbw2").onclick=toBw;if($("hbw"))$("hbw").onclick=()=>toBw();
+  if($("hbw2"))$("hbw2").onclick=toBw;if($("hbw"))$("hbw").onclick=()=>toBw();
   $("hall").onclick=ev=>{ev.preventDefault();go("prog");};
   const root=view.querySelector(".home");
   requestAnimationFrame(()=>requestAnimationFrame(()=>{root.classList.add("h-on");root.querySelectorAll(".h-arc").forEach(p=>p.style.strokeDashoffset=0);
@@ -2566,7 +2566,9 @@ function render(keep){
   if(tab==="home")vHome();else if(tab==="today")vSession(sess);else if(tab==="plan")vPlan();else if(tab==="prog")vProg();else vGuide();
   window.scrollTo(0,keep?y:0);
 }
-function chip(){const b=store.bw[store.bw.length-1];$("bwchip").innerHTML=b?`<b class="num">${fmt(b.kg)}</b> kg`:"+ Mon poids";}
+/* « Je ne veux pas suivre mon poids » (masqué par défaut avant 18 ans) */
+const noWeight=()=>store.hideWeight===true||(store.hideWeight==null&&!!PROG.p&&+PROG.p.age<18);
+function chip(){const b=store.bw[store.bw.length-1];$("bwchip").style.display=noWeight()?"none":"";$("bwchip").innerHTML=b?`<b class="num">${fmt(b.kg)}</b> kg`:"+ Mon poids";}
 
 /* ===================== SÉANCE ===================== */
 function sessionStats(k){let done=0,tot=0;
@@ -2577,7 +2579,7 @@ function activeIdx(k){const ex=P[k].exos;const i=ex.findIndex(e=>!isFull(e)&&!e.
 function firstVisit(){
   return `<details class="banner" open><summary style="cursor:pointer;font-weight:700">Ta toute première séance ? Lis ça (1 min)</summary><ul class="clean" style="margin-top:8px">
     ${PROG.place==="salle"?`<li><b>En arrivant :</b> pose tes affaires au vestiaire, prends ta serviette (obligatoire sur les machines) et ta gourde.</li>
-    <li><b>Tu ne trouves pas une machine ?</b> Touche l'image de l'exercice : elle est décrite. Le personnel de l'accueil peut aussi te la montrer, c'est leur métier.</li>
+    <li><b>Tu ne trouves pas une machine ?</b> Touche l'image de l'exercice : elle est décrite. S'il y a un coach ou un membre du personnel en salle, demande-lui : c'est son métier.</li>
     <li><b>Une machine est prise ?</b> Demande « tu en as pour longtemps ? » ou prends l'autre option proposée. Tout le monde le fait.</li>
     <li><b>Règle la machine</b> avant de commencer (siège, dossier) et note tes réglages dans l'app.</li>`:`<li><b>Prépare ton coin :</b> un tapis ou une serviette, une bouteille d'eau, de la place pour bouger les bras.</li>`}
     <li><b>Commence léger.</b> La première séance sert à apprendre les mouvements.${PROG.place==="salle"?" Les autres sont concentrés sur leur séance, et tout le monde a commencé un jour.":""}</li>
@@ -2941,7 +2943,8 @@ function vProg(){
   view.innerHTML=`
   <div class="big-title">Tes progrès</div>
   <h3>Mon poids</h3>
-  <div class="panel">
+  ${noWeight()?`<div class="panel"><p class="small" style="color:var(--ink-2)">Tu as choisi de ne pas suivre ton poids. Suis plutôt tes progrès en séance, tes records et tes photos.</p><button class="btn line wide" id="wshow" style="margin-top:10px">Afficher mon poids</button></div>`:""}
+  <div class="panel" style="${noWeight()?"display:none":""}">
     <div class="row-in"><label>Poids du jour (kg)<input type="text" inputmode="decimal" id="bwin" placeholder="${last?fmt(last.kg):"70"}" autocomplete="off"></label><button class="btn" id="bwsave">Enregistrer</button></div>
     <p class="small" style="margin-top:10px;color:var(--ink-2)">${last?`Dernier : <b class="num">${fmt(last.kg)} kg</b> le ${fr(last.d)}${avg7!=null?` · moyenne 7 jours <b class="num">${fmt(Math.round(avg7*10)/10)} kg</b>`:""}${trend!=null?` · <b class="num">${trend>0?"+":""}${fmt(Math.round(trend*10)/10)} kg</b> en une semaine`:""}`:"Pèse-toi 3 fois par semaine, le matin à jeun, après les toilettes."}</p>
     ${sparkline(store.bw.slice(-40).map(b=>({v:b.kg})))}
@@ -2949,6 +2952,7 @@ function vProg(){
     <p class="note">${PROG.nils?"<b>Les 4 prochaines semaines :</b> stabiliser autour de 70-71 kg. <b>Ensuite :</b> prendre au maximum 0,1 à 0,25 kg par semaine. La créatine peut faire prendre 0,5 à 1 kg d'eau au début : ce n'est pas du gras.":bwNote()}</p>
     ${store.bw.length?`<details style="margin-top:10px"><summary class="small muted" style="cursor:pointer;padding:6px 0">Tous les relevés (${store.bw.length})</summary>
       <div class="list" style="margin-top:6px">${store.bw.slice().reverse().map(b=>`<div class="li" style="min-height:44px;padding:6px 0"><span class="w"><b class="num">${fmt(b.kg)} kg</b></span><span class="muted small">${fr(b.d)}</span><button class="icon-btn" data-delbw="${b.d}" aria-label="Supprimer le relevé du ${fr(b.d)}">✕</button></div>`).join("")}</div></details>`:""}
+    <button class="link-btn" id="whide" style="margin-top:12px;background:none;border:0;color:var(--ink-3);text-decoration:underline;font:inherit;font-size:13.5px;padding:6px 0">Je ne veux pas suivre mon poids</button>
   </div>
   <h3>Photos de suivi</h3>
   <div class="panel" id="suivi"></div>
@@ -2976,6 +2980,8 @@ function vProg(){
   view.querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>histSheet(b.dataset.u));
   view.querySelectorAll("[data-delbw]").forEach(b=>b.onclick=()=>{const d=b.dataset.delbw,old=store.bw.find(x=>x.d===d);
     store.bw=store.bw.filter(x=>x.d!==d);persist();render(true);toast("Relevé supprimé","Rétablir",()=>{store.bw.push(old);store.bw.sort((a,c)=>a.d<c.d?-1:1);persist();render(true);});});
+  if($("wshow"))$("wshow").onclick=()=>{store.hideWeight=false;persist();render(true);};
+  if($("whide"))$("whide").onclick=()=>{store.hideWeight=true;persist();render(true);toast("Poids masqué. Tu peux le réafficher ici.");};
   $("bwsave").onclick=()=>{const v=num($("bwin").value);if(!v||v<30||v>250)return toast("Entre un poids valide (ex. 70,4)");
     store.bw=store.bw.filter(b=>b.d!==t);store.bw.push({d:t,kg:v});store.bw.sort((a,b)=>a.d<b.d?-1:1);persist();render(true);toast("Poids enregistré");};
   $("msave").onclick=()=>{const m={d:t};let any=false;["bras","epaules","poitrine","taille"].forEach(k=>{const v=num($("m-"+k).value);if(v&&v>10&&v<250){m[k]=v;any=true;}});
@@ -3044,6 +3050,23 @@ function guideGen(){
     <li><b>Dors 8 à 10 heures</b> et mange à ta faim : ton corps grandit encore, il a besoin d'énergie pour ça <i>et</i> pour la muscu. Pas de régime strict.</li>
     <li><b>Ta croissance n'est pas en danger</b> avec une muscu bien faite et encadrée. Les vrais risques viennent des charges trop lourdes et de la mauvaise technique.</li>
     <li><b>Douleur aux articulations</b> (genoux, dos, épaules, poignets) : on arrête l'exercice et on en parle à un adulte ou à un médecin. Montre ton programme à un coach de ta salle si tu peux.</li>
+    <li><b>Douleur sous la rotule, sur la bosse du tibia ou au talon</b>, qui revient à chaque séance : c'est souvent lié à la croissance (Osgood-Schlatter, Sever). Ce n'est pas grave, mais il faut adapter : parles-en à un médecin ou un kiné.</li>
+  </ul></div>`:""}${+p.age>=55?`<h3>Plus de 55 ans : tes règles</h3>
+  <div class="panel"><ul class="clean">
+    <li><b>Échauffement de 8 à 10 minutes</b> avant de commencer.</li>
+    <li><b>Commence avec 2 ou 3 répétitions en réserve</b>, et ne va pas à l'échec le premier mois.</li>
+    <li><b>Monte et descends des machines en te tenant.</b> Pour les fentes et le squat bulgare : une main sur un mur ou un dossier.</li>
+    <li><b>Équilibre :</b> ton programme contient un exercice d'équilibre. Tu peux ajouter la marche talon contre pointe, près d'un mur.</li>
+    <li><b>Se lever vite d'une chaise et se rasseoir lentement</b> : le meilleur exercice pour rester autonome.</li>
+    <li><b>Médicaments contre la tension :</b> relève-toi doucement après les exercices allongés.</li>
+    ${p.sex==="F"?"<li><b>Tes os :</b> la muscu est le meilleur allié de tes os et de tes muscles, avant et après la ménopause.</li>":""}
+  </ul></div>`:""}${p.sex==="F"?`<h3>Idées reçues et cycle</h3>
+  <div class="panel"><ul class="clean">
+    <li><b>« Je vais devenir trop musclée » :</b> non. Prendre du muscle est lent, et tu contrôles tout avec les charges et ce que tu manges.</li>
+    <li><b>« Les abdos font fondre le ventre » :</b> non. Ils renforcent le ventre, mais le gras du ventre part avec l'alimentation et l'ensemble de la séance.</li>
+    <li><b>Règles :</b> tu peux t'entraîner normalement, ça peut même soulager les douleurs. Fatiguée ou douloureuse ? Retire une série par exercice.</li>
+    <li><b>Poids :</b> il peut monter de 1 à 2 kg avant et pendant les règles : c'est de l'eau. Regarde la moyenne sur 2 semaines.</li>
+    ${+p.age>=40&&+p.age<55?"<li><b>Après 40 ans :</b> la muscu est le meilleur allié de tes os et de tes muscles, avant et après la ménopause.</li>":""}
   </ul></div>`:""}
   <h3>Ton plan, adapté à toi</h3>
   <div class="panel"><ul class="clean">
@@ -3064,6 +3087,7 @@ function guideGen(){
     </div>
     ${nutriNotes(p,n)}
     <p class="note"><b>Les protéines en pratique :</b> 150 g de blanc de poulet (pesé cru) ≈ 35 g · 3 œufs ≈ 20 g · un pot de skyr de 150 g ≈ 15 g · 100 g de thon ≈ 25 g · 100 g de lentilles cuites ≈ 9 g · 150 g de tofu ≈ 20 g.</p>
+    ${+p.age>=18&&!(p.health||[]).some(x=>x==="grossesse"||x==="postpartum")?`<p class="note"><b>Facultatif : créatine</b> monohydrate, 3 à 5 g par jour, tous les jours, sans phase de charge. Bois normalement. Si tu as un problème aux reins, demande d'abord à ton médecin.</p>`:""}
   </div>`;
 }
 /* santé : message à montrer (questionnaire, accueil, guide) */
@@ -3128,6 +3152,8 @@ function vGuide(){
   <div class="panel"><ol class="clean">
     <li><b>Échauffement :</b> 5 min de vélo, puis les 2 séries É proposées par l'app sur les premiers exercices (la moitié de ta charge × 10, puis les trois quarts × 5).</li>
     <li><b>Respecte l'ordre :</b> du plus lourd au plus léger, tu es le plus frais au début.</li>
+    <li><b>Respire :</b> souffle pendant l'effort (en poussant ou en tirant), inspire en revenant. Ne bloque pas ta respiration longtemps. Si tu as de la tension, un problème au cœur, si tu es enceinte ou si tu as plus de 55 ans, ne la bloque jamais.</li>
+    <li><b>Fatigué(e), mauvaise nuit, règles douloureuses ?</b> Garde ta séance mais retire une série par exercice : ta progression ne bouge pas.</li>
     <li><b>Valide chaque série :</b> le chrono de repos se lance tout seul. À la fin, il sonne, devient vert, puis disparaît : tu lances ta série. Les boutons −15 et +15 changent la durée et elle est retenue pour cet exercice.</li>
     <li><b>Dis comment c'était</b> après la dernière série (Facile, Dur, À l'échec) : l'app s'en sert pour savoir quand monter.</li>
   </ol></div>
@@ -3184,12 +3210,13 @@ function vGuide(){
   </ul></div>
   <h3>Douleur : quand s'arrêter</h3>
   <div class="panel"><ul class="clean">
-    <li><b>Genou, épaule ou dos sensibles :</b> une gêne jusqu'à 3 sur 10 pendant l'exercice est acceptable si elle est revenue à la normale le lendemain. Au-delà, réduis la charge ou l'amplitude.</li>
     <li><b>Brûlure dans le muscle pendant l'effort :</b> normal, c'est le muscle qui travaille.</li>
-    <li><b>Courbatures 1 à 3 jours après :</b> normal, surtout au début. Bouge doucement, ça passe.</li>
-    <li><b>Douleur vive, qui pique, dans une articulation (genou, épaule, dos) :</b> arrête l'exercice tout de suite. Prends l'autre option proposée, ou passe à l'exercice suivant.</li>
-    <li><b>Une douleur qui dure plus de 7 jours</b>, ou qui te réveille la nuit : va voir un médecin ou un kiné.</li>
-    <li><b>Douleur dans la poitrine, malaise, vertiges, essoufflement anormal :</b> arrête tout de suite et appelle le <b>15</b> (ou le <b>112</b>).</li>
+    <li><b>Courbatures :</b> elles arrivent 12 à 48 h après, des deux côtés, dans le muscle, et diminuent en bougeant. Normal, ça passe en 2 à 4 jours.</li>
+    <li><b>Douleur de blessure :</b> souvent d'un seul côté, précise (tu peux la montrer du doigt), dans une articulation ou un tendon, apparue d'un coup pendant la série, ou qui augmente en bougeant. Arrête l'exercice et prends l'autre option.</li>
+    <li><b>Avec une douleur déjà connue</b> (dos, genou, épaule) : une gêne légère (3 sur 10 au plus) qui ne monte pas pendant la séance et revient à ton niveau habituel le lendemain matin, c'est acceptable. Si elle dépasse 5 sur 10 ou si elle est pire le lendemain, baisse la charge ou l'amplitude la fois suivante.</li>
+    <li><b>Consulte un médecin ou un kiné sans attendre</b> si le genou gonfle, se bloque ou « lâche » ; si tu as entendu un craquement avec une douleur forte ; si tu ne peux plus t'appuyer sur la jambe ou lever le bras ; si des fourmillements ou une perte de force descendent dans un bras ou une jambe.</li>
+    <li><b>Consulte aussi</b> si une douleur dure plus de 7 jours ou te réveille la nuit.</li>
+    <li><b>Urgence, appelle le 15 (ou le 112) :</b> douleur dans la poitrine, malaise, vertiges, essoufflement anormal ; mal de dos avec perte de sensibilité entre les jambes, ou difficulté à uriner ou à te retenir ; urines très foncées (couleur coca) avec des muscles très douloureux et gonflés, 1 à 3 jours après une séance très dure.</li>
   </ul><p class="note">Stoa ne remplace pas un avis médical. Si tu as un problème de santé (cœur, tension, grossesse, opération récente…), demande d'abord à ton médecin.</p></div>
   <h3>Les erreurs classiques</h3>
   <div class="panel"><ul class="clean">
@@ -3345,6 +3372,11 @@ function buildExo(e0,p,key,j){
   else{min=comp?10:12;max=15;rest=comp?90:60;}
   if(bw){min=e.min;max=e.max;rest=comp?90:60;}
   else if(+p.age<18){min=Math.max(min,+p.age<16?10:8);max=Math.max(max,15);}
+  /* mêmes règles que le générateur : grands débutants et moins de 18 ans 3 séries au plus (2 en isolation),
+     plus de 55 ans : repos plus longs et 8-12 (sauf force confirmée), barre 6-10 avant 18 ans */
+  if(lvl===0&&!comp)series=2;
+  if(+p.age>=55){rest+=30;if(!bw&&!(goal==="force"&&lvl>=2)){min=Math.max(min,8);max=Math.max(max,12);}}
+  if(+p.age<18&&e.unit==="barre"){min=6;max=10;}
   const L=Object.assign(estLoads(p),p.loads||{}),fam=LOWER.includes(e0.pat)?"legPress":["vpull","hpull","rear","bic"].includes(e0.pat)?"latPulldown":"benchPlate";
   const q=L[fam]/LIBX[fam].kg0,k=(e0.comp?q:e0.pat==="core"?Math.pow(q,0.4):Math.pow(q,0.65))*(e.unit==="haltere"?0.7:1);
   let kg0=bw?(e.unit==="elastique"?1:0):Math.max(e.unit==="haltere"?2:(e.inc||1),roundTo((e.kg0||10)*k,e.inc||1));
@@ -3446,7 +3478,7 @@ function bRender(dir){
     const nxt=S.findIndex(x=>!x.built);
     head=`<div class="bd-tabs">${S.map((x,i)=>`<button class="${i===BD.cur?"on":""}" data-tab="${i}">${x.bonus?"Bonus":x.k}${x.built?"":" ·"}</button>`).join("")}${BD.src==="edit"||S.length<7?`<button data-addses aria-label="Ajouter une séance">＋</button>`:""}</div>
       <input class="bd-name" id="bdname" value="${esc(s.nom)}" maxlength="40" aria-label="Nom de la séance">
-      <p class="onb-sub">${ex.length} exercice${ex.length>1?"s":""} · environ ${Math.max(15,Math.round(est/5)*5)} min${gs.length?" · "+gs.slice(0,4).join(", "):""}</p>${ex.length&&BD.open<0?`<p class="onb-note" style="margin:-12px 0 12px">Touche un exercice pour régler séries, répétitions et repos. Flèches pour changer l'ordre.</p>`:""}`;
+      <p class="onb-sub">${ex.length} exercice${ex.length>1?"s":""} · environ ${Math.max(15,Math.round(est/5)*5)} min${gs.length?" · "+gs.slice(0,4).join(", "):""}</p>${(BD.p.level||0)===0&&!s.bonus&&(est>60||ex.length>7)?`<p class="onb-warn" style="margin:-8px 0 12px">C'est long pour débuter : 5 ou 6 exercices suffisent les premiers mois.</p>`:est>90?`<p class="onb-warn" style="margin:-8px 0 12px">Séance très longue (plus de 90 min) : la qualité baisse en fin de séance. Pense à la répartir sur deux jours.</p>`:""}${ex.length&&BD.open<0?`<p class="onb-note" style="margin:-12px 0 12px">Touche un exercice pour régler séries, répétitions et repos. Flèches pour changer l'ordre.</p>`:""}`;
     const RP=e=>e.unit==="sec"?[[20,30],[30,45],[45,60]]:BWU(e)?[[5,10],[8,12],[10,15],[12,20],[15,25]]:[[5,8],[6,10],[8,12],[10,15],[12,20]];
     body=`<div class="bd-list">${ex.map((e,j)=>`<div class="bd-ex ${BD.open===j?"open":""}">
         <div class="bd-exh"><button class="bd-ext" data-x="${j}"><span class="bd-th">${picHTML(e)}</span><span class="w"><b>${esc(e.nom)}</b><small>${e.series} × ${repsTxt(e)}${e.unit==="sec"?" s":""} · repos ${bRestTxt(e.rest)}${e.opt?" · facultatif":""}</small></span></button>
@@ -3582,7 +3614,7 @@ function BODY(z){
 }
 const ZONES=[["fessiers","Tes fessiers"],["jambes","Tes jambes"],["ventre","Ton ventre"],["dos","Ton dos"],["epaules","Tes épaules"],["bras","Tes bras"],["pecs","Tes pectoraux"]];
 function deckOf(st,a){
-  if(st.id==="zones")return {cards:ZONES.map(([id,t])=>({id,i:BODY(id),t,s:""})),yes:"PRIORITÉ",no:"POINT FORT",bl:["Point fort","Normal","À travailler"]};
+  if(st.id==="zones")return {cards:ZONES.map(([id,t])=>({id,i:BODY(id),t,s:""})),yes:"PRIORITÉ",no:"DÉJÀ BIEN",bl:["Déjà bien","Normal","Priorité"]};
   return {cards:swDeck(a).map(c=>Object.assign({},c,{t:typeof c.t==="function"?c.t(a):c.t,i:`<div class="ic">${c.i}</div>`})),yes:"OUI",no:"NON",bl:["✕","Je sais pas","♥"]};
 }
 /* cartes du questionnaire, adaptatives : la carte suivante dépend des réponses déjà données (lieu, objectif, niveau,
@@ -3628,7 +3660,7 @@ const OSTEPS=[
   {id:"goal2",when:a=>a.how!=="manual",t:"Un objectif en plus ?",s:"Facultatif. Ton objectif principal décide des calories et des répétitions ; le second ajoute un bloc.",pick:[["non","✓","Non, un seul objectif","Le plus simple et le plus efficace"],["gras","🔥","Perdre du gras",""],["muscle","💪","Prendre du muscle",""],["force","🏆","Gagner en force",""],["forme","⚡","Me remettre en forme",""]]},
   {id:"loads",when:a=>(a.place==="salle"||(a.place==="maison"&&(a.equip||[]).includes("halteres"))),t:"Tes charges",s:""},
   {id:"days",when:a=>a.how!=="manual",t:"Combien de séances par semaine ?",s:"Mieux vaut 2 séances tenues que 5 abandonnées."},
-  {id:"zones",when:a=>a.how!=="manual",t:"Tes points forts, tes points faibles",s:"Glisse à droite ce que tu veux travailler en priorité, à gauche ce qui est déjà ton point fort."},
+  {id:"zones",when:a=>a.how!=="manual",t:"Qu'est-ce que tu veux renforcer en priorité ?",s:"Glisse à droite pour « Priorité », à gauche pour « Déjà bien », ou touche « Normal »."},
   {id:"pain",t:"Tu as mal quelque part ?",s:"On évitera les exercices qui pourraient gêner.",multi:[["genoux","Aux genoux"],["dos","Au bas du dos"],["epaules","Aux épaules"]],none:"Non, tout va bien"},
   {id:"health",t:"Ta santé",s:"Pour ta sécurité. Coche ce qui te concerne, ça reste sur ton téléphone.",multi:[["coeur","Un médecin m'a parlé d'un problème au cœur ou de tension"],["malaise","Douleur dans la poitrine, malaise ou perte de connaissance à l'effort"],["grossesse","Je suis enceinte","F"],["postpartum","J'ai accouché il y a moins d'un an","F"],["opere","Opéré(e) ou blessé(e) il y a moins de 6 mois"],["maladie","Diabète traité, ostéoporose ou autre maladie suivie"]],none:"Rien de tout ça"},
   {id:"pref",when:a=>a.how==="manual"&&a.place==="salle",t:"Tu préfères quoi ?",s:"Les cartes d'exercices viendront dans cet ordre.",pick:[["machines","🏋️","Les machines guidées","Simples à régler, le mouvement est guidé"],["halteres","💪","Les haltères","Plus libres, chaque bras travaille seul"],["barres","🏗️","Les barres","Squat, développé couché, rowing à la barre"],["mix","🔀","Un peu de tout","Le meilleur exercice pour chaque muscle"]]},
