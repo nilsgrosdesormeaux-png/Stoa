@@ -88,6 +88,16 @@ Fait :
 - Animations à améliorer (certaines peu lisibles) ; images de machines trop proches (leg curl et leg extension), côté compte « images ».
 - Notifications et vibration en fin de repos sur iPhone : nécessitent une vraie app (App Store) ; en appli web, seulement le son et l'écran.
 
+### Bilan des 6 experts appliqué (16 novembre 2026)
+Détail case par case dans `BILAN-EXPERTS.md` (toutes les cases « Dangereux » et « Faux » cochées).
+- **Sécurité** : jamais de déficit avant 18 ans, sous un IMC de 20, enceinte ou après l'accouchement ; plancher de calories (1,1 × métabolisme de base, 1 500 / 1 800 kcal) ; alertes de poids en % (baisse > 1 %/semaine) ; âge minimum 14 ans ; étape « Ta santé » (cœur, malaise, grossesse, post-partum, opération, maladie) avec messages ; règles moins de 16 / moins de 18 / plus de 55 ans (pas de barre ni de lest avant 16 ans, pas de sauts après 55 ans, exercice d'équilibre) ; grossesse et post-partum (exercices retirés) ; fonction commune `ruleOut()`.
+- **Version plus dure / plus facile** filtrée comme le programme (`okVariant()`), même muscle, proposée après 2 séances réussies ; dips négatifs ; dips sur chaise retirés aux débutants et seniors ; consignes de sécurité (barre, presse, chaise, table, barre de porte, sac lesté).
+- **Charges** : barre jamais déduite de la presse (`barStart()` : charge déclarée ou départ prudent par paliers, au moins 20 kg) ; charges à la barre demandées aux confirmés ; charge recalculée quand la fourchette change ; baisse calculée sur la force estimée ; seule la 1re série déclenche une baisse ; charges différentes par série ; lest et élastiques qui progressent.
+- **Programmes** : toujours un tirage et une poussée, plafonds de volume par niveau et objectif, priorités qui ajoutent des séries, durée tenue (calcul plus réaliste), perte de gras avec charges lourdes, genoux (cuisses gardées en douceur), force (mouvement principal 2 fois par semaine en 3-6), Poussée/Tirage jamais mélangées, 6 jours (PPL ×2) pour les confirmés, dips en salle, superman = lombaires.
+- **2 objectifs** : principal + secondaire (`goalBlock()`), paires interdites expliquées, nutrition du tableau du diététicien.
+- **Améliorable fait** : Guide (douleur complète, respiration, seniors, croissance, idées reçues, règles, ménopause), protéines jusqu'à 200 g, créatine en option, « Je ne veux pas suivre mon poids », constructeur (alerte séance longue, règles de niveau et d'âge), RM estimé, export CSV.
+- **Reste à faire** (améliorable) : RPE par série, incréments réglables, dupliquer une séance, plus d'exercices à la barre, calcul des disques, échauffement plus long pour les charges lourdes, semaine légère au ressenti, test de pompes/tractions, ischios sans matériel.
+
 ### Les écrans (barre d'onglets en bas, style iOS)
 1. **Accueil** (tableau de bord « Hammer Night », noir et rouge) :
    - anneau des séances de la semaine (x/3) et série de semaines complètes d'affilée (flamme façon Snap) ;
