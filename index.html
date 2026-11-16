@@ -2590,6 +2590,8 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const daysBetween=(a,b)=>Math.round((new Date(b+"T12:00")-new Date(a+"T12:00"))/864e5);
 function weekStart(s){const d=new Date(s+"T12:00");d.setDate(d.getDate()-(d.getDay()+6)%7);return iso(d);}
 const roundTo=(x,inc)=>Math.max(0,Math.round(x/inc)*inc);
+/* valeurs tapées mais pas encore validées (gardées si la carte se redessine) */
+const DRAFT={};
 const mmss=s=>s>=60?`${Math.floor(s/60)} min${s%60?" "+pad(s%60):""}`:`${s} s`;
 const clock=s=>`${Math.floor(s/60)}:${pad(s%60)}`;
 const repsTxt=e=>e.min===e.max?`${e.min}`:`${e.min}-${e.max}`;
@@ -2696,7 +2698,16 @@ const pastEntries=u=>H(u).filter(x=>x.d!==today()&&W(x).length);
 
 function workKg(S){const c={};S.forEach(s=>{c[s.kg]=(c[s.kg]||0)+1;});let k=null,m=0;Object.keys(c).forEach(x=>{const v=+x;if(c[x]>m||(c[x]===m&&v>k)){k=v;m=c[x];}});return k??0;}
 const FEEL={facile:"Facile",dur:"Dur",echec:"À l'échec"};
-function plan(e){
+/* charges « rondes » : sur les machines et poulies réglées de 2,5 en 2,5, on propose des multiples de 5 dès 20 kg
+   (plus de 52,5 ou 67,5 à chercher) ; la charge notée la dernière fois est gardée telle quelle. Pas à la barre (disques de 1,25). */
+const round5=e=>e.unit!=="barre"&&!BWU(e)&&(e.inc===2.5||e.inc===1.25);
+function nice(e,kg,dir){if(!round5(e)||!(kg>=20))return kg;return (dir>0?Math.ceil:dir<0?Math.floor:Math.round)(kg/5-1e-9)*5;}
+function plan(e){const o=plan0(e);if(!round5(e))return o;
+  const last=pastEntries(e.uid).filter(x=>!x.dl).slice(-1)[0],lk=last?workKg(W(last).slice(0,seriesFor(e))):null;
+  const fix=k=>k==null||k===lk?k:nice(e,k,lk==null?0:k>lk?1:-1);
+  const k0=o.kg;o.kg=fix(o.kg);if(o.kgs)o.kgs=o.kgs.map(fix);
+  if(o.msg&&k0!=null&&o.kg!==k0){const s0=sideTxt(e,k0),s1=sideTxt(e,o.kg);if(s0)o.msg=o.msg.split(s0).join(s1);o.msg=o.msg.split(fmt(k0)+" kg").join(fmt(o.kg)+" kg");}return o;}
+function plan0(e){
   const n=seriesFor(e),past=pastEntries(e.uid).filter(x=>!x.dl),last=past[past.length-1],prev=past[past.length-2],dl=cycleInfo().deload;
   const out={kg:e.kg0,reps:Array(n).fill(e.min),msg:null,cls:""};
   if(!last&&BWU(e)){out.msg=`Première fois : vise <b>${e.min} à ${e.max} ${e.unit==="sec"?"secondes":"répétitions"}</b> propres par ${isUni(e)?"côté":"série"}.${e.easier?` Trop dur ? Prends la version facile : ${e.easier}.`:""}`;out.cls="info";return out;}
@@ -2767,8 +2778,10 @@ function plan(e){
     :`Même charge, <b>${add===2?"deux répétitions":"une répétition"} de plus</b> par série : ${out.reps.join(" · ")}.${big?` La prochaine marche (+${fmt(e.inc)} kg) est grosse pour cette charge : quand tu y passes, c'est normal de perdre quelques répétitions.`:""}`;
   return out;
 }
+/* disques à mettre de chaque côté d'une barre de 20 kg */
+function platesTxt(kg){let r=Math.max(0,(kg-20)/2);const out=[];for(const d of [25,20,15,10,5,2.5,1.25]){while(r>=d-1e-9){out.push(d);r-=d;}}return out.length?out.map(fmt).join(" + ")+" kg":"barre seule";}
 /* échauffement : 2 séries, ou 4 paliers sur les charges lourdes (barre ou ≥ 60 kg, ou mouvement principal) */
-const warmups=(e,kg)=>{if(!(e.warm&&!BWU(e)&&kg>0&&!cycleInfo().deload))return [];const r=x=>roundTo(x,e.inc);
+const warmups=(e,kg)=>{if(!(e.warm&&!BWU(e)&&kg>0&&!cycleInfo().deload))return [];const r=x=>nice(e,roundTo(x,e.inc),0);
   if(e.main||(e.unit==="barre"&&kg>=50)||kg>=80){const L=[];if(e.unit==="barre")L.push({kg:20,reps:10});
     [[.5,5],[.7,3],[.85,1]].forEach(([f,n])=>{const k=Math.max(e.unit==="barre"?20:e.inc,r(kg*f));if(!L.length||k>L[L.length-1].kg)L.push({kg:k,reps:n});});return L;}
   return [{kg:r(kg*.5),reps:10},{kg:r(kg*.75),reps:5}];};
@@ -2873,7 +2886,8 @@ function card(k,e,i){
     <button class="ok" aria-label="Valider l'échauffement ${j+1}">${I_OK}</button></div>`);});
   const nolest=BWU(e)&&e.unit!=="elastique"&&!["weightedPull","weightedDip"].includes(e.uid)&&!(pl.kg>0)&&!sets.some(z=>z&&z.kg>0)&&!pastEntries(e.uid).some(x=>W(x).some(z=>z.kg>0));
   for(let j=0;j<n;j++){const d=sets[j];
-    const kgV=d?d.kg:(pl.kgs&&pl.kgs[j]!=null?pl.kgs[j]:pl.kg),rpV=d?d.reps:pl.reps[j];
+    const prevDone=sets.slice(0,j).filter(Boolean).slice(-1)[0],dr=DRAFT[e.uid+"|"+j]||{};
+    const kgV=d?d.kg:dr.kg!=null?dr.kg:prevDone?prevDone.kg:(pl.kgs&&pl.kgs[j]!=null?pl.kgs[j]:pl.kg),rpV=d?d.reps:dr.reps!=null?dr.reps:pl.reps[j];
     rows.push(`<div class="set ${d?"done":""} ${e.unit==="sec"?"sec":""}" data-j="${j}"><span class="n">${j+1}</span>
       <input class="${d?"":"sug"}" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" aria-label="Charge série ${j+1}" placeholder="kg" value="${kgV==null?"":fmt(kgV)}">
       <input class="${d?"":"sug"}" type="text" inputmode="numeric" autocomplete="off" enterkeyhint="done" aria-label="${e.unit==="sec"?"Secondes":"Répétitions"} série ${j+1}" placeholder="${e.unit==="sec"?"sec":"reps"}" value="${rpV==null?"":rpV}">
@@ -2894,6 +2908,7 @@ function card(k,e,i){
       ${i===0&&!store.hist.length?`<div class="side">Gris = proposé · touche ✓ quand c'est fait</div>`:""}
       ${rows.join("")}
       ${doneN>=n?`<div class="feel-q">C'était comment ? <span class="muted" style="font-weight:500">(touche encore pour décocher)</span></div><div class="feel">${[["facile","Facile<small>j'aurais pu en faire 3 de plus</small>"],["dur","Dur<small>encore 1 ou 2, pas plus</small>"],["echec","À fond<small>plus une seule</small>"]].map(([v,l])=>`<button data-feel="${v}" class="${te.feel===v?"on":""}">${l}</button>`).join("")}</div>`:""}
+      ${e.unit==="barre"&&pl.kg>20&&doneN<n?`<div class="prev">Disques par côté pour ${fmt(pl.kg)} kg : <b>${platesTxt(pl.kg)}</b> (barre de 20 kg)</div>`:""}
       <div class="prev">${last?`Dernière fois (${fr(last.d)}) : <b class="num">${W(last).map(s=>nolest?`${s.reps}${e.unit==="sec"?" s":""}`:`${fmt(s.kg)}×${s.reps}`).join(" · ")}</b>`:`Départ conseillé : <b>${e.depart}</b>`}</div>
     </div>
     <div class="exo-ft"><button data-info="1">${PROG.place==="salle"?"Machine et consignes":"Comment faire"} ›</button>${!doneN?`<button data-change="1">Changer d'exercice</button>`:""}${doneN>=n?`<button data-close="1">Replier</button>`:""}</div>`;
@@ -2938,8 +2953,9 @@ function wire(k,e){
   box.querySelectorAll(".set").forEach(row=>{
     const [ik,ir]=row.querySelectorAll("input");
     [ik,ir].forEach(inp=>{inp.addEventListener("focus",()=>setTimeout(()=>inp.select(),0));inp.addEventListener("input",()=>inp.classList.remove("sug"));});
-    if(row.dataset.j!=null)ik.addEventListener("input",()=>{let nx=row.nextElementSibling;
-      while(nx&&nx.classList.contains("set")){if(!nx.classList.contains("done")&&nx.dataset.j!=null)nx.querySelector("input").value=ik.value;nx=nx.nextElementSibling;}});
+    if(row.dataset.j!=null)ik.addEventListener("input",()=>{const v=num(ik.value);DRAFT[e.uid+"|"+row.dataset.j]=Object.assign(DRAFT[e.uid+"|"+row.dataset.j]||{},{kg:v});let nx=row.nextElementSibling;
+      while(nx&&nx.classList.contains("set")){if(!nx.classList.contains("done")&&nx.dataset.j!=null){nx.querySelector("input").value=ik.value;nx.querySelector("input").classList.remove("sug");DRAFT[e.uid+"|"+nx.dataset.j]=Object.assign(DRAFT[e.uid+"|"+nx.dataset.j]||{},{kg:v});}nx=nx.nextElementSibling;}});
+    if(row.dataset.j!=null)ir.addEventListener("input",()=>{DRAFT[e.uid+"|"+row.dataset.j]=Object.assign(DRAFT[e.uid+"|"+row.dataset.j]||{},{reps:num(ir.value)});});
     const pb=row.querySelector(".play");if(pb)pb.onclick=()=>holdStart(e,ir);
     row.querySelector(".ok").onclick=()=>{
       const warm=row.dataset.w!=null,j=+(warm?row.dataset.w:row.dataset.j);
@@ -2981,7 +2997,7 @@ function changeSheet(e){
     ()=>{$("sx").onclick=closeSheet;$("sheet").querySelectorAll("[data-to]").forEach(b=>b.onclick=()=>{closeSheet();doSwap(e.uid,b.dataset.to);});});}
 function finish(k){
   const st=sessionStats(k);
-  const doIt=()=>{if(!store.hist.some(h=>h.k===k&&h.d===today()&&hp(h)))store.hist.push({d:today(),k,pid:PID});persist();stopRest();summary(k);render(true);};
+  const doIt=()=>{Object.keys(DRAFT).forEach(x=>delete DRAFT[x]);if(!store.hist.some(h=>h.k===k&&h.d===today()&&hp(h)))store.hist.push({d:today(),k,pid:PID});persist();stopRest();summary(k);render(true);};
   if(st.done<st.tot){openSheet(`<div class="shd"><h3>Terminer la séance ?</h3></div>
     <p>Il reste <b>${st.tot-st.done} séries</b> sur ${st.tot}. Elles ne seront pas comptées.</p>
     <div style="display:grid;gap:8px;margin-top:16px"><button class="btn wide" id="sk">Continuer la séance</button><button class="btn line wide" id="sf">Terminer quand même</button></div>`,
@@ -3281,6 +3297,9 @@ function vProg(){
     ${mlast?`<p class="note">Dernières (${fr(mlast.d)}) : bras ${fmt(mlast.bras)||"—"} · épaules ${fmt(mlast.epaules)||"—"} · poitrine ${fmt(mlast.poitrine)||"—"} · taille ${fmt(mlast.taille)||"—"} cm${mlast.epaules&&mlast.taille?`<br>Rapport épaules / taille : <b>${fmt(Math.round(mlast.epaules/mlast.taille*100)/100)}</b> (c'est lui qui donne la forme en V : il doit monter)`:""}</p>`
       :`<p class="note">Avec un mètre ruban de couture, le matin. Le <b>tour de taille</b> se mesure autour du ventre, à la hauteur du nombril, sans rentrer le ventre. ${PROG.nils?"Pour ton objectif, le plus parlant est le <b>rapport épaules / taille</b> : il doit monter.":PROG.p.goal==="gras"?"Pour ton objectif, le plus parlant est le <b>tour de taille</b> : il doit baisser, même si le poids bouge peu.":"Compare tous les mois : les mensurations montrent ce que la balance ne voit pas."}</p>`}
   </div></details>
+  ${store.hist.length?`<h3>Mes séances</h3>
+  <div class="panel flat list">${journal().slice(0,jLim).map(j=>`<button class="li" data-jd="${j.d}"><span class="day">${fr(j.d)}</span><span class="w"><b>${esc(j.nom)}</b><small class="num">${j.ex} exercice${j.ex>1?"s":""} · ${j.sets} séries${j.vol?` · ${nfr(Math.round(j.vol))} kg soulevés`:j.reps?` · ${j.reps} répétitions`:""}</small></span><span class="chev">›</span></button>`).join("")}</div>
+  ${journal().length>jLim?`<button class="btn line wide" id="jmore" style="margin-top:8px">Voir plus</button>`:""}`:""}
   <h3>Mes charges</h3>
   <div class="panel flat list">${done.length?done.map(([e,h])=>{const l=h[h.length-1],f=h[0],g=best(l)-best(f);
     return `<button class="li" data-u="${e.uid}"><span class="w"><b>${esc(e.nom)}</b><small class="num">${fmt(best(l))} kg${sideTxt(e,best(l))} · ${W(l).map(s=>s.reps).join("-")} reps · ${fr(l.d)}</small></span>
@@ -3297,6 +3316,8 @@ function vProg(){
   suiviRender();
   $("resetall").onclick=resetSheet;
   view.querySelectorAll("[data-u]").forEach(b=>b.onclick=()=>histSheet(b.dataset.u));
+  view.querySelectorAll("[data-jd]").forEach(b=>b.onclick=()=>daySheet(b.dataset.jd));
+  if($("jmore"))$("jmore").onclick=()=>{jLim+=15;render();};
   view.querySelectorAll("[data-delbw]").forEach(b=>b.onclick=()=>{const d=b.dataset.delbw,old=store.bw.find(x=>x.d===d);
     store.bw=store.bw.filter(x=>x.d!==d);persist();render(true);toast("Relevé supprimé","Rétablir",()=>{store.bw.push(old);store.bw.sort((a,c)=>a.d<c.d?-1:1);persist();render(true);});});
   if($("wshow"))$("wshow").onclick=()=>{store.hideWeight=false;persist();render(true);};
@@ -3353,6 +3374,24 @@ function resetSheet(){
 }
 /* force maximale estimée (formule d'Epley), sur les séries de 12 répétitions au plus */
 function rm1(h){const v=Math.max(0,...h.map(x=>Math.max(0,...W(x).filter(s=>s.reps<=12).map(s=>s.kg*(1+s.reps/30)))));return Math.round(v*2)/2;}
+/* journal des séances : une ligne par jour d'entraînement, du plus récent au plus ancien */
+let jLim=8;
+function journal(){const days={};
+  Object.entries(store.log).forEach(([u,a])=>a.forEach(x=>{if(!W(x).length)return;const j=days[x.d]=days[x.d]||{d:x.d,ex:0,sets:0,vol:0,reps:0};const e=anyExo(u)||{};
+    j.ex++;W(x).forEach(z=>{j.sets++;if(BWU(e)&&!(z.kg>0))j.reps+=z.reps;else j.vol+=z.kg*z.reps;});}));
+  return Object.values(days).map(j=>{const h=store.hist.find(x=>x.d===j.d);j.nom=h?(LABEL[h.k]||(h.k==="Bonus"?"Bonus":"Séance "+h.k)):"Séance";return j;}).sort((a,b)=>a.d<b.d?1:-1);}
+/* détail d'une séance passée, avec correction possible des séries */
+function daySheet(d){
+  const rows=Object.entries(store.log).map(([u,a])=>[u,a.find(x=>x.d===d&&W(x).length)]).filter(([,x])=>x);
+  openSheet(`<div class="shd"><h3>Séance du ${fr(d)}</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
+    <p class="small muted">Une erreur de saisie ? Corrige la charge ou les répétitions, puis enregistre.</p>
+    ${rows.map(([u,x])=>{const e=anyExo(u)||{nom:u};return `<h5>${esc(e.nom)}</h5>${W(x).map((z,i)=>`<div class="row-in" style="gap:8px;margin:4px 0"><span class="muted small" style="width:56px">Série ${i+1}</span>
+      <label style="flex:1">kg<input type="text" inputmode="decimal" data-fu="${u}" data-fi="${i}" data-ff="kg" value="${fmt(z.kg)}"></label><label style="flex:1">${e.unit==="sec"?"sec.":"reps"}<input type="text" inputmode="numeric" data-fu="${u}" data-fi="${i}" data-ff="reps" value="${z.reps}"></label></div>`).join("")}`;}).join("")}
+    <button class="btn wide" id="dsave" style="margin-top:16px">Enregistrer les corrections</button>`,
+  ()=>{$("sx").onclick=closeSheet;$("dsave").onclick=()=>{let n=0;$("sheet").querySelectorAll("[data-fu]").forEach(inp=>{const x=store.log[inp.dataset.fu].find(y=>y.d===d&&W(y).length);if(!x)return;
+      const z=W(x)[+inp.dataset.fi],v=num(inp.value);if(!z||v==null||!isFinite(v)||v<0)return;const nv=inp.dataset.ff==="reps"?Math.round(v):v;if(z[inp.dataset.ff]!==nv){z[inp.dataset.ff]=nv;n++;}});
+    persist();closeSheet();render();toast(n?`${n} correction${n>1?"s":""} enregistrée${n>1?"s":""}`:"Rien à corriger");};});
+}
 function histSheet(u){
   const e=anyExo(u)||{nom:u,unit:"pile"},h=H(u).filter(x=>W(x).length);
   openSheet(`<div class="shd"><h3>${esc(e.nom)}</h3><button class="close" id="sx" aria-label="Fermer">✕</button></div>
@@ -4210,7 +4249,7 @@ function beep(){try{actx=actx||new (window.AudioContext||window.webkitAudioConte
 async function lockWake(){try{if("wakeLock" in navigator&&!wake){wake=await navigator.wakeLock.request("screen");wake.addEventListener("release",()=>{wake=null;});}}catch(e){}}
 function startRest(s,label,e){
   try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();if(actx.state==="suspended")actx.resume();}catch(err){}
-  clearInterval(ti);tTot=s;tEnd=Date.now()+s*1000;tEx=e||null;$("tlabel").textContent=label||"Souffle, bois une gorgée d'eau";
+  clearInterval(ti);tTot=s;tEnd=Date.now()+s*1000;tEx=e||null;{const f=new Date(tEnd);$("tlabel").textContent=(label||"Souffle, bois une gorgée d'eau")+` · reprise à ${String(f.getHours()).padStart(2,"0")}:${String(f.getMinutes()).padStart(2,"0")}`;}
   const tm=$("timer");tm.classList.remove("hidden","end");tm.dataset.rang="";tick();ti=setInterval(tick,250);}
 function stopRest(){clearInterval(ti);$("timer").classList.add("hidden");$("timer").classList.remove("end");}
 function tick(){const ms=tEnd-Date.now(),l=Math.ceil(ms/1000),tm=$("timer");
