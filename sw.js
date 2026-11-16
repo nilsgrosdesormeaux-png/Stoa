@@ -1,7 +1,7 @@
 /* Stoa : fonctionne hors connexion à la salle.
    Page : réseau d'abord (pour recevoir les mises à jour), cache en secours.
    Photos, icônes, polices : cache d'abord. */
-const CACHE = "stoa-v30";
+const CACHE = "stoa-v31";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png",
   ...["legPress","legExt","legCurl","hipThrust","abductor","benchPlate","latPulldown","chestIncline","pecDeck","shoulderPress","seatedRow","cableRow","cableTower","smithBench","preacherCurl","machineCurl","dumbbells","bench","pullupBar"].map(k => `./photos/machines/${k}.jpg`)];
 
