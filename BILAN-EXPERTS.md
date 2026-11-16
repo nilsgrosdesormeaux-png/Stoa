@@ -28,11 +28,11 @@ Les rapports complets, avec chaque correction exacte (valeurs, textes à écrire
 - [x] **Grossesse et post-partum** : une case dédiée ; retirer crunchs, planche, hip thrust sur le dos et tout ce qui est contre-indiqué ; renvoi vers la sage-femme. → femmes, kine
 
 ### Bouton « version plus dure » (kine, maison)
-- [ ] Il doit **tenir compte des douleurs, de l'âge, du niveau et du matériel disponible** (ex. actuel : femme de 60 ans, genoux douloureux, sans chaise → squat sur une jambe ; dehors sans barres → dips aux barres). Ne jamais proposer une version qui change de muscle ou demande du matériel absent. → maison, kine
+- [x] Il doit **tenir compte des douleurs, de l'âge, du niveau et du matériel disponible** (ex. actuel : femme de 60 ans, genoux douloureux, sans chaise → squat sur une jambe ; dehors sans barres → dips aux barres). Ne jamais proposer une version qui change de muscle ou demande du matériel absent. → maison, kine
 
 ### Exercices et matériel (kine, maison)
-- [ ] Consignes de sécurité manquantes : développé couché à la barre (butées, pareur, pas de rebond), mollets à la presse (pied qui glisse), chaise, table, barre de porte, sac à dos lesté (« sac devant toi » pour les tractions est risqué). → kine, maison
-- [ ] Dips sur chaise : ne plus les donner aux débutants ni aux plus de 60 ans, ni comme « version plus facile » des dips. → maison
+- [x] Consignes de sécurité manquantes : développé couché à la barre (butées, pareur, pas de rebond), mollets à la presse (pied qui glisse), chaise, table, barre de porte, sac à dos lesté (« sac devant toi » pour les tractions est risqué). → kine, maison
+- [x] Dips sur chaise : ne plus les donner aux débutants ni aux plus de 60 ans, ni comme « version plus facile » des dips. → maison
 
 ### Charges des confirmés (force)
 - [ ] **Charges de départ squat et soulevé de terre** : ne plus les déduire de la presse (300 kg de presse → 150 kg au squat). Demander la charge actuelle, sinon partir prudemment. → force
