@@ -2004,6 +2004,7 @@ function candidates(pat,p){
     if(e.unit==="barre"){s+=(p.goal==="force"&&lvl>=1?4:lvl>=2&&sw.mach!==true?2.5:-1);if(sw.peur===true)s-=3;}
     if(e.uid==="tableRow")s-=1;
     if(e.uid==="perinee")s+=8;
+    if(e.uid==="jumpSquat"&&(p.goal==="muscle"||p.goal==="force"||+p.age<18))s-=5;
     if(p.place!=="salle"&&lvl>=1&&["pullup","chinup"].includes(e.uid))s+=3;
     if(p.place!=="salle"&&e.uid==="doorRow"&&(tk.includes("halteres")||tk.includes("barrebasse")||tk.includes("elastiques")))s-=3;
     /* 40 ans et plus, ou dos fragile : pas de figures risquées par défaut (elles restent en « version plus dure ») */
@@ -2054,6 +2055,8 @@ const SPLITS={
     {t:"Tirage 2 (dos, arrière d'épaules, biceps)",r:["hpull","vpull","vpull2","rear","bic","bic2"]},
     {t:"Jambes 2",r:["hinge","quad2","glute","ham","calf","core"]}]}
 };
+const FAMX={dips:"dip",chairDips:"dip",weightedDip:"dip",negDip:"dip",benchDip:"dip",pullup:"pull",weightedPull:"pull",negPull:"pull",
+  pushup:"push",inclinePush:"push",elevPush:"push",archerPush:"push",closePush:"push",gluteBridge:"bridge",bridgeSL:"bridge",squatBW:"sq",jumpSquat:"sq",wallSit:"sq",pistol:"sq"};
 function pickSplit(p){const d=+p.days||3,sw=p.swipe||{};
   if(d<=2)return "fb2";if(d===3&&sw.split!=null)return sw.split?"ulf":"fb3";if(d===3)return (p.level||0)>=2?"ulf":"fb3";if(d===4)return "ul4";if(d>=6&&(p.level||0)>=2)return "ppl6";return "ppl5";}
 
@@ -2123,8 +2126,13 @@ function generate(p){
       if(base==="bic"&&[...seen].some(u=>(LIBX[u]||{}).pat==="vpull"))c=c.filter(x=>x.uid!=="chinup");if(!c.length)return null;
       let idx=r.endsWith("2")&&!(goal==="force"&&["quad","hpush","hinge","vpull","hpull"].includes(base))?1:0;if(sw.varie===true||(p.place!=="salle"&&!(p.equip||[]).includes("halteres")))idx+=si;
       /* variété : on alterne seulement entre les meilleures options */
-      const top2=sw.varie===true?c.length:Math.min(2,c.length),ord=c.slice(0,top2).map((_,t2)=>c[(idx+t2)%top2]).concat(c.slice(top2));
-      let e=null;for(const x of ord){if(!seen.has(x.uid)){e=x;break;}}
+      const top2=sw.varie===true?c.length:Math.min(p.place!=="salle"?3:2,c.length);let ord=c.slice(0,top2).map((_,t2)=>c[(idx+t2)%top2]).concat(c.slice(top2));
+      /* maison et dehors : on prend d'abord l'option la moins utilisée dans les séances précédentes (A, B, C différentes) */
+      if(p.place!=="salle"){const cnt=u=>SS.reduce((a,s)=>a+s.exos.filter(x=>x.uid===u).length,0),top=ord.slice(0,top2).map((x,i)=>({x,i,n:cnt(x.uid)}));
+        top.sort((a,b)=>a.n-b.n||a.i-b.i);ord=top.map(t=>t.x).concat(ord.slice(top2));}
+      /* pas deux exercices de la même famille dans une séance (ex. dips lestés + dips sur chaise) */
+      const fam=u=>FAMX[u]||u;
+      let e=null;for(const x of ord){if(!seen.has(x.uid)&&![...seen].some(u=>fam(u)===fam(x.uid))){e=x;break;}}
       if(!e)return null;
       /* version plus dure / plus facile ou exercice changé par l'utilisateur */
       for(let n2=0;n2<4&&SWP[e.uid]&&LIBX[SWP[e.uid]]&&!seen.has(SWP[e.uid])&&okVariant(SWP[e.uid],p);n2++)e=LIBX[SWP[e.uid]];
@@ -2285,6 +2293,12 @@ function generate(p){
       const m=s.exos.find(e=>e.main&&e!==y);if(m&&SS.some(o=>o!==s&&o.exos.some(e=>e.main&&e.uid===m.uid))){
         Object.assign(y,{main:true,min:m.min,max:m.max,series:m.series,rest:m.rest});Object.assign(m,{main:false,min:6,max:10,rest:150});
         s.exos.splice(s.exos.indexOf(y),1);s.exos.unshift(y);}}}
+  /* 6d. équilibre : pas plus de poussée que 1,25 × le tirage dans la semaine (on retire des séries, puis un 2e exercice de poussée) */
+  {const PU=["hpush","vpush"],PL=["hpull","vpull"],sets=ps=>SS.reduce((a,s)=>a+s.exos.filter(e=>ps.includes(e.pat)).reduce((b,e)=>b+e.series,0),0);
+    for(let k=0;k<12&&sets(PL)>0&&sets(PU)>sets(PL)*1.25;k++){
+      const x=SS.flatMap(s=>s.exos.filter(e=>PU.includes(e.pat)&&!e.main&&e.series>2).map(e=>({s,e}))).sort((a,b)=>b.e.series-a.e.series)[0];if(x){x.e.series--;continue;}
+      const s2=SS.find(s=>s.exos.filter(e=>PU.includes(e.pat)).length>1&&s.exos.length>3);if(!s2)break;
+      const d=[...s2.exos].reverse().find(e=>PU.includes(e.pat)&&!e.main);if(!d)break;s2.exos.splice(s2.exos.indexOf(d),1);}}
   /* 7. durée : on retire des séries d'isolation si la séance dépasse encore le temps choisi
         (sans jamais retirer le dernier tirage ou la dernière poussée de la semaine) */
   const PULL=["hpull","vpull"],PUSH=["hpush","vpush"],cnt=ps=>SS.reduce((a,s)=>a+s.exos.filter(e=>ps.includes(e.pat)).length,0);
@@ -2380,7 +2394,7 @@ function sessionIntro(p,t){
 /* besoins nutritionnels : estimation de départ (formule de Mifflin-St Jeor) */
 function nutrition(p){
   const w=+p.weight||70,h=+p.height||170,a=+p.age||25,f=p.sex==="F",hl=p.health||[];
-  const bmr=10*w+6.25*h-5*a+(f?-161:5),tdee=bmr*(1.3+0.06*(+p.days||3));
+  const bmr=10*w+6.25*h-5*a+(f?-161:5),tdee=bmr*(({assis:1.25,debout:1.4,physique:1.55})[p.act]||1.3)+bmr*0.06*(+p.days||3);
   const bmi=w/((h/100)**2),teen=a<18,preg=hl.includes("grossesse")||hl.includes("postpartum");
   /* objectif : jamais de déficit avant 18 ans, sous un IMC de 20, enceinte ou après l'accouchement ;
      déficit au plus 500 kcal ; en surpoids, muscle et force se font autour du maintien (recomposition) */
@@ -4146,6 +4160,7 @@ function obRender(dir){
         <label>Âge<span><input id="obage" type="text" inputmode="numeric" value="${a.age||""}" placeholder="25"><i>ans</i></span></label>
         <label>Taille<span><input id="obh" type="text" inputmode="numeric" value="${a.height||""}" placeholder="170"><i>cm</i></span></label>
         <label>Poids<span><input id="obw" type="text" inputmode="decimal" value="${a.weight?fmt(a.weight):""}" placeholder="65"><i>kg</i></span></label></div>
+      <h4 class="onb-h4">Ta journée, en dehors du sport</h4><div class="onb-seg" id="obact">${[["assis","Plutôt assis(e)"],["debout","Debout, à pied"],["physique","Travail physique"]].map(([v,l])=>`<button type="button" class="${(a.act||"assis")===v?"on":""}" onclick="OB.a.act='${v}';this.parentNode.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b===this))">${l}</button>`).join("")}</div>
       <p class="onb-note" id="obbn"></p>`;
     foot=`<button class="btn hot wide" data-next>Continuer</button>`;
   }else if(st.id==="days"){
